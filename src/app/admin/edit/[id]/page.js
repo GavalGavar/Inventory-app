@@ -47,7 +47,8 @@ export default function EditItem() {
     if (error) {
       alert('Error updating item: ' + error.message)
     } else {
-      router.push('/')
+      router.push('/admin')
+      
     }
   }
 
