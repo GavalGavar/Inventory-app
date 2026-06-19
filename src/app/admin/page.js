@@ -16,13 +16,23 @@ export default async function Admin() {
         <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
           MANAGE INVENTORY
         </h1>
-        <Link
-          href="/admin/add"
-          className="px-4 py-2 rounded text-sm font-medium"
-          style={{ background: 'var(--foreground)', color: 'var(--background)' }}
-        >
-          + Add Item
-        </Link>
+        <div className="flex gap-3">
+  <Link
+    href="/admin/orders"
+    className="px-4 py-2 rounded text-sm font-medium"
+    style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+  >
+    View Orders
+  </Link>
+  <Link
+    href="/admin/add"
+    className="px-4 py-2 rounded text-sm font-medium"
+    style={{ background: 'var(--foreground)', color: 'var(--background)' }}
+  >
+    + Add Item
+  </Link>
+</div>
+
       </div>
 
       {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
