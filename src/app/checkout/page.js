@@ -52,8 +52,8 @@ export default function Checkout() {
         </p>
         <div className="mt-4 p-4 border rounded bg-gray-50">
           <p className="font-semibold">Payment details:</p>
-          <p>Bank: Your Bank Name</p>
-          <p>Account: Your Account Number</p>
+          <p>Bank: Khanbank</p>
+          <p>Account: 57000500 5301660856</p>
           <p>Reference: Please include your name</p>
         </div>
       </div>
