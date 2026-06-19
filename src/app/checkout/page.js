@@ -50,7 +50,8 @@ export default function Checkout() {
           Thanks for your order. Please complete payment using the details below,
           and we'll confirm once received.
         </p>
-        <div className="mt-4 p-4 border rounded bg-gray-50">
+        <div className="mt-4 p-4 border rounded bg-gray-50 text-black">
+          
           <p className="font-semibold">Payment details:</p>
           <p>Bank: Khanbank</p>
           <p>Account: 57000500 5301660856</p>
