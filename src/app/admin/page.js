@@ -1,48 +1,73 @@
 import { supabase } from '../../lib/supabaseClient'
 import DeleteButton from '../../components/DeleteButton'
 import Link from 'next/link'
+export const dynamic = 'force-dynamic'
 
 export default async function Admin() {
   const { data: items, error } = await supabase.from('items').select()
 
   return (
-    <div className="p-10">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Manage Inventory</h1>
-        <Link href="/admin/add" className="bg-black text-white px-4 py-2 rounded text-sm">
+    <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
+      <div
+        className="flex justify-between items-baseline pb-4 mb-6"
+        style={{ borderBottom: '2px solid var(--accent)' }}
+      >
+        <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
+          MANAGE INVENTORY
+        </h1>
+        <Link
+          href="/admin/add"
+          className="px-4 py-2 rounded text-sm font-medium"
+          style={{ background: 'var(--foreground)', color: 'var(--background)' }}
+        >
           + Add Item
         </Link>
       </div>
 
-      {error && <p className="text-red-600 mt-4">Error: {error.message}</p>}
+      {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
 
       {items && items.length === 0 && (
-        <p className="mt-4 text-gray-600">No items yet. Time to add some!</p>
+        <p style={{ color: 'var(--muted)' }}>No items yet. Time to add some!</p>
       )}
 
       {items && items.length > 0 && (
-        <ul className="mt-6">
+        <div className="flex flex-col gap-2">
           {items.map((item) => (
-            <li key={item.id} className="border-b py-3 flex justify-between items-center">
+            <div
+              key={item.id}
+              className="flex justify-between items-center rounded p-3"
+              style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
+            >
               <div className="flex items-center gap-4">
                 {item.image_url && (
                   <img
                     src={item.image_url}
                     alt={item.name}
-                    className="w-16 h-16 object-cover rounded"
+                    className="w-14 h-14 object-cover rounded"
                   />
                 )}
-                <span>{item.name} — ${item.price} ({item.quantity} in stock)</span>
+                <div>
+                  <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+                    {item.name}
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--muted)' }}>
+                    ${item.price} · {item.quantity} units
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Link href={`/admin/edit/${item.id}`} className="text-blue-600 text-sm">
+              <div className="flex items-center gap-4">
+                <Link
+                  href={`/admin/edit/${item.id}`}
+                  className="text-xs font-medium"
+                  style={{ color: 'var(--accent)' }}
+                >
                   Edit
                 </Link>
                 <DeleteButton id={item.id} />
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   )

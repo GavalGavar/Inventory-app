@@ -20,51 +20,90 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="p-10">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Welcome to My Shop</h1>
-        <Link href="/checkout" className="bg-black text-white px-4 py-2 rounded text-sm">
+    <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
+      <div
+        className="flex justify-between items-baseline pb-4 mb-6"
+        style={{ borderBottom: '2px solid var(--accent)' }}
+      >
+        <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
+          GAVAL SUPPLY CO.
+        </h1>
+        <Link
+          href="/checkout"
+          className="px-4 py-2 rounded text-sm font-medium"
+          style={{ background: 'var(--foreground)', color: 'var(--background)' }}
+        >
           Cart ({cart.length}) — ${total.toFixed(2)}
         </Link>
       </div>
 
-      {error && <p className="text-red-600 mt-4">Error: {error.message}</p>}
+      {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
 
       {items.length === 0 && (
-        <p className="mt-4 text-gray-600">No items available right now.</p>
+        <p style={{ color: 'var(--muted)' }}>No items available right now.</p>
       )}
 
       {items.length > 0 && (
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
+          
           {items.map((item) => (
-            <div key={item.id} className="border rounded p-4">
-              {item.image_url && (
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="w-full h-40 object-cover rounded"
-                />
-              )}
-             <h2 className="mt-2 font-semibold">{item.name}</h2>
-<p className="text-gray-600">${item.price}</p>
-<p className="text-xs text-gray-500">{item.quantity} in stock</p>
+            <div
+              key={item.id}
+              className="rounded p-3 relative"
+              style={{
+                background: 'var(--card)',
+                border: '0.5px solid var(--border)',
+                opacity: item.quantity > 0 ? 1 : 0.6,
+              }}
+            >
+              <span
+                className="absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded"
+                style={{
+                  background: item.quantity > 0 ? 'var(--stock-bg)' : 'var(--soldout-bg)',
+                  color: item.quantity > 0 ? 'var(--stock-text)' : 'var(--soldout-text)',
+                  transform: item.quantity > 0 ? 'none' : 'rotate(-4deg)',
+                }}
+              >
+                {item.quantity > 0 ? 'IN STOCK' : 'SOLD OUT'}
+              </span>
 
-{item.quantity > 0 ? (
-  <button
-    onClick={() => addToCart(item)}
-    className="mt-2 w-full bg-black text-white py-2 rounded text-sm"
-  >
-    Add to Cart
-  </button>
-) : (
-  <button
-    disabled
-    className="mt-2 w-full bg-gray-300 text-gray-500 py-2 rounded text-sm cursor-not-allowed"
-  >
-    Sold Out
-  </button>
+              {item.image_url && (
+  <img
+    src={item.image_url}
+    alt={item.name}
+    className="w-full aspect-square object-cover rounded mb-2"
+  />
 )}
 
+              <h2 className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+                {item.name}
+              </h2>
+              <p className="text-xs mb-2" style={{ color: 'var(--muted)' }}>
+                {item.quantity} units
+              </p>
+
+              <div className="flex justify-between items-center">
+                <span
+                  className="text-base font-medium"
+                  style={{ color: item.quantity > 0 ? 'var(--accent)' : 'var(--muted)' }}
+                >
+                  ${item.price}
+                </span>
+
+                {item.quantity > 0 ? (
+                  <button
+                    onClick={() => addToCart(item)}
+                    className="text-xs px-3 py-1 rounded"
+                    style={{ border: '0.5px solid var(--border)', color: 'var(--muted)' }}
+                  >
+                    ADD
+                  </button>
+                ) : (
+                  <span className="text-xs px-3 py-1" style={{ color: 'var(--muted)' }}>
+                    —
+                  </span>
+                )}
+              </div>
             </div>
           ))}
         </div>
