@@ -1,5 +1,7 @@
 import { supabase } from '../../../lib/supabaseClient'
 import OrderDeleteButton from '../../../components/OrderDeleteButton'
+import OrderStatusButton from '../../../components/OrderStatusButton'
+
 
 
 export const dynamic = 'force-dynamic'
@@ -44,18 +46,11 @@ export default async function Orders() {
                     {order.customer_contact}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-  <span
-    className="text-xs font-medium px-2 py-1 rounded"
-    style={{
-      background: order.status === 'pending' ? 'var(--soldout-bg)' : 'var(--stock-bg)',
-      color: order.status === 'pending' ? 'var(--soldout-text)' : 'var(--stock-text)',
-    }}
-  >
-    {order.status.toUpperCase()}
-  </span>
+               <div className="flex items-center gap-3">
+  <OrderStatusButton id={order.id} status={order.status} />
   <OrderDeleteButton id={order.id} />
 </div>
+
 
               </div>
 
