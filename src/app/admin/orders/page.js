@@ -5,6 +5,8 @@ import { supabase } from '../../../lib/supabaseClient'
 import OrderDeleteButton from '../../../components/OrderDeleteButton'
 import OrderStatusButton from '../../../components/OrderStatusButton'
 import RequireAuth from '../../../components/RequireAuth'
+import Link from 'next/link'
+
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -13,9 +15,11 @@ export default function Orders() {
   useEffect(() => {
     async function loadOrders() {
       const { data, error } = await supabase
-        .from('orders')
-        .select()
-        .order('created_at', { ascending: false })
+  .from('orders')
+  .select()
+  .eq('archived', false)
+  .order('created_at', { ascending: false })
+
       if (error) setError(error)
       else setOrders(data)
     }
@@ -25,14 +29,22 @@ export default function Orders() {
   return (
     <RequireAuth>
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
-        <div
-          className="pb-4 mb-6"
-          style={{ borderBottom: '2px solid var(--accent)' }}
-        >
-          <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            ORDERS
-          </h1>
-        </div>
+       <div
+  className="flex justify-between items-baseline pb-4 mb-6"
+  style={{ borderBottom: '2px solid var(--accent)' }}
+>
+  <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
+    ORDERS
+  </h1>
+  <Link
+    href="/admin/archive"
+    className="text-xs"
+    style={{ color: 'var(--muted)' }}
+  >
+    View Archive
+  </Link>
+</div>
+
 
         {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
 
