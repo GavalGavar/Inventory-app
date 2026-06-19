@@ -8,6 +8,7 @@ import Link from 'next/link'
 export default function Home() {
   const [items, setItems] = useState([])
   const [error, setError] = useState(null)
+  const [search, setSearch] = useState('')
   const { cart, addToCart, total } = useCart()
 
   useEffect(() => {
@@ -18,6 +19,10 @@ export default function Home() {
     }
     loadItems()
   }, [])
+
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
@@ -37,16 +42,32 @@ export default function Home() {
         </Link>
       </div>
 
+      <input
+        type="text"
+        placeholder="Search items..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="p-2 rounded text-sm mb-6 w-full max-w-xs"
+        style={{
+          background: 'var(--card)',
+          border: '0.5px solid var(--border)',
+          color: 'var(--foreground)',
+        }}
+      />
+
       {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
 
       {items.length === 0 && (
         <p style={{ color: 'var(--muted)' }}>No items available right now.</p>
       )}
 
-      {items.length > 0 && (
+      {items.length > 0 && filteredItems.length === 0 && (
+        <p style={{ color: 'var(--muted)' }}>No items match "{search}".</p>
+      )}
+
+      {filteredItems.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
-          
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <div
               key={item.id}
               className="rounded p-3 relative"
@@ -68,12 +89,12 @@ export default function Home() {
               </span>
 
               {item.image_url && (
-  <img
-    src={item.image_url}
-    alt={item.name}
-    className="w-full aspect-square object-cover rounded mb-2"
-  />
-)}
+                <img
+                  src={item.image_url}
+                  alt={item.name}
+                  className="w-full aspect-square object-cover rounded mb-2"
+                />
+              )}
 
               <h2 className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
                 {item.name}
