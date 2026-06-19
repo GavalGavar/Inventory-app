@@ -1,6 +1,7 @@
 import { supabase } from '../../lib/supabaseClient'
 import DeleteButton from '../../components/DeleteButton'
 import Link from 'next/link'
+
 export const dynamic = 'force-dynamic'
 
 export default async function Admin() {
@@ -31,31 +32,44 @@ export default async function Admin() {
       )}
 
       {items && items.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex justify-between items-center rounded p-3"
-              style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
+              className="rounded p-3 relative"
+              style={{
+                background: 'var(--card)',
+                border: '0.5px solid var(--border)',
+                opacity: item.quantity > 0 ? 1 : 0.6,
+              }}
             >
-              <div className="flex items-center gap-4">
-                {item.image_url && (
-                  <img
-                    src={item.image_url}
-                    alt={item.name}
-                    className="w-14 h-14 object-cover rounded"
-                  />
-                )}
-                <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-                    {item.name}
-                  </p>
-                  <p className="text-xs" style={{ color: 'var(--muted)' }}>
-                    ${item.price} · {item.quantity} units
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
+              <span
+                className="absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded"
+                style={{
+                  background: item.quantity > 0 ? 'var(--stock-bg)' : 'var(--soldout-bg)',
+                  color: item.quantity > 0 ? 'var(--stock-text)' : 'var(--soldout-text)',
+                  transform: item.quantity > 0 ? 'none' : 'rotate(-4deg)',
+                }}
+              >
+                {item.quantity > 0 ? 'IN STOCK' : 'SOLD OUT'}
+              </span>
+
+              {item.image_url && (
+                <img
+                  src={item.image_url}
+                  alt={item.name}
+                  className="w-full aspect-square object-cover rounded mb-2"
+                />
+              )}
+
+              <h2 className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+                {item.name}
+              </h2>
+              <p className="text-xs mb-2" style={{ color: 'var(--muted)' }}>
+                ${item.price} · {item.quantity} units
+              </p>
+
+              <div className="flex justify-between items-center">
                 <Link
                   href={`/admin/edit/${item.id}`}
                   className="text-xs font-medium"
