@@ -8,16 +8,20 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState([])
 
   function addToCart(item) {
-    setCart((prev) => {
-      const existing = prev.find((i) => i.id === item.id)
-      if (existing) {
-        return prev.map((i) =>
-          i.id === item.id ? { ...i, qty: i.qty + 1 } : i
-        )
+  setCart((prev) => {
+    const existing = prev.find((i) => i.id === item.id)
+    if (existing) {
+      if (existing.qty >= item.quantity) {
+        alert('No more stock available for this item.')
+        return prev
       }
-      return [...prev, { ...item, qty: 1 }]
-    })
-  }
+      return prev.map((i) =>
+        i.id === item.id ? { ...i, qty: i.qty + 1 } : i
+      )
+    }
+    return [...prev, { ...item, qty: 1 }]
+  })
+}
 
   function removeFromCart(id) {
     setCart((prev) => prev.filter((i) => i.id !== id))

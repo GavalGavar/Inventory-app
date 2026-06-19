@@ -78,13 +78,13 @@ export default function EditItem() {
         />
 
         <input
-          type="number"
-          placeholder="Quantity"
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-          className="border p-2 rounded"
-          required
-        />
+  type="number"
+  placeholder="Quantity"
+  value={quantity}
+  onChange={(e) => setQuantity(e.target.value)}
+  className="border p-2 rounded"
+  required
+/>
 
         <button type="submit" className="bg-black text-white py-2 rounded">
           Save Changes

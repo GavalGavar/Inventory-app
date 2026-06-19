@@ -45,14 +45,26 @@ export default function Home() {
                   className="w-full h-40 object-cover rounded"
                 />
               )}
-              <h2 className="mt-2 font-semibold">{item.name}</h2>
-              <p className="text-gray-600">${item.price}</p>
-              <button
-                onClick={() => addToCart(item)}
-                className="mt-2 w-full bg-black text-white py-2 rounded text-sm"
-              >
-                Add to Cart
-              </button>
+             <h2 className="mt-2 font-semibold">{item.name}</h2>
+<p className="text-gray-600">${item.price}</p>
+<p className="text-xs text-gray-500">{item.quantity} in stock</p>
+
+{item.quantity > 0 ? (
+  <button
+    onClick={() => addToCart(item)}
+    className="mt-2 w-full bg-black text-white py-2 rounded text-sm"
+  >
+    Add to Cart
+  </button>
+) : (
+  <button
+    disabled
+    className="mt-2 w-full bg-gray-300 text-gray-500 py-2 rounded text-sm cursor-not-allowed"
+  >
+    Sold Out
+  </button>
+)}
+
             </div>
           ))}
         </div>

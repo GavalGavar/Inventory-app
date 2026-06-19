@@ -26,20 +26,28 @@ export default function Checkout() {
     }))
 
     const { error } = await supabase.from('orders').insert({
-      customer_name: name,
-      customer_contact: contact,
-      items: orderItems,
-      total: total,
-    })
+  customer_name: name,
+  customer_contact: contact,
+  items: orderItems,
+  total: total,
+})
 
-    setSubmitting(false)
+if (error) {
+  setSubmitting(false)
+  alert('Error placing order: ' + error.message)
+  return
+}
 
-    if (error) {
-      alert('Error placing order: ' + error.message)
-    } else {
-      setSubmitted(true)
-      clearCart()
-    }
+// Reduce stock for each item in the order
+for (const item of cart) {
+  await supabase.rpc('decrement_stock', {
+    item_id: item.id,
+    amount: item.qty,
+  })
+}
+setSubmitting(false)
+    setSubmitted(true)
+    clearCart()
   }
 
   if (submitted) {
