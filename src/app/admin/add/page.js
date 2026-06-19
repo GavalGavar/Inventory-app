@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
+import RequireAuth from '../../../components/RequireAuth'
+
 
 export default function AddItem() {
   const router = useRouter()
@@ -60,8 +62,10 @@ export default function AddItem() {
     color: 'var(--foreground)',
   }
 
-  return (
-    <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
+ return (
+  <RequireAuth>
+  <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
+
       <div
         className="pb-4 mb-6"
         style={{ borderBottom: '2px solid var(--accent)' }}
@@ -119,7 +123,8 @@ export default function AddItem() {
         >
           {uploading ? 'Saving...' : 'Save Item'}
         </button>
-      </form>
+     </form>
     </div>
+  </RequireAuth>
   )
 }

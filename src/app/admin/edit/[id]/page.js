@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../../lib/supabaseClient'
 import { useRouter, useParams } from 'next/navigation'
+import RequireAuth from '../../../../components/RequireAuth'
+
 
 export default function EditItem() {
   const router = useRouter()
@@ -88,17 +90,22 @@ export default function EditItem() {
   }
 
   if (loading) {
-    return (
+  return (
+    <RequireAuth>
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
         <p style={{ color: 'var(--muted)' }}>Loading...</p>
       </div>
-    )
-  }
+    </RequireAuth>
+  )
+}
+
 
   return (
-    <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
-      <div
-        className="pb-4 mb-6"
+  <RequireAuth>
+  <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
+    <div
+      className="pb-4 mb-6"
+
         style={{ borderBottom: '2px solid var(--accent)' }}
       >
         <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
@@ -169,5 +176,6 @@ export default function EditItem() {
         </button>
       </form>
     </div>
+  </RequireAuth>
   )
 }
