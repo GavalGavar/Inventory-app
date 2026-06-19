@@ -9,8 +9,14 @@ import Link from 'next/link'
 export default function Admin() {
   const [items, setItems] = useState([])
   const [error, setError] = useState(null)
+  const [search, setSearch] = useState('')
+
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   useEffect(() => {
+
     async function loadItems() {
       const { data, error } = await supabase.from('items').select()
       if (error) setError(error)
@@ -42,7 +48,7 @@ export default function Admin() {
   </button>
   <Link
     href="/admin/orders"
-    
+
               className="px-4 py-2 rounded text-sm font-medium"
               style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
             >
@@ -58,15 +64,30 @@ export default function Admin() {
           </div>
         </div>
 
-        {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
+       <input
+  type="text"
+  placeholder="Search items..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="p-2 rounded text-sm mb-6 w-full max-w-xs"
+  style={{
+    background: 'var(--card)',
+    border: '0.5px solid var(--border)',
+    color: 'var(--foreground)',
+  }}
+/>
 
-        {items.length === 0 && (
+{error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
+
+{items.length === 0 && (
+
           <p style={{ color: 'var(--muted)' }}>No items yet. Time to add some!</p>
         )}
 
-        {items.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
-            {items.map((item) => (
+        {filteredItems.length > 0 && (
+  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
+    {filteredItems.map((item) => (
+      
               <div
                 key={item.id}
                 className="rounded p-3 relative"
