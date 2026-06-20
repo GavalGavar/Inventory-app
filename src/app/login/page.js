@@ -16,19 +16,33 @@ export default function Login() {
     setLoading(true)
     setError('')
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
+    if (error) {
+      setLoading(false)
+      setError('Invalid email or password.')
+      return
+    }
+
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single()
+
+    const role = roleData ? roleData.role : 'sales_manager'
+
     setLoading(false)
 
-    if (error) {
-      setError('Invalid email or password.')
-    } else {
+    if (role === 'admin') {
       router.push('/admin')
-      router.refresh()
+    } else {
+      router.push('/admin/portal')
     }
+    router.refresh()
   }
 
   const inputStyle = {
@@ -47,7 +61,7 @@ export default function Login() {
           className="text-xl font-medium tracking-wide pb-4 mb-2"
           style={{ color: 'var(--foreground)', borderBottom: '2px solid var(--accent)' }}
         >
-          ADMIN LOGIN
+          LOGIN
         </h1>
 
         {error && <p className="text-xs" style={{ color: 'var(--soldout-text)' }}>{error}</p>}

@@ -26,7 +26,9 @@ export default function Admin() {
   }, [])
 
   return (
-    <RequireAuth>
+  <RequireAuth allowedRoles={['admin']}>
+    
+
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
         <div
           className="flex justify-between items-baseline pb-4 mb-6"

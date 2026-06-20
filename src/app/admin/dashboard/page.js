@@ -193,8 +193,9 @@ export default function Dashboard() {
   ]
 
   return (
-    <RequireAuth>
-      <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
+    <RequireAuth allowedRoles={['admin', 'sales_manager']}>
+  <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
+    
         <div
           className="flex justify-between items-baseline pb-4 mb-6"
           style={{ borderBottom: '2px solid var(--accent)' }}

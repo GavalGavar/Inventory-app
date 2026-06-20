@@ -62,8 +62,11 @@ export default function AddItem() {
     color: 'var(--foreground)',
   }
 
+
  return (
-  <RequireAuth>
+  <RequireAuth allowedRoles={['admin']}>
+
+
   <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
 
       <div

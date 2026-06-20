@@ -91,7 +91,8 @@ export default function EditItem() {
 
   if (loading) {
   return (
-    <RequireAuth>
+    <RequireAuth allowedRoles={['admin']}>
+
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
         <p style={{ color: 'var(--muted)' }}>Loading...</p>
       </div>
@@ -100,9 +101,11 @@ export default function EditItem() {
 }
 
 
-  return (
-  <RequireAuth>
-  <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
+ return (
+  <RequireAuth allowedRoles={['admin']}>
+    
+  <div className="p-10"
+   style={{ background: 'var(--background)', minHeight: '100vh' }}>
     <div
       className="pb-4 mb-6"
 
