@@ -61,12 +61,30 @@ export default function Admin() {
   Bulk Edit
 </Link>
 <Link
+
   href="/admin/dashboard"
   className="px-4 py-2 rounded text-sm font-medium"
   style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
 >
   Dashboard
 </Link>
+
+<Link
+  href="/admin/companies"
+  className="px-4 py-2 rounded text-sm font-medium"
+  style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+>
+  Companies
+</Link>
+
+<Link
+  href="/admin/log-sale"
+  className="px-4 py-2 rounded text-sm font-medium"
+  style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+>
+  Log Sale
+</Link>
+
 
             <Link
               href="/admin/add"
