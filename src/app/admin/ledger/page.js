@@ -7,7 +7,11 @@ import Link from 'next/link'
 
 export default function StockLedger() {
   const [sales, setSales] = useState([])
-  const [search, setSearch] = useState('')
+const [search, setSearch] = useState('')
+const [startDate, setStartDate] = useState('')
+const [endDate, setEndDate] = useState('')
+
+
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -45,9 +49,18 @@ export default function StockLedger() {
     load()
   }, [])
 
-  const filteredSales = sales.filter((sale) =>
-    sale.items.some((item) => item.name.toLowerCase().includes(search.toLowerCase()))
+  const filteredSales = sales.filter((sale) => {
+  const matchesSearch = sale.items.some((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
   )
+
+  const saleDate = new Date(sale.date)
+  const afterStart = startDate ? saleDate >= new Date(startDate) : true
+  const beforeEnd = endDate ? saleDate <= new Date(endDate + 'T23:59:59') : true
+
+  return matchesSearch && afterStart && beforeEnd
+})
+
 
   const totalUnits = filteredSales.reduce(
     (sum, sale) => sum + sale.items.reduce((s, i) => s + i.qty, 0),
@@ -76,14 +89,62 @@ export default function StockLedger() {
           </Link>
         </div>
 
-        <input
-          type="text"
-          placeholder="Search item name..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="p-2 rounded text-sm mb-4 w-full max-w-xs"
-          style={inputStyle}
-        />
+        <div className="flex flex-wrap gap-3 mb-4 items-end">
+  <div>
+    <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
+      Search item
+    </label>
+    <input
+      type="text"
+      placeholder="Search item name..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="p-2 rounded text-sm"
+      style={inputStyle}
+    />
+  </div>
+
+  <div>
+    <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
+      From date
+    </label>
+    <input
+      type="date"
+      value={startDate}
+      onChange={(e) => setStartDate(e.target.value)}
+      className="p-2 rounded text-sm"
+      style={inputStyle}
+    />
+  </div>
+
+  <div>
+    <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
+      To date
+    </label>
+    <input
+      type="date"
+      value={endDate}
+      onChange={(e) => setEndDate(e.target.value)}
+      className="p-2 rounded text-sm"
+      style={inputStyle}
+    />
+  </div>
+
+  {(startDate || endDate || search) && (
+    <button
+      onClick={() => {
+        setStartDate('')
+        setEndDate('')
+        setSearch('')
+      }}
+      className="text-xs px-3 py-2"
+      style={{ color: 'var(--soldout-text)' }}
+    >
+      Clear filters
+    </button>
+  )}
+</div>
+
 
         {!loading && (
           <p className="text-xs mb-4" style={{ color: 'var(--muted)' }}>
