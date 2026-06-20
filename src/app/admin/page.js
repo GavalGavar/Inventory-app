@@ -84,6 +84,21 @@ export default function Admin() {
 >
   Log Sale
 </Link>
+<Link
+  href="/admin/log-sale"
+  className="px-4 py-2 rounded text-sm font-medium"
+  style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+>
+  Log Sale
+</Link>
+<Link
+  href="/admin/ledger"
+  className="px-4 py-2 rounded text-sm font-medium"
+  style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+>
+  Ledger
+</Link>
+
 
 
             <Link
