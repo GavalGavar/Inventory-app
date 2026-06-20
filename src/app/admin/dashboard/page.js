@@ -168,14 +168,15 @@ export default function Dashboard() {
           </span>
         </button>
 
-        {open && (
-          <div className="mt-2">
-            <ChartCard title="LAST 14 DAYS" data={charts.chart14Days} />
-            <ChartCard title="THIS WEEK" data={charts.chartWeek} />
-            <ChartCard title="THIS MONTH" data={charts.chartMonth} />
-            <ChartCard title="THIS YEAR" data={charts.chartYear} />
-          </div>
-        )}
+       {open && (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
+    <ChartCard title="LAST 14 DAYS" data={charts.chart14Days} />
+    <ChartCard title="THIS WEEK" data={charts.chartWeek} />
+    <ChartCard title="THIS MONTH" data={charts.chartMonth} />
+    <ChartCard title="THIS YEAR" data={charts.chartYear} />
+  </div>
+)}
+
       </div>
     )
   }
@@ -211,7 +212,8 @@ export default function Dashboard() {
         )}
 
         {!loading && (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', maxWidth: '1100px' }}>
+
             {stats.map(function (stat) {
               return (
                 <div
