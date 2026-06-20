@@ -10,10 +10,16 @@ export default function LogSale() {
   const router = useRouter()
   const [companies, setCompanies] = useState([])
   const [items, setItems] = useState([])
-  const [companyId, setCompanyId] = useState('')
   const [cart, setCart] = useState([])
-  const [customerName, setCustomerName] = useState('Walk-in customer')
   const [saving, setSaving] = useState(false)
+
+  const [buyerType, setBuyerType] = useState('individual')
+
+  const [companyId, setCompanyId] = useState('')
+  const [companyPhone, setCompanyPhone] = useState('')
+
+  const [customerName, setCustomerName] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -46,8 +52,12 @@ export default function LogSale() {
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0)
 
   async function handleSubmit() {
-    if (!companyId) {
+    if (buyerType === 'company' && !companyId) {
       alert('Please select a company.')
+      return
+    }
+    if (buyerType === 'individual' && !customerName.trim()) {
+      alert('Please enter the customer name.')
       return
     }
     if (cart.length === 0) {
@@ -64,15 +74,45 @@ export default function LogSale() {
       qty: item.qty,
     }))
 
-    const { error } = await supabase.from('orders').insert({
-      customer_name: customerName,
-      customer_contact: 'In-shop sale',
-      items: orderItems,
-      total: total,
-      sale_type: 'in_shop',
-      company_id: companyId,
-      status: 'completed',
-    })
+    let orderData
+
+    if (buyerType === 'company') {
+      const selectedCompany = companies.find((c) => c.id === companyId)
+
+      if (companyPhone.trim()) {
+        await supabase
+          .from('companies')
+          .update({ phone: companyPhone.trim() })
+          .eq('id', companyId)
+      }
+
+      orderData = {
+        customer_name: selectedCompany ? selectedCompany.name : 'Company',
+        customer_contact: companyPhone.trim() || 'In-shop sale',
+        items: orderItems,
+        total: total,
+        sale_type: 'in_shop',
+        company_id: companyId,
+        status: 'completed',
+      }
+    } else {
+      await supabase.from('customers').insert({
+        name: customerName.trim(),
+        phone: customerPhone.trim() || null,
+      })
+
+      orderData = {
+        customer_name: customerName.trim(),
+        customer_contact: customerPhone.trim() || 'In-shop sale',
+        items: orderItems,
+        total: total,
+        sale_type: 'in_shop',
+        company_id: null,
+        status: 'completed',
+      }
+    }
+
+    const { error } = await supabase.from('orders').insert(orderData)
 
     if (error) {
       setSaving(false)
@@ -112,67 +152,125 @@ export default function LogSale() {
           </Link>
         </div>
 
-        <div className="flex flex-col gap-4 max-w-md mb-6">
-          <div>
-            <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
-              Company / Branch
-            </label>
-            <select
-              value={companyId}
-              onChange={(e) => setCompanyId(e.target.value)}
-              className="p-2 rounded text-sm w-full"
-              style={inputStyle}
-            >
-              <option value="">Select a company...</option>
-              {companies.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
-              Customer name (optional)
-            </label>
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="p-2 rounded text-sm w-full"
-              style={inputStyle}
-            />
-          </div>
+        <div className="flex gap-3 mb-4">
+          <button
+            onClick={() => setBuyerType('individual')}
+            className="px-4 py-2 rounded text-sm font-medium"
+            style={{
+              background: buyerType === 'individual' ? 'var(--foreground)' : 'var(--card)',
+              color: buyerType === 'individual' ? 'var(--background)' : 'var(--foreground)',
+              border: '0.5px solid var(--border)',
+            }}
+          >
+            Individual Customer
+          </button>
+          <button
+            onClick={() => setBuyerType('company')}
+            className="px-4 py-2 rounded text-sm font-medium"
+            style={{
+              background: buyerType === 'company' ? 'var(--foreground)' : 'var(--card)',
+              color: buyerType === 'company' ? 'var(--background)' : 'var(--foreground)',
+              border: '0.5px solid var(--border)',
+            }}
+          >
+            Company
+          </button>
         </div>
+
+        {buyerType === 'individual' && (
+          <div className="flex flex-col gap-4 max-w-md mb-6">
+            <div>
+              <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
+                Customer name
+              </label>
+              <input
+                type="text"
+                placeholder="Customer name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="p-2 rounded text-sm w-full"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
+                Phone number
+              </label>
+              <input
+                type="text"
+                placeholder="Phone number"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                className="p-2 rounded text-sm w-full"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+        )}
+
+        {buyerType === 'company' && (
+          <div className="flex flex-col gap-4 max-w-md mb-6">
+            <div>
+              <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
+                Company / Branch
+              </label>
+              <select
+                value={companyId}
+                onChange={(e) => setCompanyId(e.target.value)}
+                className="p-2 rounded text-sm w-full"
+                style={inputStyle}
+              >
+                <option value="">Select a company...</option>
+                {companies.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                    {c.registration_number ? ' (' + c.registration_number + ')' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
+                Phone number (optional)
+              </label>
+              <input
+                type="text"
+                placeholder="Phone number"
+                value={companyPhone}
+                onChange={(e) => setCompanyPhone(e.target.value)}
+                className="p-2 rounded text-sm w-full"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+        )}
 
         <p className="text-sm font-medium mb-3" style={{ color: 'var(--foreground)' }}>
           Select items sold:
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-4xl mb-6">
-         {items.map((item) => (
-  <button
-    key={item.id}
-    onClick={() => addToCart(item)}
-    disabled={item.quantity === 0}
-    className="text-left rounded p-3 text-sm disabled:opacity-40"
-    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-  >
-    {item.image_url && (
-      <img
-        src={item.image_url}
-        alt={item.name}
-        className="w-full aspect-square object-cover rounded mb-2"
-      />
-    )}
-    <p className="font-medium">{item.name}</p>
-    <p className="text-xs" style={{ color: 'var(--muted)' }}>
-      ${item.price} · {item.quantity} in stock
-    </p>
-  </button>
-))}
-
+          {items.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => addToCart(item)}
+              disabled={item.quantity === 0}
+              className="text-left rounded p-3 text-sm disabled:opacity-40"
+              style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+            >
+              {item.image_url && (
+                <img
+                  src={item.image_url}
+                  alt={item.name}
+                  className="w-full aspect-square object-cover rounded mb-2"
+                />
+              )}
+              <p className="font-medium">{item.name}</p>
+              <p className="text-xs" style={{ color: 'var(--muted)' }}>
+                ${item.price} · {item.quantity} in stock
+              </p>
+            </button>
+          ))}
         </div>
 
         {cart.length > 0 && (
