@@ -60,6 +60,13 @@ export default function Admin() {
 >
   Bulk Edit
 </Link>
+<Link
+  href="/admin/dashboard"
+  className="px-4 py-2 rounded text-sm font-medium"
+  style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+>
+  Dashboard
+</Link>
 
             <Link
               href="/admin/add"
@@ -71,8 +78,9 @@ export default function Admin() {
           </div>
         </div>
 
-       <input
-  type="text"
+        <input
+          type="text"
+
   placeholder="Search items..."
   value={search}
   onChange={(e) => setSearch(e.target.value)}
