@@ -15,39 +15,65 @@ export default function Portal() {
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
             SALES PORTAL
           </h1>
-          <button
-            onClick={async () => {
-              await supabase.auth.signOut()
-              window.location.href = '/login'
-            }}
-            className="text-xs"
-            style={{ color: 'var(--muted)' }}
-          >
-            Log Out
-          </button>
+          <div className="flex gap-3 items-center">
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut()
+                window.location.href = '/login'
+              }}
+              className="text-xs"
+              style={{ color: 'var(--muted)' }}
+            >
+              Log Out
+            </button>
+            <Link
+              href="/admin/log-sale"
+              className="px-4 py-2 rounded text-sm font-medium"
+              style={{ background: 'var(--foreground)', color: 'var(--background)' }}
+            >
+              + Log Sale
+            </Link>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-3 max-w-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl">
           <Link
             href="/admin/log-sale"
-            className="p-4 rounded text-sm font-medium"
-            style={{ background: 'var(--foreground)', color: 'var(--background)' }}
+            className="rounded p-4"
+            style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
           >
-            Log Sale
+            <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+              Log Sale
+            </p>
+            <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>
+              Record an in-shop sale
+            </p>
           </Link>
+
           <Link
             href="/admin/ledger"
-            className="p-4 rounded text-sm font-medium"
-            style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+            className="rounded p-4"
+            style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
           >
-            Stock Ledger
+            <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+              Stock Ledger
+            </p>
+            <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>
+              View sales history
+            </p>
           </Link>
+
           <Link
             href="/admin/dashboard"
-            className="p-4 rounded text-sm font-medium"
-            style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+            className="rounded p-4"
+            style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
           >
-            Dashboard
+            <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+              Dashboard
+            </p>
+            <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>
+              View sales stats
+            </p>
           </Link>
         </div>
       </div>
