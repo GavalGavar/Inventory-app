@@ -27,6 +27,7 @@ export default function Dashboard() {
   startOfWeek.setDate(now.getDate() - now.getDay())
   startOfWeek.setHours(0, 0, 0, 0)
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const startOfYear = new Date(now.getFullYear(), 0, 1)
 
   function sumOrders(list) {
     return list.reduce((sum, o) => sum + o.total, 0)
@@ -45,6 +46,7 @@ export default function Dashboard() {
     { label: 'IN-SHOP SALES', value: '$' + sumOrders(inShopOrders).toFixed(2), sub: inShopOrders.length + ' orders' },
   ]
 
+  // Last 14 days chart
   const last14Days = Array.from({ length: 14 }, (_, i) => {
     const date = new Date()
     date.setDate(date.getDate() - (13 - i))
@@ -52,7 +54,7 @@ export default function Dashboard() {
     return date
   })
 
-  const chartData = last14Days.map((day) => {
+  const chart14Days = last14Days.map((day) => {
     const nextDay = new Date(day)
     nextDay.setDate(day.getDate() + 1)
     const dayOrders = orders.filter((o) => {
@@ -64,6 +66,76 @@ export default function Dashboard() {
       sales: sumOrders(dayOrders),
     }
   })
+
+  // This week chart (Sun-Sat)
+  const weekDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const chartWeek = weekDayNames.map((name, i) => {
+    const day = new Date(startOfWeek)
+    day.setDate(startOfWeek.getDate() + i)
+    const nextDay = new Date(day)
+    nextDay.setDate(day.getDate() + 1)
+    const dayOrders = orders.filter((o) => {
+      const created = new Date(o.created_at)
+      return created >= day && created < nextDay
+    })
+    return { date: name, sales: sumOrders(dayOrders) }
+  })
+
+  // This month chart (day by day)
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+  const chartMonth = Array.from({ length: daysInMonth }, (_, i) => {
+    const day = new Date(now.getFullYear(), now.getMonth(), i + 1)
+    const nextDay = new Date(now.getFullYear(), now.getMonth(), i + 2)
+    const dayOrders = orders.filter((o) => {
+      const created = new Date(o.created_at)
+      return created >= day && created < nextDay
+    })
+    return { date: String(i + 1), sales: sumOrders(dayOrders) }
+  })
+
+  // This year chart (month by month)
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const chartYear = monthNames.map((name, i) => {
+    const monthStart = new Date(now.getFullYear(), i, 1)
+    const monthEnd = new Date(now.getFullYear(), i + 1, 1)
+    const monthOrdersList = orders.filter((o) => {
+      const created = new Date(o.created_at)
+      return created >= monthStart && created < monthEnd
+    })
+    return { date: name, sales: sumOrders(monthOrdersList) }
+  })
+
+  function ChartCard({ title, data }) {
+    return (
+      <div
+        className="rounded p-4 mt-6"
+        style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
+      >
+        <p className="text-xs font-medium mb-4" style={{ color: 'var(--muted)' }}>
+          {title}
+        </p>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={data}>
+            <XAxis
+              dataKey="date"
+              tick={{ fontSize: 10, fill: 'var(--muted)' }}
+              axisLine={{ stroke: 'var(--border)' }}
+              interval={data.length > 20 ? 2 : 0}
+            />
+            <YAxis
+              tick={{ fontSize: 11, fill: 'var(--muted)' }}
+              axisLine={{ stroke: 'var(--border)' }}
+            />
+            <Tooltip
+              formatter={(value) => ['$' + value.toFixed(2), 'Sales']}
+              contentStyle={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
+            />
+            <Bar dataKey="sales" fill="#C2480A" radius={[3, 3, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    )
+  }
 
   return (
     <RequireAuth>
@@ -81,15 +153,11 @@ export default function Dashboard() {
         </div>
 
         {loading && (
-  <p style={{ color: 'var(--muted)' }}>Loading stats...</p>
-)}
+          <p style={{ color: 'var(--muted)' }}>Loading stats...</p>
+        )}
 
-
-
-       {!loading && (
-  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl">
-    
-
+        {!loading && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl">
             {stats.map(function (stat) {
               return (
                 <div
@@ -113,31 +181,11 @@ export default function Dashboard() {
         )}
 
         {!loading && (
-          <div
-            className="rounded p-4 mt-6 max-w-4xl"
-            style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
-          >
-            <p className="text-xs font-medium mb-4" style={{ color: 'var(--muted)' }}>
-              SALES - LAST 14 DAYS
-            </p>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={chartData}>
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 11, fill: 'var(--muted)' }}
-                  axisLine={{ stroke: 'var(--border)' }}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: 'var(--muted)' }}
-                  axisLine={{ stroke: 'var(--border)' }}
-                />
-                <Tooltip
-                  formatter={(value) => ['$' + value.toFixed(2), 'Sales']}
-                  contentStyle={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
-                />
-                <Bar dataKey="sales" fill="#C2480A" radius={[3, 3, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="max-w-4xl">
+            <ChartCard title="SALES - LAST 14 DAYS" data={chart14Days} />
+            <ChartCard title="SALES THIS WEEK" data={chartWeek} />
+            <ChartCard title="SALES THIS MONTH" data={chartMonth} />
+            <ChartCard title="SALES THIS YEAR" data={chartYear} />
           </div>
         )}
       </div>
