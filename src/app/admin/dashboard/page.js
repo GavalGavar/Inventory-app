@@ -8,18 +8,25 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recha
 
 export default function Dashboard() {
   const [orders, setOrders] = useState([])
+  const [companies, setCompanies] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function loadOrders() {
-      const { data } = await supabase
+    async function loadData() {
+      const { data: ordersData } = await supabase
         .from('orders')
         .select()
         .eq('archived', false)
-      if (data) setOrders(data)
+      const { data: companiesData } = await supabase
+        .from('companies')
+        .select()
+        .order('name')
+
+      if (ordersData) setOrders(ordersData)
+      if (companiesData) setCompanies(companiesData)
       setLoading(false)
     }
-    loadOrders()
+    loadData()
   }, [])
 
   const now = new Date()
@@ -27,7 +34,6 @@ export default function Dashboard() {
   startOfWeek.setDate(now.getDate() - now.getDay())
   startOfWeek.setHours(0, 0, 0, 0)
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-  const startOfYear = new Date(now.getFullYear(), 0, 1)
 
   function sumOrders(list) {
     return list.reduce((sum, o) => sum + o.total, 0)
@@ -46,75 +52,74 @@ export default function Dashboard() {
     { label: 'IN-SHOP SALES', value: '$' + sumOrders(inShopOrders).toFixed(2), sub: inShopOrders.length + ' orders' },
   ]
 
-  // Last 14 days chart
-  const last14Days = Array.from({ length: 14 }, (_, i) => {
-    const date = new Date()
-    date.setDate(date.getDate() - (13 - i))
-    date.setHours(0, 0, 0, 0)
-    return date
-  })
-
-  const chart14Days = last14Days.map((day) => {
-    const nextDay = new Date(day)
-    nextDay.setDate(day.getDate() + 1)
-    const dayOrders = orders.filter((o) => {
-      const created = new Date(o.created_at)
-      return created >= day && created < nextDay
+  function buildCharts(orderList) {
+    const last14Days = Array.from({ length: 14 }, (_, i) => {
+      const date = new Date()
+      date.setDate(date.getDate() - (13 - i))
+      date.setHours(0, 0, 0, 0)
+      return date
     })
-    return {
-      date: day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-      sales: sumOrders(dayOrders),
-    }
-  })
-
-  // This week chart (Sun-Sat)
-  const weekDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-  const chartWeek = weekDayNames.map((name, i) => {
-    const day = new Date(startOfWeek)
-    day.setDate(startOfWeek.getDate() + i)
-    const nextDay = new Date(day)
-    nextDay.setDate(day.getDate() + 1)
-    const dayOrders = orders.filter((o) => {
-      const created = new Date(o.created_at)
-      return created >= day && created < nextDay
+    const chart14Days = last14Days.map((day) => {
+      const nextDay = new Date(day)
+      nextDay.setDate(day.getDate() + 1)
+      const dayOrders = orderList.filter((o) => {
+        const created = new Date(o.created_at)
+        return created >= day && created < nextDay
+      })
+      return {
+        date: day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+        sales: sumOrders(dayOrders),
+      }
     })
-    return { date: name, sales: sumOrders(dayOrders) }
-  })
 
-  // This month chart (day by day)
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-  const chartMonth = Array.from({ length: daysInMonth }, (_, i) => {
-    const day = new Date(now.getFullYear(), now.getMonth(), i + 1)
-    const nextDay = new Date(now.getFullYear(), now.getMonth(), i + 2)
-    const dayOrders = orders.filter((o) => {
-      const created = new Date(o.created_at)
-      return created >= day && created < nextDay
+    const weekDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const chartWeek = weekDayNames.map((name, i) => {
+      const day = new Date(startOfWeek)
+      day.setDate(startOfWeek.getDate() + i)
+      const nextDay = new Date(day)
+      nextDay.setDate(day.getDate() + 1)
+      const dayOrders = orderList.filter((o) => {
+        const created = new Date(o.created_at)
+        return created >= day && created < nextDay
+      })
+      return { date: name, sales: sumOrders(dayOrders) }
     })
-    return { date: String(i + 1), sales: sumOrders(dayOrders) }
-  })
 
-  // This year chart (month by month)
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  const chartYear = monthNames.map((name, i) => {
-    const monthStart = new Date(now.getFullYear(), i, 1)
-    const monthEnd = new Date(now.getFullYear(), i + 1, 1)
-    const monthOrdersList = orders.filter((o) => {
-      const created = new Date(o.created_at)
-      return created >= monthStart && created < monthEnd
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+    const chartMonth = Array.from({ length: daysInMonth }, (_, i) => {
+      const day = new Date(now.getFullYear(), now.getMonth(), i + 1)
+      const nextDay = new Date(now.getFullYear(), now.getMonth(), i + 2)
+      const dayOrders = orderList.filter((o) => {
+        const created = new Date(o.created_at)
+        return created >= day && created < nextDay
+      })
+      return { date: String(i + 1), sales: sumOrders(dayOrders) }
     })
-    return { date: name, sales: sumOrders(monthOrdersList) }
-  })
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const chartYear = monthNames.map((name, i) => {
+      const monthStart = new Date(now.getFullYear(), i, 1)
+      const monthEnd = new Date(now.getFullYear(), i + 1, 1)
+      const monthOrdersList = orderList.filter((o) => {
+        const created = new Date(o.created_at)
+        return created >= monthStart && created < monthEnd
+      })
+      return { date: name, sales: sumOrders(monthOrdersList) }
+    })
+
+    return { chart14Days, chartWeek, chartMonth, chartYear }
+  }
 
   function ChartCard({ title, data }) {
     return (
       <div
-        className="rounded p-4 mt-6"
+        className="rounded p-4 mt-4"
         style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
       >
         <p className="text-xs font-medium mb-4" style={{ color: 'var(--muted)' }}>
           {title}
         </p>
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data}>
             <XAxis
               dataKey="date"
@@ -136,6 +141,55 @@ export default function Dashboard() {
       </div>
     )
   }
+
+  function CompanySection({ label, companyIds }) {
+    const [open, setOpen] = useState(false)
+    const companyOrders = orders.filter((o) => companyIds.includes(o.company_id))
+    const charts = buildCharts(companyOrders)
+    const companyTotal = sumOrders(companyOrders)
+
+    return (
+      <div>
+        <button
+          onClick={() => setOpen(!open)}
+          className="w-full flex justify-between items-center p-3 rounded text-left"
+          style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
+        >
+          <div>
+            <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+              {label}
+            </p>
+            <p className="text-xs" style={{ color: 'var(--muted)' }}>
+              Total: ${companyTotal.toFixed(2)} ({companyOrders.length} sales)
+            </p>
+          </div>
+          <span className="text-sm" style={{ color: 'var(--accent)' }}>
+            {open ? '-' : '+'}
+          </span>
+        </button>
+
+        {open && (
+          <div className="mt-2">
+            <ChartCard title="LAST 14 DAYS" data={charts.chart14Days} />
+            <ChartCard title="THIS WEEK" data={charts.chartWeek} />
+            <ChartCard title="THIS MONTH" data={charts.chartMonth} />
+            <ChartCard title="THIS YEAR" data={charts.chartYear} />
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const sorted = [...companies].sort((a, b) => a.name.localeCompare(b.name))
+
+  const sections = [
+    { label: 'Нийт', companyIds: companies.map((c) => c.id).concat([null]) },
+    { label: 'Агуулах', companyIds: [sorted[0], sorted[2]].filter(Boolean).map((c) => c.id) },
+    { label: 'Tor Pinturas', companyIds: [sorted[1]].filter(Boolean).map((c) => c.id) },
+    { label: 'Одкон', companyIds: [sorted[3], sorted[4]].filter(Boolean).map((c) => c.id) },
+    { label: 'Онлайн', companyIds: [sorted[5], sorted[6]].filter(Boolean).map((c) => c.id) },
+    { label: 'Прогресс', companyIds: [sorted[7], sorted[8]].filter(Boolean).map((c) => c.id) },
+  ]
 
   return (
     <RequireAuth>
@@ -180,12 +234,15 @@ export default function Dashboard() {
           </div>
         )}
 
-        {!loading && (
-          <div className="max-w-4xl">
-            <ChartCard title="SALES - LAST 14 DAYS" data={chart14Days} />
-            <ChartCard title="SALES THIS WEEK" data={chartWeek} />
-            <ChartCard title="SALES THIS MONTH" data={chartMonth} />
-            <ChartCard title="SALES THIS YEAR" data={chartYear} />
+        {!loading && companies.length >= 9 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
+            {sections.map((section) => (
+              <CompanySection
+                key={section.label}
+                label={section.label}
+                companyIds={section.companyIds}
+              />
+            ))}
           </div>
         )}
       </div>
