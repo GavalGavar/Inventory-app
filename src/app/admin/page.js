@@ -47,13 +47,20 @@ export default function Admin() {
     Log Out
   </button>
   <Link
-    href="/admin/orders"
+  href="/admin/orders"
+  className="px-4 py-2 rounded text-sm font-medium"
+  style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+>
+  View Orders
+</Link>
+<Link
+  href="/admin/bulk"
+  className="px-4 py-2 rounded text-sm font-medium"
+  style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+>
+  Bulk Edit
+</Link>
 
-              className="px-4 py-2 rounded text-sm font-medium"
-              style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-            >
-              View Orders
-            </Link>
             <Link
               href="/admin/add"
               className="px-4 py-2 rounded text-sm font-medium"
