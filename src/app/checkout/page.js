@@ -6,7 +6,8 @@ import { supabase } from '../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
 export default function Checkout() {
-  const { cart, total, clearCart, removeFromCart } = useCart()
+  const { cart, total, clearCart, removeFromCart, updateQty } = useCart()
+
   const router = useRouter()
   const [name, setName] = useState('')
   const [contact, setContact] = useState('')
@@ -121,27 +122,46 @@ export default function Checkout() {
         style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
       >
         {cart.map((item) => (
-          <div
-            key={item.id}
-            className="flex justify-between items-center p-3"
-            style={{ borderBottom: '0.5px solid var(--border)' }}
-          >
-            <span className="text-sm" style={{ color: 'var(--foreground)' }}>
-              {item.name} x{item.qty}
-            </span>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium" style={{ color: 'var(--accent)' }}>
-                ${(item.price * item.qty).toFixed(2)}
-              </span>
-              <button
-                onClick={() => removeFromCart(item.id)}
-                className="text-xs"
-                style={{ color: 'var(--soldout-text)' }}
-              >
-                Remove
-              </button>
-            </div>
-          </div>
+         <div
+  key={item.id}
+  className="flex justify-between items-center p-3"
+  style={{ borderBottom: '0.5px solid var(--border)' }}
+>
+  <div>
+  <span className="text-sm" style={{ color: 'var(--foreground)' }}>
+    {item.name}
+  </span>
+  <p className="text-xs" style={{ color: 'var(--muted)' }}>
+    {item.quantity} in stock
+  </p>
+</div>
+
+  <div className="flex items-center gap-3">
+    <span className="text-sm w-4 text-center" style={{ color: 'var(--foreground)' }}>
+  {item.qty}
+</span>
+<input
+  type="number"
+  min="1"
+  value={item.qty}
+  onChange={(e) => updateQty(item.id, parseInt(e.target.value) || 1)}
+  className="text-sm w-12 text-center rounded"
+  style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+/>
+
+    <span className="text-sm font-medium w-16 text-right" style={{ color: 'var(--accent)' }}>
+      ${(item.price * item.qty).toFixed(2)}
+    </span>
+    <button
+      onClick={() => removeFromCart(item.id)}
+      className="text-xs"
+      style={{ color: 'var(--soldout-text)' }}
+    >
+      Remove
+    </button>
+  </div>
+</div>
+
         ))}
       </div>
 
