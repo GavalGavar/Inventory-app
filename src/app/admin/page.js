@@ -139,12 +139,12 @@ export default function Admin() {
         )}
 
         {filteredItems.length > 0 && (
-  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-6">
     {filteredItems.map((item) => (
       
               <div
                 key={item.id}
-                className="rounded p-3 relative"
+                className="rounded p-2 relative"
                 style={{
                   background: 'var(--card)',
                   border: '0.5px solid var(--border)',
@@ -152,7 +152,7 @@ export default function Admin() {
                 }}
               >
                 <span
-                  className="absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded"
+                  className="absolute top-2 right-2 text-sm font-medium px-2 py-1 rounded"
                   style={{
                     background: item.quantity > 0 ? 'var(--stock-bg)' : 'var(--soldout-bg)',
                     color: item.quantity > 0 ? 'var(--stock-text)' : 'var(--soldout-text)',
@@ -168,16 +168,16 @@ export default function Admin() {
                     className="w-full aspect-square object-cover rounded mb-2"
                   />
                 )}
-                <h2 className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+                <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>
                   {item.name}
                 </h2>
-                <p className="text-xs mb-2" style={{ color: 'var(--muted)' }}>
-                  {item.price} MNT · {item.quantity} Үлдэгдэл
+                <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>
+                  {item.price.toLocaleString()} MNT · {item.quantity} Үлдэгдэл
                 </p>
                 <div className="flex justify-between items-center">
                   <Link
                     href={`/admin/edit/${item.id}`}
-                    className="text-xs font-medium"
+                    className="text-sm font-medium"
                     style={{ color: 'var(--accent)' }}
                   >
                     Edit
@@ -192,6 +192,17 @@ export default function Admin() {
     </RequireAuth>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
