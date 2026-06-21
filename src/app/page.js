@@ -38,7 +38,7 @@ export default function Home() {
           className="px-4 py-2 rounded text-sm font-medium"
           style={{ background: 'var(--foreground)', color: 'var(--background)' }}
         >
-          Cart ({cart.length}) — ${total.toFixed(2)}
+          Cart ({cart.length}) — {total.toFixed(2)} MNT
         </Link>
       </div>
 
@@ -108,7 +108,7 @@ export default function Home() {
                   className="text-base font-medium"
                   style={{ color: item.quantity > 0 ? 'var(--accent)' : 'var(--muted)' }}
                 >
-                  ${item.price}
+                  {item.price} MNT
                 </span>
 
                 {item.quantity > 0 ? (
@@ -132,3 +132,4 @@ export default function Home() {
     </div>
   )
 }
+

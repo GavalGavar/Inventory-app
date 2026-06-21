@@ -95,14 +95,14 @@ export default function Archive() {
                 <ul className="text-sm mb-2" style={{ color: 'var(--foreground)' }}>
                   {order.items.map((item, i) => (
                     <li key={i}>
-                      {item.name} x{item.qty} — ${(item.price * item.qty).toFixed(2)}
+                      {item.name} x{item.qty} — {(item.price * item.qty).toFixed(2)} MNT
                     </li>
                   ))}
                 </ul>
 
                 <div className="flex justify-between items-center text-xs" style={{ color: 'var(--muted)' }}>
                   <span>{new Date(order.created_at).toLocaleString()}</span>
-                  <span className="font-medium">Total: ${order.total.toFixed(2)}</span>
+                  <span className="font-medium">Total: {order.total.toFixed(2)} MNT</span>
                 </div>
               </div>
             ))}
@@ -112,3 +112,4 @@ export default function Archive() {
     </RequireAuth>
   )
 }
+

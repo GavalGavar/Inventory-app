@@ -20,6 +20,13 @@ export default function BulkEdit() {
     if (data) setItems(data)
   }
 
+  function formatPrice(value) {
+    if (value === '' || value === null || value === undefined) return ''
+    const num = String(value).replace(/,/g, '')
+    if (isNaN(num)) return value
+    return Number(num).toLocaleString('en-US')
+  }
+
   function updateField(id, field, value) {
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
@@ -139,17 +146,17 @@ export default function BulkEdit() {
                       type="text"
                       value={item.name}
                       onChange={(e) => updateField(item.id, 'name', e.target.value)}
-                      className="p-1 rounded w-32"
+                      className="p-1 rounded w-64"
                       style={inputStyle}
                     />
                   </td>
                   <td className="p-2">
                     <input
-                      type="number"
-                      step="0.01"
-                      value={item.price}
-                      onChange={(e) => updateField(item.id, 'price', e.target.value)}
-                      className="p-1 rounded w-20"
+                      type="text"
+                      inputMode="decimal"
+                      value={formatPrice(item.price)}
+                      onChange={(e) => updateField(item.id, 'price', e.target.value.replace(/,/g, ''))}
+                      className="p-1 rounded w-24"
                       style={inputStyle}
                     />
                   </td>
@@ -171,3 +178,6 @@ export default function BulkEdit() {
     </RequireAuth>
   )
 }
+
+
+

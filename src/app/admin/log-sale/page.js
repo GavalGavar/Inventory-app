@@ -269,7 +269,7 @@ export default function LogSale() {
               )}
               <p className="font-medium">{item.name}</p>
               <p className="text-xs" style={{ color: 'var(--muted)' }}>
-                ${item.price} · {item.quantity} in stock
+                {item.price} MNT · {item.quantity} in stock
               </p>
             </button>
           ))}
@@ -292,7 +292,7 @@ export default function LogSale() {
                   </span>
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-medium" style={{ color: 'var(--accent)' }}>
-                      ${(item.price * item.qty).toFixed(2)}
+                      {(item.price * item.qty).toFixed(2)} MNT
                     </span>
                     <button
                       onClick={() => removeFromCart(item.id)}
@@ -306,7 +306,7 @@ export default function LogSale() {
               ))}
             </div>
             <p className="text-sm font-medium mt-2" style={{ color: 'var(--foreground)' }}>
-              Total: <span style={{ color: 'var(--accent)' }}>${total.toFixed(2)}</span>
+              Total: <span style={{ color: 'var(--accent)' }}>{total.toFixed(2)} MNT</span>
             </p>
           </div>
         )}
@@ -323,3 +323,4 @@ export default function LogSale() {
     </RequireAuth>
   )
 }
+

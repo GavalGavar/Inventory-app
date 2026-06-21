@@ -160,7 +160,7 @@ export default function Dashboard() {
               {label}
             </p>
             <p className="text-xs" style={{ color: 'var(--muted)' }}>
-              Total: ${companyTotal.toFixed(2)} ({companyOrders.length} sales)
+              Total: {companyTotal.toFixed(2)} MNT ({companyOrders.length} sales)
             </p>
           </div>
           <span className="text-sm" style={{ color: 'var(--accent)' }}>
@@ -252,3 +252,4 @@ export default function Dashboard() {
     </RequireAuth>
   )
 }
+

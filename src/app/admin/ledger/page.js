@@ -150,7 +150,7 @@ const [endDate, setEndDate] = useState('')
 
         {!loading && (
           <p className="text-xs mb-4" style={{ color: 'var(--muted)' }}>
-            {filteredSales.length} sales - {totalUnits} units - ${totalValue.toFixed(2)} total
+            {filteredSales.length} sales - {totalUnits} units - {totalValue.toFixed(2)} MNT total
           </p>
         )}
 
@@ -197,7 +197,7 @@ const [endDate, setEndDate] = useState('')
                   {sale.items.map((item, i) => (
                     <li key={i} className="flex justify-between">
                       <span>{item.name} x{item.qty}</span>
-                      <span>${(item.price * item.qty).toFixed(2)}</span>
+                      <span>{(item.price * item.qty).toFixed(2)} MNT</span>
                     </li>
                   ))}
                 </ul>
@@ -206,7 +206,7 @@ const [endDate, setEndDate] = useState('')
                   className="text-sm font-medium text-right"
                   style={{ color: 'var(--accent)', borderTop: '0.5px solid var(--border)', paddingTop: '8px' }}
                 >
-                  Total: ${sale.total.toFixed(2)}
+                  Total: {sale.total.toFixed(2)} MNT
                 </p>
               </div>
             ))}
@@ -216,3 +216,4 @@ const [endDate, setEndDate] = useState('')
     </RequireAuth>
   )
 }
+

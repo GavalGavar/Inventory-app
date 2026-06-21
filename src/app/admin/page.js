@@ -1,8 +1,7 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import DeleteButton from '../../components/DeleteButton'
 import RequireAuth from '../../components/RequireAuth'
 import Link from 'next/link'
 
@@ -54,14 +53,14 @@ export default function Admin() {
   className="px-4 py-2 rounded text-sm font-medium"
   style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
 >
-  View Orders
+  Захиалга харах
 </Link>
 <Link
   href="/admin/bulk"
   className="px-4 py-2 rounded text-sm font-medium"
   style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
 >
-  Bulk Edit
+  Бараа засах
 </Link>
 <Link
 
@@ -69,7 +68,7 @@ export default function Admin() {
   className="px-4 py-2 rounded text-sm font-medium"
   style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
 >
-  Dashboard
+  Хянах самбар
 </Link>
 
 {role === 'admin' && (
@@ -78,7 +77,7 @@ export default function Admin() {
   className="px-4 py-2 rounded text-sm font-medium"
   style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
 >
-  Companies
+  Компаниуд
 </Link>
 )}
 
@@ -87,7 +86,7 @@ export default function Admin() {
   className="px-4 py-2 rounded text-sm font-medium"
   style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
 >
-  Log Sale
+  Борлуулалт бүртгэх
 </Link>
 
 <Link
@@ -95,17 +94,25 @@ export default function Admin() {
   className="px-4 py-2 rounded text-sm font-medium"
   style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
 >
-  Ledger
+  Захиалгын түүх
 </Link>
 
 
+
+            <Link
+              href="/admin/import"
+              className="px-4 py-2 rounded text-sm font-medium"
+              style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+            >
+  Импортлох
+</Link>
 
             <Link
               href="/admin/add"
               className="px-4 py-2 rounded text-sm font-medium"
               style={{ background: 'var(--foreground)', color: 'var(--background)' }}
             >
-              + Add Item
+              + Бараа нэмэх
             </Link>
           </div>
         </div>
@@ -132,7 +139,7 @@ export default function Admin() {
         )}
 
         {filteredItems.length > 0 && (
-  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
     {filteredItems.map((item) => (
       
               <div
@@ -152,7 +159,7 @@ export default function Admin() {
                     transform: item.quantity > 0 ? 'none' : 'rotate(-4deg)',
                   }}
                 >
-                  {item.quantity > 0 ? 'IN STOCK' : 'SOLD OUT'}
+                  {item.quantity > 0 ? 'Бэлэн бараа' : 'Дууссан'}
                 </span>
                 {item.image_url && (
                   <img
@@ -165,7 +172,7 @@ export default function Admin() {
                   {item.name}
                 </h2>
                 <p className="text-xs mb-2" style={{ color: 'var(--muted)' }}>
-                  ${item.price} · {item.quantity} units
+                  {item.price} MNT · {item.quantity} Үлдэгдэл
                 </p>
                 <div className="flex justify-between items-center">
                   <Link
@@ -175,7 +182,6 @@ export default function Admin() {
                   >
                     Edit
                   </Link>
-                  <DeleteButton id={item.id} />
                 </div>
               </div>
             ))}
@@ -186,5 +192,15 @@ export default function Admin() {
     </RequireAuth>
   )
 }
+
+
+
+
+
+
+
+
+
+
 
 

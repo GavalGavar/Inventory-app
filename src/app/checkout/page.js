@@ -150,7 +150,7 @@ export default function Checkout() {
 />
 
     <span className="text-sm font-medium w-16 text-right" style={{ color: 'var(--accent)' }}>
-      ${(item.price * item.qty).toFixed(2)}
+      {(item.price * item.qty).toFixed(2)} MNT
     </span>
     <button
       onClick={() => removeFromCart(item.id)}
@@ -166,7 +166,7 @@ export default function Checkout() {
       </div>
 
       <p className="text-sm font-medium mb-6" style={{ color: 'var(--foreground)' }}>
-        Total: <span style={{ color: 'var(--accent)' }}>${total.toFixed(2)}</span>
+        Total: <span style={{ color: 'var(--accent)' }}>{total.toFixed(2)} MNT</span>
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm">
@@ -202,3 +202,4 @@ export default function Checkout() {
     </div>
   )
 }
+
