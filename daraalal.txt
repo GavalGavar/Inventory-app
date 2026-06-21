@@ -1,0 +1,13 @@
+0 30x30 30x60 60x60 45x90 60x120 1.22x2.44
+1 30x30 gerel sens 
+2 havtan 
+3 haniin rek
+4 taaz rek 
+5 tumur rek
+6 dagaldah heregsel 
+7 pvc 
+8 plintus 
+9 gadna fasad 	
+10 tordagaldah 
+11 
+
