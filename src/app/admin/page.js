@@ -26,7 +26,8 @@ export default function Admin() {
   }, [])
 
   return (
-  <RequireAuth allowedRoles={['admin']}>
+  <RequireAuth allowedRoles={['admin', 'sales_manager']}>
+    {(role) => (
     
 
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
@@ -71,6 +72,7 @@ export default function Admin() {
   Dashboard
 </Link>
 
+{role === 'admin' && (
 <Link
   href="/admin/companies"
   className="px-4 py-2 rounded text-sm font-medium"
@@ -78,6 +80,7 @@ export default function Admin() {
 >
   Companies
 </Link>
+)}
 
 <Link
   href="/admin/log-sale"
@@ -179,6 +182,9 @@ export default function Admin() {
           </div>
         )}
       </div>
+    )}
     </RequireAuth>
   )
 }
+
+

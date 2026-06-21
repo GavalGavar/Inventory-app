@@ -138,7 +138,7 @@ export default function LogSale() {
   }
 
   return (
-  <RequireAuth allowedRoles={['admin']}>
+  <RequireAuth allowedRoles={['admin', 'sales_manager']}>
     
 
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
