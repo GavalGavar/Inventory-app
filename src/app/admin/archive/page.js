@@ -80,14 +80,14 @@ export default function Archive() {
                       className="text-xs font-medium"
                       style={{ color: 'var(--stock-text)' }}
                     >
-                      Restore
+                      Сэргээх
                     </button>
                     <button
                       onClick={() => permanentlyDelete(order.id)}
                       className="text-xs font-medium"
                       style={{ color: 'var(--soldout-text)' }}
                     >
-                      Delete Forever
+                      Устах
                     </button>
                   </div>
                 </div>
@@ -95,14 +95,14 @@ export default function Archive() {
                 <ul className="text-sm mb-2" style={{ color: 'var(--foreground)' }}>
                   {order.items.map((item, i) => (
                     <li key={i}>
-                      {item.name} x{item.qty} â€” {(item.price * item.qty).toFixed(2)} MNT
+                      {item.name} x{item.qty} — {(item.price * item.qty).toFixed(2)} MNT
                     </li>
                   ))}
                 </ul>
 
                 <div className="flex justify-between items-center text-xs" style={{ color: 'var(--muted)' }}>
                   <span>{new Date(order.created_at).toLocaleString()}</span>
-                  <span className="font-medium">Total: {order.total.toFixed(2)} MNT</span>
+                  <span className="font-medium">Нийт: {order.total.toFixed(2)} MNT</span>
                 </div>
               </div>
             ))}
@@ -112,6 +112,7 @@ export default function Archive() {
     </RequireAuth>
   )
 }
+
 
 
 
