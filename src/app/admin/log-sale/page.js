@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
@@ -88,7 +88,7 @@ export default function LogSale() {
 
       orderData = {
         customer_name: selectedCompany ? selectedCompany.name : 'Company',
-        customer_contact: companyPhone.trim() || 'In-shop sale',
+        customer_contact: companyPhone.trim() || 'Дэлгүүрийн борлуулалт',
         items: orderItems,
         total: total,
         sale_type: 'in_shop',
@@ -103,7 +103,7 @@ export default function LogSale() {
 
       orderData = {
         customer_name: customerName.trim(),
-        customer_contact: customerPhone.trim() || 'In-shop sale',
+        customer_contact: customerPhone.trim() || 'Дэлгүүрийн борлуулалт',
         items: orderItems,
         total: total,
         sale_type: 'in_shop',
@@ -147,7 +147,7 @@ export default function LogSale() {
           style={{ borderBottom: '2px solid var(--accent)' }}
         >
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            LOG IN-SHOP SALE
+            ДЭЛГҮҮРИЙН БОРЛУУЛАЛТ БҮРТГЭХ
           </h1>
           <Link href="/admin" className="text-xs" style={{ color: 'var(--muted)' }}>
             Back to Admin
@@ -269,7 +269,7 @@ export default function LogSale() {
               )}
               <p className="font-medium">{item.name}</p>
               <p className="text-xs" style={{ color: 'var(--muted)' }}>
-                {item.price} MNT · {item.quantity} in stock
+                {item.price} MNT Â· {item.quantity} in stock
               </p>
             </button>
           ))}
@@ -323,4 +323,5 @@ export default function LogSale() {
     </RequireAuth>
   )
 }
+
 

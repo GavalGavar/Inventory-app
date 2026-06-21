@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
@@ -37,14 +37,14 @@ export default function Orders() {
   style={{ borderBottom: '2px solid var(--accent)' }}
 >
   <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-    ORDERS
+    ЗАХИАЛГА
   </h1>
   <Link
     href="/admin/archive"
     className="text-xs"
     style={{ color: 'var(--muted)' }}
   >
-    View Archive
+    Архив харах
   </Link>
 </div>
 
@@ -89,7 +89,7 @@ export default function Orders() {
                 <div className="flex justify-between items-center text-xs" style={{ color: 'var(--muted)' }}>
                   <span>{new Date(order.created_at).toLocaleString()}</span>
                   <span className="font-medium" style={{ color: 'var(--accent)' }}>
-                    Total: {order.total.toFixed(2)} MNT
+                    Нийт: {order.total.toFixed(2)} MNT
                   </span>
                 </div>
               </div>
@@ -100,6 +100,9 @@ export default function Orders() {
     </RequireAuth>
   )
 }
+
+
+
 
 
 

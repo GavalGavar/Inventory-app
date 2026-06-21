@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { supabase } from '../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
@@ -30,7 +30,8 @@ export default function OrderStatusButton({ id, status }) {
         color: status === 'pending' ? 'var(--soldout-text)' : 'var(--stock-text)',
       }}
     >
-      {status.toUpperCase()}
+      {status === 'pending' ? 'Хүлээгдэж буй' : 'Дууссан'}
     </button>
   )
 }
+
