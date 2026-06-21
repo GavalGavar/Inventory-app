@@ -9,37 +9,56 @@ export default function RequireAuth({ children, allowedRoles }) {
   const [checking, setChecking] = useState(true)
   const [authed, setAuthed] = useState(false)
   const [denied, setDenied] = useState(false)
+  const [role, setRole] = useState(null)
 
-  useEffect(() => {
-    async function checkAuth() {
-      const { data } = await supabase.auth.getUser()
+  const allowedRolesKey = allowedRoles ? allowedRoles.join(',') : ''
+useEffect(() => {
+  let cancelled = false
 
-      if (!data.user) {
-        router.push('/login')
+  async function checkAuth() {
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    if (cancelled) return
+
+   const { data } = await supabase.auth.getSession()
+if (cancelled) return
+console.log('RequireAuth session check:', data.session ? 'FOUND SESSION for ' + data.session.user.email : 'NO SESSION')
+if (!data.session) {
+  router.push('/login')
+  return
+}
+
+
+const userId = data.session.user.id
+
+     const { data: roleData } = await supabase
+  .from('user_roles')
+  .select('role')
+  .eq('id', userId)
+  .single()
+
+      if (cancelled) return
+
+      const userRole = roleData ? roleData.role : 'sales_manager'
+      setRole(userRole)
+
+      const rolesList = allowedRolesKey ? allowedRolesKey.split(',') : null
+
+      if (rolesList && !rolesList.includes(userRole)) {
+        setDenied(true)
+        setChecking(false)
         return
-      }
-
-      if (allowedRoles) {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single()
-
-        const role = roleData ? roleData.role : 'sales_manager'
-
-        if (!allowedRoles.includes(role)) {
-          setDenied(true)
-          setChecking(false)
-          return
-        }
       }
 
       setAuthed(true)
       setChecking(false)
     }
+
     checkAuth()
-  }, [router, allowedRoles])
+
+    return () => {
+      cancelled = true
+    }
+  }, [router, allowedRolesKey])
 
   if (checking) {
     return (
@@ -60,6 +79,10 @@ export default function RequireAuth({ children, allowedRoles }) {
   }
 
   if (!authed) return null
+
+  if (typeof children === 'function') {
+    return children(role)
+  }
 
   return children
 }

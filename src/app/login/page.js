@@ -11,39 +11,29 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function handleLogin(e) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+async function handleLogin(e) {
+  e.preventDefault()
+  setLoading(true)
+  setError('')
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
 
-    if (error) {
-      setLoading(false)
-      setError('Invalid email or password.')
-      return
-    }
+  if (error) {
+  setLoading(false)
+  setError('Invalid email or password.')
+  return
+}
 
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
+setTimeout(() => {
+  window.location.href = '/admin'
+}, 300)
 
-    const role = roleData ? roleData.role : 'sales_manager'
 
-    setLoading(false)
+}
 
-    if (role === 'admin') {
-      router.push('/admin')
-    } else {
-      router.push('/admin/portal')
-    }
-    router.refresh()
-  }
 
   const inputStyle = {
     background: 'var(--card)',
