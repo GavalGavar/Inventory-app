@@ -1,0 +1,15 @@
+﻿                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Photo</th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Name</th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Price</th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.id} style={{ borderBottom: '0.5px solid var(--border)' }}>
+                  <td className="p-2">
+                    {item.image_url && (
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="w-10 h-10 object-cover rounded mb-1"

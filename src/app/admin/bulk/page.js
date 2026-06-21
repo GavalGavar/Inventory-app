@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
@@ -71,7 +71,7 @@ export default function BulkEdit() {
     }
 
     setSaving(false)
-    setMessage('All changes saved!')
+    setMessage('Бүх өөрчлөлт хадгалагдлаа!')
     setPhotos({})
     loadItems()
   }
@@ -92,11 +92,11 @@ export default function BulkEdit() {
           style={{ borderBottom: '2px solid var(--accent)' }}
         >
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            BULK EDIT
+            БАРАА ЗАСАХ
           </h1>
           <div className="flex items-center gap-4">
             <Link href="/admin" className="text-xs" style={{ color: 'var(--muted)' }}>
-              ← Back to Admin
+← Буцах
             </Link>
             <button
               onClick={saveAll}
@@ -104,7 +104,7 @@ export default function BulkEdit() {
               className="px-4 py-2 rounded text-sm font-medium disabled:opacity-50"
               style={{ background: 'var(--foreground)', color: 'var(--background)' }}
             >
-              {saving ? 'Saving...' : 'Save All'}
+              {saving ? 'Хадгалж байна...' : 'Бүгдийг хадгалах'}
             </button>
           </div>
         </div>
@@ -117,10 +117,10 @@ export default function BulkEdit() {
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--accent)' }}>
-                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Photo</th>
-                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Name</th>
-                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Price</th>
-                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Quantity</th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Зураг</th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Нэр</th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Үнэ</th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Тоо ширхэг</th>
               </tr>
             </thead>
             <tbody>
@@ -178,6 +178,8 @@ export default function BulkEdit() {
     </RequireAuth>
   )
 }
+
+
 
 
 

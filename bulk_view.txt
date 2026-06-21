@@ -1,0 +1,30 @@
+﻿          className="flex justify-between items-baseline pb-4 mb-6"
+          style={{ borderBottom: '2px solid var(--accent)' }}
+        >
+          <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
+            BULK EDIT
+          </h1>
+          <div className="flex items-center gap-4">
+            <Link href="/admin" className="text-xs" style={{ color: 'var(--muted)' }}>
+              â† Back to Admin
+            </Link>
+            <button
+              onClick={saveAll}
+              disabled={saving}
+              className="px-4 py-2 rounded text-sm font-medium disabled:opacity-50"
+              style={{ background: 'var(--foreground)', color: 'var(--background)' }}
+            >
+              {saving ? 'Saving...' : 'Save All'}
+            </button>
+          </div>
+        </div>
+
+        {message && (
+          <p className="text-sm mb-4" style={{ color: 'var(--stock-text)' }}>{message}</p>
+        )}
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid var(--accent)' }}>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Photo</th>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { supabase } from '../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
@@ -7,7 +7,7 @@ export default function OrderDeleteButton({ id }) {
   const router = useRouter()
 
   async function handleArchive() {
-    const confirmed = confirm('Move this order to archive?')
+    const confirmed = confirm('Энэ захиалгыг архив руу шилжүүлэх үү?')
     if (!confirmed) return
 
     const { error } = await supabase
@@ -28,7 +28,8 @@ export default function OrderDeleteButton({ id }) {
       className="text-xs font-medium"
       style={{ color: 'var(--soldout-text)' }}
     >
-      Archive
+      Архивлах
     </button>
   )
 }
+

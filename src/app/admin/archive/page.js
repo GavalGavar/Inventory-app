@@ -49,7 +49,7 @@ export default function Archive() {
             className="text-xs"
             style={{ color: 'var(--muted)' }}
           >
-            â† Back to Orders
+← Захиалга руу буцах
           </Link>
         </div>
 
@@ -112,6 +112,7 @@ export default function Archive() {
     </RequireAuth>
   )
 }
+
 
 
 
