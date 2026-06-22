@@ -18,6 +18,7 @@ const CATEGORIES = [
   { number: 11, name: 'Чулуун емульс', min: 10.01, max: 10.17 },
   { number: 12, name: 'TOR pinturas', min: 11.01, max: 11.30 },
   { number: 13, name: 'Бусад бараа', min: 12.01, max: 12.32 },
+  { number: 14, name: 'Нэмэлт материал', min: 0.74, max: 0.94 },
 ]
 
 function getCategoryFromSKU(sku) {
@@ -230,3 +231,4 @@ export default function ImportItems() {
     </RequireAuth>
   )
 }
+

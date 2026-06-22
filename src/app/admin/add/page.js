@@ -1,23 +1,23 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import RequireAuth from '../../../components/RequireAuth'
 
 const CATEGORIES = [
-  { number: 1, name: 'Хөнгөн цагаан тааз' },
-  { number: 2, name: 'Гэрэл сэнс' },
-  { number: 3, name: 'Ханын панел хавтан' },
-  { number: 4, name: 'Хулсан хавтан' },
-  { number: 5, name: 'Ханын гоёлын рейк' },
-  { number: 6, name: 'Таазны рейк' },
-  { number: 7, name: 'Плинтүс' },
-  { number: 8, name: 'Хавтан таазны хүрээ' },
-  { number: 9, name: 'Гипсэн тааз' },
-  { number: 10, name: 'Сараалжин тааз' },
-  { number: 11, name: 'Чулуун емульс' },
+  { number: 1, name: 'Ð¥Ó©Ð½Ð³Ó©Ð½ Ñ†Ð°Ð³Ð°Ð°Ð½ Ñ‚Ð°Ð°Ð·' },
+  { number: 2, name: 'Ð“ÑÑ€ÑÐ» ÑÑÐ½Ñ' },
+  { number: 3, name: 'Ð¥Ð°Ð½Ñ‹Ð½ Ð¿Ð°Ð½ÐµÐ» Ñ…Ð°Ð²Ñ‚Ð°Ð½' },
+  { number: 4, name: 'Ð¥ÑƒÐ»ÑÐ°Ð½ Ñ…Ð°Ð²Ñ‚Ð°Ð½' },
+  { number: 5, name: 'Ð¥Ð°Ð½Ñ‹Ð½ Ð³Ð¾Ñ‘Ð»Ñ‹Ð½ Ñ€ÐµÐ¹Ðº' },
+  { number: 6, name: 'Ð¢Ð°Ð°Ð·Ð½Ñ‹ Ñ€ÐµÐ¹Ðº' },
+  { number: 7, name: 'ÐŸÐ»Ð¸Ð½Ñ‚Ò¯Ñ' },
+  { number: 8, name: 'Ð¥Ð°Ð²Ñ‚Ð°Ð½ Ñ‚Ð°Ð°Ð·Ð½Ñ‹ Ñ…Ò¯Ñ€ÑÑ' },
+  { number: 9, name: 'Ð“Ð¸Ð¿ÑÑÐ½ Ñ‚Ð°Ð°Ð·' },
+  { number: 10, name: 'Ð¡Ð°Ñ€Ð°Ð°Ð»Ð¶Ð¸Ð½ Ñ‚Ð°Ð°Ð·' },
+  { number: 11, name: 'Ð§ÑƒÐ»ÑƒÑƒÐ½ ÐµÐ¼ÑƒÐ»ÑŒÑ' },
   { number: 12, name: 'TOR pinturas' },
-  { number: 13, name: 'Бусад бараа' },
+  { number: 13, name: 'Ð‘ÑƒÑÐ°Ð´ Ð±Ð°Ñ€Ð°Ð°' },
 ]
 
 export default function AddItem() {
@@ -43,7 +43,7 @@ export default function AddItem() {
         .from('item-photos')
         .upload(fileName, photo)
       if (uploadError) {
-        setError('Зураг оруулахад алдаа гарлаа: ' + uploadError.message)
+        setError('Ð—ÑƒÑ€Ð°Ð³ Ð¾Ñ€ÑƒÑƒÐ»Ð°Ñ…Ð°Ð´ Ð°Ð»Ð´Ð°Ð° Ð³Ð°Ñ€Ð»Ð°Ð°: ' + uploadError.message)
         setUploading(false)
         return
       }
@@ -67,7 +67,7 @@ export default function AddItem() {
 
     setUploading(false)
     if (insertError) {
-      setError('Бараа нэмэхэд алдаа гарлаа: ' + insertError.message)
+      setError('Ð‘Ð°Ñ€Ð°Ð° Ð½ÑÐ¼ÑÑ…ÑÐ´ Ð°Ð»Ð´Ð°Ð° Ð³Ð°Ñ€Ð»Ð°Ð°: ' + insertError.message)
     } else {
       router.push('/admin')
     }
@@ -84,14 +84,14 @@ export default function AddItem() {
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
         <div className="pb-4 mb-6" style={{ borderBottom: '2px solid var(--accent)' }}>
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            БАРАА НЭМЭХ
+            Ð‘ÐÐ ÐÐ ÐÐ­ÐœÐ­Ð¥
           </h1>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm">
           {error && <p className="text-xs" style={{ color: 'var(--soldout-text)' }}>{error}</p>}
           <input
             type="text"
-            placeholder="Барааны нэр"
+            placeholder="Ð‘Ð°Ñ€Ð°Ð°Ð½Ñ‹ Ð½ÑÑ€"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="p-2 rounded text-sm"
@@ -101,7 +101,7 @@ export default function AddItem() {
           <input
             type="number"
             step="0.01"
-            placeholder="Үнэ"
+            placeholder="Ò®Ð½Ñ"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             className="p-2 rounded text-sm"
@@ -110,7 +110,7 @@ export default function AddItem() {
           />
           <input
             type="number"
-            placeholder="Тоо ширхэг"
+            placeholder="Ð¢Ð¾Ð¾ ÑˆÐ¸Ñ€Ñ…ÑÐ³"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             className="p-2 rounded text-sm"
@@ -119,7 +119,7 @@ export default function AddItem() {
           />
           <input
             type="text"
-            placeholder="SKU (заавал биш)"
+            placeholder="SKU (Ð·Ð°Ð°Ð²Ð°Ð» Ð±Ð¸Ñˆ)"
             value={sku}
             onChange={(e) => setSku(e.target.value)}
             className="p-2 rounded text-sm"
@@ -131,7 +131,7 @@ export default function AddItem() {
             className="p-2 rounded text-sm"
             style={inputStyle}
           >
-            <option value="">Ангилал сонгох...</option>
+            <option value="">ÐÐ½Ð³Ð¸Ð»Ð°Ð» ÑÐ¾Ð½Ð³Ð¾Ñ…...</option>
             {CATEGORIES.map((c) => (
               <option key={c.number} value={c.number}>
                 {c.number}. {c.name}
@@ -151,10 +151,12 @@ export default function AddItem() {
             className="py-2 rounded text-sm font-medium disabled:opacity-50"
             style={{ background: 'var(--foreground)', color: 'var(--background)' }}
           >
-            {uploading ? 'Хадгалж байна...' : 'Хадгалах'}
+            {uploading ? 'Ð¥Ð°Ð´Ð³Ð°Ð»Ð¶ Ð±Ð°Ð¹Ð½Ð°...' : 'Ð¥Ð°Ð´Ð³Ð°Ð»Ð°Ñ…'}
           </button>
         </form>
       </div>
     </RequireAuth>
   )
 }
+
+

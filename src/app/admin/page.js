@@ -139,6 +139,7 @@ export default function Admin() {
           <option value="11">11. Чулуун емульс</option>
           <option value="12">12. TOR pinturas</option>
           <option value="13">13. Бусад бараа</option>
+          <option value="14">14. Нэмэлт материал</option>
         </select>
         <input
           type="text"
@@ -210,6 +211,7 @@ export default function Admin() {
     </RequireAuth>
   )
 }
+
 
 
 

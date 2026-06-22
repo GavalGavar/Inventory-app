@@ -19,6 +19,7 @@ const CATEGORIES = [
   { number: 11, name: 'Чулуун емульс' },
   { number: 12, name: 'TOR pinturas' },
   { number: 13, name: 'Бусад бараа' },
+  { number: 14, name: 'Нэмэлт материал' },
 ]
 
 export default function BulkEdit() {
@@ -305,6 +306,7 @@ export default function BulkEdit() {
     </RequireAuth>
   )
 }
+
 
 
 
