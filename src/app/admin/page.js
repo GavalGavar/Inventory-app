@@ -21,16 +21,66 @@ const CATEGORIES = [
   { number: 14, name: 'Нэмэлт материал' },
 ]
 
+const SIZE_KEYWORDS = {
+  '30x30 Хөнгөн цагаан тааз': ['30x30', '30х30'],
+  '30x60 Хөнгөн цагаан тааз': ['30x60', '30х60'],
+  '60x60 Хөнгөн цагаан тааз': ['60x60', '60х60'],
+  '45x90 Хөнгөн цагаан тааз': ['45x90', '45х90'],
+  '60x120 Хөнгөн цагаан тааз': ['60x120', '60х120', '120x60', '120х60'],
+  '1.22x2.44 Хөнгөн цагаан тааз': ['1.22x2.44', '1.22х2.44', '122x244', '122х244'],
+  '20x20 Гэрэл/Сэнс': ['20x20', '20х20'],
+  '30x30 Гэрэл/Сэнс': ['30x30', '30х30'],
+  '30x60 Гэрэл/Сэнс': ['30x60', '30х60'],
+  '45x90 Гэрэл': ['45x90', '45х90'],
+  '60x60 Гэрэл/Сэнс': ['60x60', '60х60'],
+  'Рейкэн таазны гэрэл': ['Рейкэн'],
+}
+
+const ALL_CEILING_KEYWORDS = ['30x30','30х30','30x60','30х60','60x60','60х60','45x90','45х90','60x120','60х120','120x60','120х60','1.22x2.44','1.22х2.44','122x244','122х244']
+
+const CEILING_SIZES = [
+  '30x30 Хөнгөн цагаан тааз',
+  '30x60 Хөнгөн цагаан тааз',
+  '60x60 Хөнгөн цагаан тааз',
+  '45x90 Хөнгөн цагаан тааз',
+  '60x120 Хөнгөн цагаан тааз',
+  '1.22x2.44 Хөнгөн цагаан тааз',
+  'Нэмэлт материал',
+]
+
+const LIGHT_SIZES = [
+  '20x20 Гэрэл/Сэнс',
+  '30x30 Гэрэл/Сэнс',
+  '30x60 Гэрэл/Сэнс',
+  '45x90 Гэрэл',
+  '60x60 Гэрэл/Сэнс',
+  'Рейкэн таазны гэрэл',
+]
+
 export default function Admin() {
   const [items, setItems] = useState([])
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState(null)
+  const [sizeFilter, setSizeFilter] = useState(null)
 
   const filteredItems = items.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase())
     const matchesCategory = !categoryFilter || item.category_number === categoryFilter
-    return matchesSearch && matchesCategory
+    let matchesSize = true
+    if (sizeFilter) {
+      if (sizeFilter === 'Нэмэлт материал') {
+        matchesSize = !ALL_CEILING_KEYWORDS.some((kw) =>
+          item.name.toLowerCase().includes(kw.toLowerCase())
+        )
+      } else {
+        const keywords = SIZE_KEYWORDS[sizeFilter] || []
+        matchesSize = keywords.some((kw) =>
+          item.name.toLowerCase().includes(kw.toLowerCase())
+        )
+      }
+    }
+    return matchesSearch && matchesCategory && matchesSize
   })
 
   useEffect(() => {
@@ -45,6 +95,13 @@ export default function Admin() {
     }
     loadItems()
   }, [])
+
+  function handleCategoryClick(catNumber) {
+    setCategoryFilter(catNumber)
+    setSizeFilter(null)
+  }
+
+  const currentSizes = categoryFilter === 1 ? CEILING_SIZES : categoryFilter === 2 ? LIGHT_SIZES : null
 
   return (
     <RequireAuth allowedRoles={['admin', 'sales_manager']}>
@@ -103,7 +160,7 @@ export default function Admin() {
                 }}
               />
               <button
-                onClick={() => setCategoryFilter(null)}
+                onClick={() => { setCategoryFilter(null); setSizeFilter(null) }}
                 className="px-4 py-2 rounded text-sm font-bold"
                 style={{
                   background: !categoryFilter ? 'var(--accent)' : 'var(--foreground)',
@@ -116,7 +173,7 @@ export default function Admin() {
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat.number}
-                  onClick={() => setCategoryFilter(cat.number)}
+                  onClick={() => handleCategoryClick(cat.number)}
                   className="px-4 py-2 rounded text-sm font-bold"
                   style={{
                     background: categoryFilter === cat.number ? 'var(--accent)' : 'var(--foreground)',
@@ -128,6 +185,26 @@ export default function Admin() {
                 </button>
               ))}
             </div>
+
+            {/* Size subcategory row */}
+            {currentSizes && (
+              <div className="flex items-center gap-2 flex-wrap mt-2">
+                {currentSizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSizeFilter(size === sizeFilter ? null : size)}
+                    className="px-4 py-2 rounded text-sm font-bold"
+                    style={{
+                      background: sizeFilter === size ? 'var(--accent)' : 'var(--foreground)',
+                      color: 'var(--background)',
+                      border: '0.5px solid var(--border)',
+                    }}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Items grid */}
