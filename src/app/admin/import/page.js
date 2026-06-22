@@ -22,26 +22,35 @@ export default function ImportItems() {
     const json = XLSX.utils.sheet_to_json(sheet, { header: 1, range: 1 })
 
     const parsed = json
-      .filter((r) => r[0] && String(r[0]).trim() !== '')
-      .map((r) => {
-        const name = String(r[0]).trim()
-        const discrepancy = Number(r[2]) || 0
-        const quantity = Math.abs(discrepancy)
-        const price = Number(r[3]) || 0
-        return { name, quantity, price }
+      .filter((r) => {
+        const firstCell = String(r[0] || '').trim()
+        const secondCell = String(r[1] || '').trim()
+        // Skip group separator rows (like ── 30x30 ──) and empty rows
+        if (firstCell.startsWith('──') || firstCell.startsWith('--')) return false
+        if (!secondCell) return false
+        return true
       })
+      .map((r) => {
+        const sku = String(r[0] || '').trim()
+        const name = String(r[1] || '').trim()
+        const discrepancy = Number(r[3]) || 0
+        const quantity = Math.round(Math.abs(discrepancy))
+        const price = Number(r[4]) || 0
+        return { sku, name, quantity, price }
+      })
+      .filter((r) => r.name)
 
     if (parsed.length === 0) {
-      setError('No valid rows found. Make sure column A has item names.')
+      setError('Хүчинтэй мөр олдсонгүй.')
       return
     }
 
     const { data: existingItems, error: fetchError } = await supabase
       .from('items')
-      .select('id, name, quantity, price')
+      .select('id, name, quantity, price, sku')
 
     if (fetchError) {
-      setError('Error checking existing items: ' + fetchError.message)
+      setError('Алдаа гарлаа: ' + fetchError.message)
       return
     }
 
@@ -57,6 +66,7 @@ export default function ImportItems() {
         isNew: !match,
         oldQuantity: match ? match.quantity : null,
         oldPrice: match ? match.price : null,
+        oldSku: match ? match.sku : null,
         existingId: match ? match.id : null,
       }
     })
@@ -74,10 +84,10 @@ export default function ImportItems() {
     for (const row of toUpdate) {
       const { error: updateError } = await supabase
         .from('items')
-        .update({ quantity: row.quantity, price: row.price })
+        .update({ quantity: row.quantity, price: row.price, sku: row.sku })
         .eq('id', row.existingId)
       if (updateError) {
-        setError('Error updating ' + row.name + ': ' + updateError.message)
+        setError('Засахад алдаа гарлаа: ' + row.name + ': ' + updateError.message)
         setSaving(false)
         return
       }
@@ -89,11 +99,12 @@ export default function ImportItems() {
           name: row.name,
           quantity: row.quantity,
           price: row.price,
+          sku: row.sku,
           image_url: null,
         }))
       )
       if (insertError) {
-        setError('Error adding new items: ' + insertError.message)
+        setError('Нэмэхэд алдаа гарлаа: ' + insertError.message)
         setSaving(false)
         return
       }
@@ -114,12 +125,12 @@ export default function ImportItems() {
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
         <div className="pb-4 mb-6" style={{ borderBottom: '2px solid var(--accent)' }}>
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            IMPORT FROM EXCEL
+            ИМПОРТЛОХ
           </h1>
         </div>
 
         <p className="text-xs mb-4" style={{ color: 'var(--muted)' }}>
-          Upload an .xlsx file. Column A = item name, Column C = discrepancy (used as stock count), Column D = unit price.
+          .xlsx файл оруулна уу. A багана = SKU, B багана = нэр, D багана = тоо ширхэг (зөрүү), E багана = нэгж үнэ.
         </p>
 
         <input
@@ -131,14 +142,12 @@ export default function ImportItems() {
         />
 
         {error && (
-          <p className="text-xs mb-4" style={{ color: 'var(--soldout-text)' }}>
-            {error}
-          </p>
+          <p className="text-xs mb-4" style={{ color: 'var(--soldout-text)' }}>{error}</p>
         )}
 
         {done && (
           <p className="text-xs mb-4" style={{ color: 'var(--stock-text)' }}>
-            Import complete! Items have been added/updated.
+            Импорт амжилттай! Бараанууд нэмэгдлээ/шинэчлэгдлээ.
           </p>
         )}
 
@@ -148,17 +157,18 @@ export default function ImportItems() {
               <table className="w-full text-xs">
                 <thead>
                   <tr style={{ borderBottom: '0.5px solid var(--border)' }}>
-                    <th className="text-left p-2">Name</th>
-                    <th className="text-left p-2">Status</th>
-                    <th className="text-left p-2">Old Qty</th>
-                    <th className="text-left p-2">New Qty</th>
-                    <th className="text-left p-2">Old Price</th>
-                    <th className="text-left p-2">New Price</th>
+                    <th className="text-left p-2">SKU</th>
+                    <th className="text-left p-2">Нэр</th>
+                    <th className="text-left p-2">Төлөв</th>
+                    <th className="text-left p-2">Хуучин тоо</th>
+                    <th className="text-left p-2">Шинэ тоо</th>
+                    <th className="text-left p-2">Үнэ</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((row, i) => (
                     <tr key={i} style={{ borderBottom: '0.5px solid var(--border)' }}>
+                      <td className="p-2" style={{ color: 'var(--muted)' }}>{row.sku}</td>
                       <td className="p-2" style={{ color: 'var(--foreground)' }}>{row.name}</td>
                       <td className="p-2">
                         <span
@@ -168,13 +178,12 @@ export default function ImportItems() {
                             color: row.isNew ? 'var(--stock-text)' : 'var(--soldout-text)',
                           }}
                         >
-                          {row.isNew ? 'NEW' : 'UPDATE'}
+                          {row.isNew ? 'ШИНЭ' : 'ШИНЭЧЛЭХ'}
                         </span>
                       </td>
                       <td className="p-2" style={{ color: 'var(--muted)' }}>{row.oldQuantity ?? '—'}</td>
                       <td className="p-2" style={{ color: 'var(--foreground)' }}>{row.quantity}</td>
-                      <td className="p-2" style={{ color: 'var(--muted)' }}>{row.oldPrice ?? '—'}</td>
-                      <td className="p-2" style={{ color: 'var(--foreground)' }}>{row.price}</td>
+                      <td className="p-2" style={{ color: 'var(--foreground)' }}>{row.price.toLocaleString()} MNT</td>
                     </tr>
                   ))}
                 </tbody>
@@ -187,7 +196,7 @@ export default function ImportItems() {
               className="py-2 px-4 rounded text-sm font-medium disabled:opacity-50"
               style={{ background: 'var(--foreground)', color: 'var(--background)' }}
             >
-              {saving ? 'Saving...' : `Confirm Import (${rows.length} items)`}
+              {saving ? 'Хадгалж байна...' : `Импортлох (${rows.length} бараа)`}
             </button>
           </>
         )}
@@ -195,3 +204,4 @@ export default function ImportItems() {
     </RequireAuth>
   )
 }
+

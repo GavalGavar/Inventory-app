@@ -18,8 +18,8 @@ export default function BulkEdit() {
   }, [])
 
   async function loadItems() {
-    const { data } = await supabase.from('items').select().order('name')
-    if (data) setItems(data)
+    const { data } = await supabase.from('items').select()
+    if (data) setItems(data.sort((a, b) => { const skuA = parseFloat(a.sku) || 9999; const skuB = parseFloat(b.sku) || 9999; return skuA - skuB; }))
     setSelected([])
   }
 
@@ -90,6 +90,12 @@ export default function BulkEdit() {
         .from('items')
         .update({
           name: item.name,
+        
+          
+sku: item.sku,
+price: parseFloat(item.price),
+quantity: parseInt(item.quantity),
+image_url: imageUrl,
           price: parseFloat(item.price),
           quantity: parseInt(item.quantity),
           image_url: imageUrl,
@@ -154,6 +160,8 @@ export default function BulkEdit() {
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>
                   <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
                 </th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>SKU</th>
+
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Зураг</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Нэр</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Үнэ</th>
@@ -176,6 +184,16 @@ export default function BulkEdit() {
                       onChange={() => toggleSelect(item.id)}
                     />
                   </td>
+                  <td className="p-2">
+    <input
+      type="text"
+      value={item.sku || ''}
+      onChange={(e) => updateField(item.id, 'sku', e.target.value)}
+      className="p-1 rounded w-20"
+      style={inputStyle}
+    />
+  </td>
+
                   <td className="p-2">
                     {item.image_url && (
                       <img
@@ -228,3 +246,6 @@ export default function BulkEdit() {
     </RequireAuth>
   )
 }
+
+
+
