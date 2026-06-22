@@ -1,0 +1,11 @@
+﻿const fs = require('fs');
+let c = fs.readFileSync('src/app/page.js', 'utf8');
+c = c.replace('grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl', 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-6');
+c = c.replace("'IN STOCK' : 'SOLD OUT'", "'Бэлэн бараа' : 'Дууссан'");
+c = c.replace('{item.price} MNT', '{item.price.toLocaleString()} MNT');
+c = c.replace('else setItems(data)', "else setItems(data.sort((a, b) => { const skuA = parseFloat(a.sku) || 9999; const skuB = parseFloat(b.sku) || 9999; return skuA - skuB; }))");
+c = c.replace('Cart ({cart.length}) \u00e2\u20ac\u201c', 'Cart ({cart.length}) —');
+c = c.replace('{item.quantity} units', '{item.quantity} Үлдэгдэл');
+c = c.replace("'ADD'", "'Сагсанд нэмэх'");
+fs.writeFileSync('src/app/page.js', c, 'utf8');
+console.log('Done!');

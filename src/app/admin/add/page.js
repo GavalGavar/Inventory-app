@@ -4,13 +4,20 @@ import { supabase } from '../../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import RequireAuth from '../../../components/RequireAuth'
 
-const SIZE_GROUPS = [
-  { label: '30x30', min: 0.01, max: 0.30 },
-  { label: '30x60', min: 0.31, max: 0.65 },
-  { label: '60x60', min: 0.66, max: 0.99 },
-  { label: '45x90', min: 1.01, max: 1.40 },
-  { label: '120x60', min: 1.41, max: 1.85 },
-  { label: '1.22x2.44', min: 1.86, max: 2.30 },
+const CATEGORIES = [
+  { number: 1, name: 'Хөнгөн цагаан тааз' },
+  { number: 2, name: 'Гэрэл сэнс' },
+  { number: 3, name: 'Ханын панел хавтан' },
+  { number: 4, name: 'Хулсан хавтан' },
+  { number: 5, name: 'Ханын гоёлын рейк' },
+  { number: 6, name: 'Таазны рейк' },
+  { number: 7, name: 'Плинтүс' },
+  { number: 8, name: 'Хавтан таазны хүрээ' },
+  { number: 9, name: 'Гипсэн тааз' },
+  { number: 10, name: 'Сараалжин тааз' },
+  { number: 11, name: 'Чулуун емульс' },
+  { number: 12, name: 'TOR pinturas' },
+  { number: 13, name: 'Бусад бараа' },
 ]
 
 export default function AddItem() {
@@ -19,48 +26,17 @@ export default function AddItem() {
   const [price, setPrice] = useState('')
   const [quantity, setQuantity] = useState('')
   const [photo, setPhoto] = useState(null)
-  const [sizeGroup, setSizeGroup] = useState('')
+  const [sku, setSku] = useState('')
+  const [categoryNumber, setCategoryNumber] = useState('')
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
-
-  async function generateSKU(group) {
-    const { data: existingItems } = await supabase
-      .from('items')
-      .select('sku')
-      .not('sku', 'is', null)
-
-    const skusInRange = (existingItems || [])
-      .map((i) => parseFloat(i.sku))
-      .filter((s) => !isNaN(s) && s >= group.min && s <= group.max)
-
-    const nextSKU = skusInRange.length === 0
-      ? group.min
-      : Math.max(...skusInRange) + 0.01
-
-    if (nextSKU > group.max) return null
-    return nextSKU.toFixed(2)
-  }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-
-    if (!sizeGroup) {
-      setError('Хэмжээний бүлэг сонгоно уу.')
-      return
-    }
-
-    const group = SIZE_GROUPS.find((g) => g.label === sizeGroup)
-    const sku = await generateSKU(group)
-
-    if (!sku) {
-      setError(`${sizeGroup} бүлгийн SKU дүүрсэн байна.`)
-      return
-    }
-
     setUploading(true)
-    let imageUrl = null
 
+    let imageUrl = null
     if (photo) {
       const fileName = `${Date.now()}-${photo.name}`
       const { error: uploadError } = await supabase.storage
@@ -77,12 +53,16 @@ export default function AddItem() {
       imageUrl = publicUrlData.publicUrl
     }
 
+    const selectedCategory = CATEGORIES.find((c) => c.number === parseInt(categoryNumber))
+
     const { error: insertError } = await supabase.from('items').insert({
       name,
       price: parseFloat(price),
       quantity: parseInt(quantity),
       image_url: imageUrl,
-      sku,
+      sku: sku || null,
+      category_number: selectedCategory ? selectedCategory.number : null,
+      category_name: selectedCategory ? selectedCategory.name : null,
     })
 
     setUploading(false)
@@ -137,16 +117,25 @@ export default function AddItem() {
             style={inputStyle}
             required
           />
-          <select
-            value={sizeGroup}
-            onChange={(e) => setSizeGroup(e.target.value)}
+          <input
+            type="text"
+            placeholder="SKU (заавал биш)"
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
             className="p-2 rounded text-sm"
             style={inputStyle}
-            required
+          />
+          <select
+            value={categoryNumber}
+            onChange={(e) => setCategoryNumber(e.target.value)}
+            className="p-2 rounded text-sm"
+            style={inputStyle}
           >
-            <option value="">Хэмжээний бүлэг сонгох...</option>
-            {SIZE_GROUPS.map((g) => (
-              <option key={g.label} value={g.label}>{g.label}</option>
+            <option value="">Ангилал сонгох...</option>
+            {CATEGORIES.map((c) => (
+              <option key={c.number} value={c.number}>
+                {c.number}. {c.name}
+              </option>
             ))}
           </select>
           <input

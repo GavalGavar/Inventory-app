@@ -34,7 +34,7 @@ export default function Checkout() {
 
     if (error) {
       setSubmitting(false)
-      alert('Error placing order: ' + error.message)
+      alert('Захиалга илгээхэд алдаа гарлаа: ' + error.message)
       return
     }
 
@@ -59,31 +59,25 @@ export default function Checkout() {
   if (submitted) {
     return (
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
-        <div
-          className="pb-4 mb-6"
-          style={{ borderBottom: '2px solid var(--accent)' }}
-        >
+        <div className="pb-4 mb-6" style={{ borderBottom: '2px solid var(--accent)' }}>
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            ORDER RECEIVED
+            ЗАХИАЛГА ХҮЛЭЭН АВЛАА
           </h1>
         </div>
-
         <p className="text-sm mb-6" style={{ color: 'var(--muted)' }}>
-          Thanks for your order. Please complete payment using the details below,
-          and we'll confirm once received.
+          Захиалгын төлбөрийг доорх дансанд шилжүүлнэ үү. Төлбөр хүлээн авсны дараа баталгаажуулах болно.
         </p>
-
         <div
           className="p-4 rounded max-w-sm"
           style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
         >
           <p className="text-sm font-medium mb-2" style={{ color: 'var(--accent)' }}>
-            PAYMENT DETAILS
+            ТӨЛБӨРИЙН МЭДЭЭЛЭЛ
           </p>
-          <p className="text-sm" style={{ color: 'var(--foreground)' }}>Bank: Khanbank</p>
-          <p className="text-sm" style={{ color: 'var(--foreground)' }}>Account: 57000500 5301660856</p>
+          <p className="text-sm" style={{ color: 'var(--foreground)' }}>Банк: Хаан банк</p>
+          <p className="text-sm" style={{ color: 'var(--foreground)' }}>Данс: 57000500 5301660856</p>
           <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>
-            Reference: Please include your name
+            Гүйлгээний утга: Нэрээ бичнэ үү
           </p>
         </div>
       </div>
@@ -93,27 +87,21 @@ export default function Checkout() {
   if (cart.length === 0) {
     return (
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
-        <div
-          className="pb-4 mb-6"
-          style={{ borderBottom: '2px solid var(--accent)' }}
-        >
+        <div className="pb-4 mb-6" style={{ borderBottom: '2px solid var(--accent)' }}>
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            YOUR CART IS EMPTY
+            ТАНЫ САГС ХООСОН БАЙНА
           </h1>
         </div>
-        <p className="text-sm" style={{ color: 'var(--muted)' }}>Add some items first!</p>
+        <p className="text-sm" style={{ color: 'var(--muted)' }}>Эхлээд бараа нэмнэ үү!</p>
       </div>
     )
   }
 
   return (
     <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
-      <div
-        className="pb-4 mb-6"
-        style={{ borderBottom: '2px solid var(--accent)' }}
-      >
+      <div className="pb-4 mb-6" style={{ borderBottom: '2px solid var(--accent)' }}>
         <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-          CHECKOUT
+          ЗАХИАЛГА
         </h1>
       </div>
 
@@ -122,84 +110,75 @@ export default function Checkout() {
         style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}
       >
         {cart.map((item) => (
-         <div
-  key={item.id}
-  className="flex justify-between items-center p-3"
-  style={{ borderBottom: '0.5px solid var(--border)' }}
->
-  <div>
-  <span className="text-sm" style={{ color: 'var(--foreground)' }}>
-    {item.name}
-  </span>
-  <p className="text-xs" style={{ color: 'var(--muted)' }}>
-    {item.quantity} in stock
-  </p>
-</div>
-
-  <div className="flex items-center gap-3">
-    <span className="text-sm w-4 text-center" style={{ color: 'var(--foreground)' }}>
-  {item.qty}
-</span>
-<input
-  type="number"
-  min="1"
-  value={item.qty}
-  onChange={(e) => updateQty(item.id, parseInt(e.target.value) || 1)}
-  className="text-sm w-12 text-center rounded"
-  style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-/>
-
-    <span className="text-sm font-medium w-16 text-right" style={{ color: 'var(--accent)' }}>
-      {(item.price * item.qty).toFixed(2)} MNT
-    </span>
-    <button
-      onClick={() => removeFromCart(item.id)}
-      className="text-xs"
-      style={{ color: 'var(--soldout-text)' }}
-    >
-      Remove
-    </button>
-  </div>
-</div>
-
+          <div
+            key={item.id}
+            className="flex justify-between items-center p-3"
+            style={{ borderBottom: '0.5px solid var(--border)' }}
+          >
+            <div>
+              <span className="text-sm" style={{ color: 'var(--foreground)' }}>
+                {item.name}
+              </span>
+              <p className="text-xs" style={{ color: 'var(--muted)' }}>
+                {item.quantity} үлдэгдэл
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="number"
+                min="1"
+                value={item.qty}
+                onChange={(e) => updateQty(item.id, parseInt(e.target.value) || 1)}
+                className="text-sm w-12 text-center rounded"
+                style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+              />
+              <span className="text-sm font-medium w-24 text-right" style={{ color: 'var(--accent)' }}>
+                {(item.price * item.qty).toLocaleString()} MNT
+              </span>
+              <button
+                onClick={() => removeFromCart(item.id)}
+                className="text-xs"
+                style={{ color: 'var(--soldout-text)' }}
+              >
+                Хасах
+              </button>
+            </div>
+          </div>
         ))}
       </div>
 
       <p className="text-sm font-medium mb-6" style={{ color: 'var(--foreground)' }}>
-        Total: <span style={{ color: 'var(--accent)' }}>{total.toFixed(2)} MNT</span>
+        Нийт: <span style={{ color: 'var(--accent)' }}>{total.toLocaleString()} MNT</span>
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm">
         <input
           type="text"
-          placeholder="Your name"
+          placeholder="Таны нэр"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="p-2 rounded text-sm"
           style={inputStyle}
           required
         />
-
         <input
           type="text"
-          placeholder="Phone or email"
+          placeholder="Утас эсвэл имэйл"
           value={contact}
           onChange={(e) => setContact(e.target.value)}
           className="p-2 rounded text-sm"
           style={inputStyle}
           required
         />
-
         <button
           type="submit"
           disabled={submitting}
           className="py-2 rounded text-sm font-medium disabled:opacity-50"
           style={{ background: 'var(--foreground)', color: 'var(--background)' }}
         >
-          {submitting ? 'Placing order...' : 'Place Order'}
+          {submitting ? 'Захиалж байна...' : 'Захиалах'}
         </button>
       </form>
     </div>
   )
 }
-

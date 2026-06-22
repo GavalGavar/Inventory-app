@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
@@ -15,7 +15,11 @@ export default function Home() {
     async function loadItems() {
       const { data, error } = await supabase.from('items').select()
       if (error) setError(error)
-      else setItems(data)
+      else setItems(data.sort((a, b) => {
+        const skuA = parseFloat(a.sku) || 9999
+        const skuB = parseFloat(b.sku) || 9999
+        return skuA - skuB
+      }))
     }
     loadItems()
   }, [])
@@ -38,13 +42,13 @@ export default function Home() {
           className="px-4 py-2 rounded text-sm font-medium"
           style={{ background: 'var(--foreground)', color: 'var(--background)' }}
         >
-          Cart ({cart.length}) — {total.toFixed(2)} MNT
+          Сагс ({cart.length}) — {total.toLocaleString()} MNT
         </Link>
       </div>
 
       <input
         type="text"
-        placeholder="Search items..."
+        placeholder="Хайх..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="p-2 rounded text-sm mb-6 w-full max-w-xs"
@@ -55,22 +59,22 @@ export default function Home() {
         }}
       />
 
-      {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
+      {error && <p style={{ color: 'var(--soldout-text)' }}>Алдаа: {error.message}</p>}
 
       {items.length === 0 && (
-        <p style={{ color: 'var(--muted)' }}>No items available right now.</p>
+        <p style={{ color: 'var(--muted)' }}>Бараа байхгүй байна.</p>
       )}
 
       {items.length > 0 && filteredItems.length === 0 && (
-        <p style={{ color: 'var(--muted)' }}>No items match "{search}".</p>
+        <p style={{ color: 'var(--muted)' }}>"{search}" хайлтад тохирох бараа олдсонгүй.</p>
       )}
 
       {filteredItems.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-6">
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="rounded p-3 relative"
+              className="rounded p-2 relative"
               style={{
                 background: 'var(--card)',
                 border: '0.5px solid var(--border)',
@@ -78,16 +82,15 @@ export default function Home() {
               }}
             >
               <span
-                className="absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded"
+                className="absolute top-2 right-2 text-sm font-medium px-2 py-1 rounded"
                 style={{
                   background: item.quantity > 0 ? 'var(--stock-bg)' : 'var(--soldout-bg)',
                   color: item.quantity > 0 ? 'var(--stock-text)' : 'var(--soldout-text)',
                   transform: item.quantity > 0 ? 'none' : 'rotate(-4deg)',
                 }}
               >
-                {item.quantity > 0 ? 'IN STOCK' : 'SOLD OUT'}
+                {item.quantity > 0 ? 'Бэлэн бараа' : 'Дууссан'}
               </span>
-
               {item.image_url && (
                 <img
                   src={item.image_url}
@@ -95,34 +98,23 @@ export default function Home() {
                   className="w-full aspect-square object-cover rounded mb-2"
                 />
               )}
-
-              <h2 className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+              <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>
                 {item.name}
               </h2>
-              <p className="text-xs mb-2" style={{ color: 'var(--muted)' }}>
-                {item.quantity} units
+              <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>
+                {item.price.toLocaleString()} MNT · {item.quantity} Үлдэгдэл
               </p>
-
               <div className="flex justify-between items-center">
-                <span
-                  className="text-base font-medium"
-                  style={{ color: item.quantity > 0 ? 'var(--accent)' : 'var(--muted)' }}
-                >
-                  {item.price} MNT
-                </span>
-
                 {item.quantity > 0 ? (
                   <button
                     onClick={() => addToCart(item)}
-                    className="text-xs px-3 py-1 rounded"
-                    style={{ border: '0.5px solid var(--border)', color: 'var(--muted)' }}
+                    className="text-sm font-medium px-3 py-1 rounded"
+                    style={{ border: '0.5px solid var(--border)', color: 'var(--accent)' }}
                   >
-                    ADD
+                    Сагсанд нэмэх
                   </button>
                 ) : (
-                  <span className="text-xs px-3 py-1" style={{ color: 'var(--muted)' }}>
-                    —
-                  </span>
+                  <span className="text-sm px-3 py-1" style={{ color: 'var(--muted)' }}>—</span>
                 )}
               </div>
             </div>
@@ -132,4 +124,3 @@ export default function Home() {
     </div>
   )
 }
-

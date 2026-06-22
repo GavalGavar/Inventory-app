@@ -5,12 +5,30 @@ import { supabase } from '../../../lib/supabaseClient'
 import RequireAuth from '../../../components/RequireAuth'
 import Link from 'next/link'
 
+const CATEGORIES = [
+  { number: 1, name: 'Хөнгөн цагаан тааз' },
+  { number: 2, name: 'Гэрэл сэнс' },
+  { number: 3, name: 'Ханын панел хавтан' },
+  { number: 4, name: 'Хулсан хавтан' },
+  { number: 5, name: 'Ханын гоёлын рейк' },
+  { number: 6, name: 'Таазны рейк' },
+  { number: 7, name: 'Плинтүс' },
+  { number: 8, name: 'Хавтан таазны хүрээ' },
+  { number: 9, name: 'Гипсэн тааз' },
+  { number: 10, name: 'Сараалжин тааз' },
+  { number: 11, name: 'Чулуун емульс' },
+  { number: 12, name: 'TOR pinturas' },
+  { number: 13, name: 'Бусад бараа' },
+]
+
 export default function BulkEdit() {
   const [items, setItems] = useState([])
   const [photos, setPhotos] = useState({})
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [selected, setSelected] = useState([])
+  const [search, setSearch] = useState('')
+  
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -19,7 +37,11 @@ export default function BulkEdit() {
 
   async function loadItems() {
     const { data } = await supabase.from('items').select()
-    if (data) setItems(data.sort((a, b) => { const skuA = parseFloat(a.sku) || 9999; const skuB = parseFloat(b.sku) || 9999; return skuA - skuB; }))
+    if (data) setItems(data.sort((a, b) => {
+      const skuA = parseFloat(a.sku) || 9999
+      const skuB = parseFloat(b.sku) || 9999
+      return skuA - skuB
+    }))
     setSelected([])
   }
 
@@ -33,6 +55,17 @@ export default function BulkEdit() {
   function updateField(id, field, value) {
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+    )
+  }
+
+  function updateCategory(id, categoryNumber) {
+    const cat = CATEGORIES.find((c) => c.number === parseInt(categoryNumber))
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, category_number: cat ? cat.number : null, category_name: cat ? cat.name : null }
+          : item
+      )
     )
   }
 
@@ -90,15 +123,12 @@ export default function BulkEdit() {
         .from('items')
         .update({
           name: item.name,
-        
-          
-sku: item.sku,
-price: parseFloat(item.price),
-quantity: parseInt(item.quantity),
-image_url: imageUrl,
+          sku: item.sku,
           price: parseFloat(item.price),
           quantity: parseInt(item.quantity),
           image_url: imageUrl,
+          category_number: item.category_number,
+          category_name: item.category_name,
         })
         .eq('id', item.id)
     }
@@ -114,7 +144,12 @@ image_url: imageUrl,
     color: 'var(--foreground)',
   }
 
-  const allSelected = items.length > 0 && selected.length === items.length
+  const filteredItems = items.filter((item) => {
+    const q = search.toLowerCase()
+    return item.name.toLowerCase().includes(q) || (item.sku || '').toLowerCase().includes(q)
+  })
+  const allSelected = filteredItems.length > 0 && selected.length === filteredItems.length
+
 
   return (
     <RequireAuth allowedRoles={['admin', 'sales_manager']}>
@@ -150,9 +185,18 @@ image_url: imageUrl,
             </button>
           </div>
         </div>
+        <input
+  type="text"
+  placeholder="Нэр эсвэл SKU-аар хайх..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="p-2 rounded text-sm mb-6 w-full max-w-sm"
+  style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+/>
         {message && (
           <p className="text-sm mb-4" style={{ color: 'var(--stock-text)' }}>{message}</p>
         )}
+        
         <div className="overflow-x-auto">
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
@@ -161,15 +205,16 @@ image_url: imageUrl,
                   <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
                 </th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>SKU</th>
-
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Зураг</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Нэр</th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Ангилал</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Үнэ</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Тоо ширхэг</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
+              {filteredItems.map((item) => (
+                
                 <tr
                   key={item.id}
                   style={{
@@ -185,15 +230,14 @@ image_url: imageUrl,
                     />
                   </td>
                   <td className="p-2">
-    <input
-      type="text"
-      value={item.sku || ''}
-      onChange={(e) => updateField(item.id, 'sku', e.target.value)}
-      className="p-1 rounded w-20"
-      style={inputStyle}
-    />
-  </td>
-
+                    <input
+                      type="text"
+                      value={item.sku || ''}
+                      onChange={(e) => updateField(item.id, 'sku', e.target.value)}
+                      className="p-1 rounded w-16"
+                      style={inputStyle}
+                    />
+                  </td>
                   <td className="p-2">
                     {item.image_url && (
                       <img
@@ -217,6 +261,21 @@ image_url: imageUrl,
                       className="p-1 rounded w-64"
                       style={inputStyle}
                     />
+                  </td>
+                  <td className="p-2">
+                    <select
+                      value={item.category_number || ''}
+                      onChange={(e) => updateCategory(item.id, e.target.value)}
+                      className="p-1 rounded text-xs"
+                      style={{ ...inputStyle, width: '160px' }}
+                    >
+                      <option value="">Сонгох...</option>
+                      {CATEGORIES.map((c) => (
+                        <option key={c.number} value={c.number}>
+                          {c.number}. {c.name}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                   <td className="p-2">
                     <input
@@ -246,6 +305,7 @@ image_url: imageUrl,
     </RequireAuth>
   )
 }
+
 
 
 

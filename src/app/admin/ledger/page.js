@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
@@ -84,21 +84,21 @@ const [endDate, setEndDate] = useState('')
           style={{ borderBottom: '2px solid var(--accent)' }}
         >
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            STOCK LEDGER
+            ЗАХИАЛГЫН ТҮҮХ
           </h1>
           <Link href="/admin" className="text-xs" style={{ color: 'var(--muted)' }}>
-            Back to Admin
+            Буцах
           </Link>
         </div>
 
         <div className="flex flex-wrap gap-3 mb-4 items-end">
   <div>
     <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
-      Search item
+      Бараа хайх
     </label>
     <input
       type="text"
-      placeholder="Search item name..."
+      placeholder="Барааны нэр хайх..."
       value={search}
       onChange={(e) => setSearch(e.target.value)}
       className="p-2 rounded text-sm"
@@ -108,7 +108,7 @@ const [endDate, setEndDate] = useState('')
 
   <div>
     <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
-      From date
+      Эхлэх огноо
     </label>
     <input
       type="date"
@@ -121,7 +121,7 @@ const [endDate, setEndDate] = useState('')
 
   <div>
     <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>
-      To date
+      Дуусах огноо
     </label>
     <input
       type="date"
@@ -142,7 +142,7 @@ const [endDate, setEndDate] = useState('')
       className="text-xs px-3 py-2"
       style={{ color: 'var(--soldout-text)' }}
     >
-      Clear filters
+      Цэвэрлэх
     </button>
   )}
 </div>
@@ -150,14 +150,14 @@ const [endDate, setEndDate] = useState('')
 
         {!loading && (
           <p className="text-xs mb-4" style={{ color: 'var(--muted)' }}>
-            {filteredSales.length} sales - {totalUnits} units - {totalValue.toFixed(2)} MNT total
+            {filteredSales.length} борлуулалт - {totalUnits} ширхэг - {totalValue.toFixed(2)} MNT нийт
           </p>
         )}
 
-        {loading && <p style={{ color: 'var(--muted)' }}>Loading...</p>}
+        {loading && <p style={{ color: 'var(--muted)' }}>Уншиж байна...</p>}
 
         {!loading && filteredSales.length === 0 && (
-          <p style={{ color: 'var(--muted)' }}>No sales recorded yet.</p>
+          <p style={{ color: 'var(--muted)' }}>Борлуулалт бүртгэгдээгүй байна.</p>
         )}
 
         {!loading && filteredSales.length > 0 && (
@@ -180,7 +180,7 @@ const [endDate, setEndDate] = useState('')
                     <p className="text-xs" style={{ color: 'var(--muted)' }}>
                       {new Date(sale.date).toLocaleString()}
                       {sale.company ? ' - ' + sale.company : ''}
-                      {sale.saleType === 'online' ? ' - Online' : ' - In-Shop'}
+                      {sale.saleType === 'online' ? ' - Онлайн' : ' - Дэлгүүр'}
                     </p>
                   </div>
                   {sale.archived && (
@@ -188,7 +188,7 @@ const [endDate, setEndDate] = useState('')
                       className="text-xs px-2 py-1 rounded"
                       style={{ background: 'var(--soldout-bg)', color: 'var(--soldout-text)' }}
                     >
-                      Archived
+                      Архивлагдсан
                     </span>
                   )}
                 </div>
@@ -206,7 +206,7 @@ const [endDate, setEndDate] = useState('')
                   className="text-sm font-medium text-right"
                   style={{ color: 'var(--accent)', borderTop: '0.5px solid var(--border)', paddingTop: '8px' }}
                 >
-                  Total: {sale.total.toFixed(2)} MNT
+                  Нийт: {sale.total.toFixed(2)} MNT
                 </p>
               </div>
             ))}
@@ -216,4 +216,5 @@ const [endDate, setEndDate] = useState('')
     </RequireAuth>
   )
 }
+
 

@@ -1,0 +1,11 @@
+﻿const fs = require('fs');
+let c = fs.readFileSync('src/app/page.js', 'utf8');
+c = c.replace('className="rounded p-3 relative"', 'className="rounded p-2 relative"');
+c = c.replace('className="absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded"', 'className="absolute top-2 right-2 text-sm font-medium px-2 py-1 rounded"');
+c = c.replace('className="text-sm font-medium" style={{ color: \'var(--foreground)\' }}', 'className="text-base font-bold" style={{ color: \'var(--foreground)\' }}');
+c = c.replace('className="text-xs mb-2"', 'className="text-sm mb-2"');
+c = c.replace('className="text-base font-medium"\n                  style={{ color: item.quantity > 0 ? \'var(--accent)\' : \'var(--muted)\' }}', '');
+c = c.replace('className="text-xs px-3 py-1 rounded"', 'className="text-sm font-medium px-3 py-1 rounded"');
+c = c.replace('className="text-xs px-3 py-1"', 'className="text-sm px-3 py-1"');
+fs.writeFileSync('src/app/page.js', c, 'utf8');
+console.log('Done!');
