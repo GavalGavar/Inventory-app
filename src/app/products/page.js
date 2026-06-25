@@ -5,6 +5,8 @@ import { supabase } from '../../lib/supabaseClient'
 import { useCart } from '../../context/CartContext'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
+
 
 
 const CATEGORIES = [
@@ -59,7 +61,8 @@ const LIGHT_SIZES = [
   'Рейкэн таазны гэрэл',
 ]
 
-export default function Products() {
+function ProductsInner() {
+
   const [items, setItems] = useState([])
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
@@ -269,3 +272,11 @@ export default function Products() {
     </div>
   )
 }
+export default function Products() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProductsInner />
+    </Suspense>
+  )
+}
+
