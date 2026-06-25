@@ -33,87 +33,78 @@ export default function Archive() {
   }
 
   return (
-  <RequireAuth allowedRoles={['admin', 'sales_manager']}>
-    
-
-      <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
-        <div
-          className="flex justify-between items-baseline pb-4 mb-6"
-          style={{ borderBottom: '2px solid var(--accent)' }}
-        >
-          <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            Taaz.mn | ?????????? ????????
-          </h1>
-          <Link
-            href="/admin/orders"
-            className="text-xs"
-            style={{ color: 'var(--muted)' }}
+    <RequireAuth allowedRoles={['admin', 'sales_manager']}>
+      {() => (
+        <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
+          <div
+            className="flex justify-between items-baseline pb-4 mb-6"
+            style={{ borderBottom: '2px solid var(--accent)' }}
           >
-? ???????? ??? ?????
-          </Link>
-        </div>
-
-        {orders.length === 0 && (
-          <p style={{ color: 'var(--muted)' }}>???????????? ???????? ???? ?????.</p>
-        )}
-
-        {orders.length > 0 && (
-          <div className="flex flex-col gap-3 max-w-2xl">
-            {orders.map((order) => (
-              <div
-                key={order.id}
-                className="rounded p-4"
-                style={{ background: 'var(--card)', border: '0.5px solid var(--border)', opacity: 0.75 }}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-                      {order.customer_name}
-                    </p>
-                    <p className="text-xs" style={{ color: 'var(--muted)' }}>
-                      {order.customer_contact}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => restore(order.id)}
-                      className="text-xs font-medium"
-                      style={{ color: 'var(--stock-text)' }}
-                    >
-                      ???????
-                    </button>
-                    <button
-                      onClick={() => permanentlyDelete(order.id)}
-                      className="text-xs font-medium"
-                      style={{ color: 'var(--soldout-text)' }}
-                    >
-                      ?????
-                    </button>
-                  </div>
-                </div>
-
-                <ul className="text-sm mb-2" style={{ color: 'var(--foreground)' }}>
-                  {order.items.map((item, i) => (
-                    <li key={i}>
-                      {item.name} x{item.qty} � {(item.price * item.qty).toFixed(2)} MNT
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex justify-between items-center text-xs" style={{ color: 'var(--muted)' }}>
-                  <span>{new Date(order.created_at).toLocaleString()}</span>
-                  <span className="font-medium">????: {order.total.toFixed(2)} MNT</span>
-                </div>
-              </div>
-            ))}
+            <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
+              Taaz.mn | АРХИВЛАСАН ЗАХИАЛГА
+            </h1>
+            <Link href="/admin/orders" className="text-xs" style={{ color: 'var(--muted)' }}>
+              Захиалга руу буцах
+            </Link>
           </div>
-        )}
-      </div>
+
+          {orders.length === 0 && (
+            <p style={{ color: 'var(--muted)' }}>Архивлагдсан захиалга алга байна.</p>
+          )}
+
+          {orders.length > 0 && (
+            <div className="flex flex-col gap-3 max-w-2xl">
+              {orders.map((order) => (
+                <div
+                  key={order.id}
+                  className="rounded p-4"
+                  style={{ background: 'var(--card)', border: '0.5px solid var(--border)', opacity: 0.75 }}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+                        {order.customer_name}
+                      </p>
+                      <p className="text-xs" style={{ color: 'var(--muted)' }}>
+                        {order.customer_contact}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => restore(order.id)}
+                        className="text-xs font-medium"
+                        style={{ color: 'var(--stock-text)' }}
+                      >
+                        Сэргээх
+                      </button>
+                      <button
+                        onClick={() => permanentlyDelete(order.id)}
+                        className="text-xs font-medium"
+                        style={{ color: 'var(--soldout-text)' }}
+                      >
+                        Устгах
+                      </button>
+                    </div>
+                  </div>
+
+                  <ul className="text-sm mb-2" style={{ color: 'var(--foreground)' }}>
+                    {order.items.map((item, i) => (
+                      <li key={i}>
+                        {item.name} x{item.qty} - {(item.price * item.qty).toFixed(2)} MNT
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="flex justify-between items-center text-xs" style={{ color: 'var(--muted)' }}>
+                    <span>{new Date(order.created_at).toLocaleString()}</span>
+                    <span className="font-medium">Нийт: {order.total.toFixed(2)} MNT</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </RequireAuth>
   )
 }
-
-
-
-
-
