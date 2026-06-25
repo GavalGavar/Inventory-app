@@ -249,8 +249,14 @@ function ProductsInner() {
                   {item.name}
                 </h2>
                 <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>
-                  {item.price.toLocaleString()} MNT · {item.quantity} Үлдэгдэл
+                  {item.unit_type === 'м.кв'
+                    ? `1м² = ${item.price.toLocaleString()} MNT`
+                    : `1ш = ${item.price.toLocaleString()} MNT`
+                  } · {item.quantity} {item.unit_type === 'м.кв' ? 'м²' : 'ш'} үлдэгдэл
+                  
                 </p>
+
+
                 <div className="flex justify-between items-center">
                   {item.quantity > 0 ? (
                     <button

@@ -250,7 +250,9 @@ export default function Admin() {
                         <p className="text-xs mb-1" style={{ color: 'var(--muted)' }}>{item.category_number}. {item.category_name}</p>
                       )}
                       <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>{item.name}</h2>
-                      <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>{item.price.toLocaleString()} MNT · {item.quantity} Үлдэгдэл</p>
+                      <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>{item.unit_type === 'м.кв' ? `1м² = ${item.price.toLocaleString()} MNT` : `1ш = ${item.price.toLocaleString()} MNT`} · {item.quantity}{item.unit_type === 'м.кв' ? 'м²' : 'ш'} үлдэгдэл
+                        
+                      </p>
                       <div className="flex justify-between items-center">
                         <Link href={`/admin/edit/${item.id}`} className="text-sm font-medium" style={{ color: 'var(--accent)' }}>
                           Edit
