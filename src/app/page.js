@@ -68,7 +68,7 @@ export default function Home() {
           backgroundColor: '#e81c1c', color: '#fff', padding: '14px 40px',
           borderRadius: '6px', textDecoration: 'none', fontWeight: '700', fontSize: '1rem', display: 'inline-block'
         }}>
-          Бараа үзэх →
+          Бүтээгдэхүүн үзэх →
         </Link>
       </section>
 
@@ -173,6 +173,37 @@ export default function Home() {
      
 
       {/* Footer */}
+      {/* Contact Strip */}
+      <section style={{ padding: '40px 48px', backgroundColor: '#111', borderTop: '3px solid #e81c1c' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <a href="mailto:Info@taaz.mn" style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            color: '#fff', textDecoration: 'none', fontWeight: '600', fontSize: '1rem'
+          }}>
+            <span style={{ fontSize: '1.5rem' }}>✉️</span>
+            Info@taaz.mn
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=100064250521344" target="_blank" rel="noopener noreferrer" style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            color: '#fff', textDecoration: 'none', fontWeight: '600', fontSize: '1rem'
+          }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/facebook.svg" alt="Facebook" style={{ width: '20px', height: '20px', filter: 'invert(1)' }} />
+            </div>
+            Facebook
+          </a>
+          <a href="https://www.instagram.com/taazzmn/" target="_blank" rel="noopener noreferrer" style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            color: '#fff', textDecoration: 'none', fontWeight: '600', fontSize: '1rem'
+          }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#E1306C', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/instagram.svg" alt="Instagram" style={{ width: '20px', height: '20px', filter: 'invert(1)' }} />
+            </div>
+            Instagram
+          </a>
+        </div>
+      </section>
+      
       <footer style={{
         padding: '32px 48px', textAlign: 'center', backgroundColor: '#111',
         borderTop: '3px solid #e81c1c', color: '#888', fontSize: '0.9rem'

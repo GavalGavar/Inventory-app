@@ -207,7 +207,7 @@ function ProductsInner() {
       {/* Items grid */}
       <div className="p-6">
         {error && <p style={{ color: 'var(--soldout-text)' }}>Алдаа: {error.message}</p>}
-        {items.length === 0 && <p style={{ color: 'var(--muted)' }}>Бараа байхгүй байна.</p>}
+        {items.length === 0 && <p style={{ color: 'var(--muted)' }}>Бүтээгдэхүүн байхгүй байна.</p>}
         {items.length > 0 && filteredItems.length === 0 && (
           <p style={{ color: 'var(--muted)' }}>Тохирох бараа олдсонгүй.</p>
         )}
@@ -252,8 +252,9 @@ function ProductsInner() {
                   {item.unit_type === 'м.кв'
                     ? `1м² = ${item.price.toLocaleString()} MNT`
                     : `1ш = ${item.price.toLocaleString()} MNT`
-                  } · {item.quantity} {item.unit_type === 'м.кв' ? 'м²' : 'ш'} үлдэгдэл
+                  } · {item.quantity}{item.unit_type === 'м.кв' ? 'м²' : 'ш'} үлдэгдэл
                   
+
                 </p>
 
 

@@ -19,7 +19,7 @@ export default function Contact() {
         <div style={{ display: 'flex', gap: '32px' }}>
           {[
             { label: 'Нүүр', href: '/' },
-            { label: 'Бараа', href: '/products' },
+            { label: 'Бүтээгдэхүүн', href: '/products' },
             { label: 'Бидний тухай', href: '/about' },
             { label: 'Холбоо барих', href: '/contact' },
             { label: 'Админ', href: '/admin' },
@@ -75,6 +75,22 @@ export default function Contact() {
           </div>
 
           {/* Social Media */}
+          {/* Email */}
+          <h2 style={{ fontSize: '1.8rem', fontWeight: '800', marginBottom: '8px', color: '#111', marginTop: '60px' }}>Имэйл</h2>
+          <div style={{ width: '60px', height: '4px', backgroundColor: '#e81c1c', marginBottom: '40px' }} />
+          <a href="mailto:Info@taaz.mn" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '12px',
+            padding: '16px 24px', borderRadius: '10px', backgroundColor: '#f9f9f9',
+            border: '2px solid #eee', textDecoration: 'none', color: '#111',
+            fontWeight: '700', fontSize: '1rem', transition: 'border-color 0.2s'
+          }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#e81c1c'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = '#eee'}
+          >
+            <span style={{ fontSize: '1.5rem' }}>✉️</span>
+            Info@taaz.mn
+          </a>
+          
           {/* Other Contacts */}
           <h2 style={{ fontSize: '1.8rem', fontWeight: '800', marginBottom: '8px', color: '#111', marginTop: '60px' }}>Бусад холбоо барих</h2>
           <div style={{ width: '60px', height: '4px', backgroundColor: '#e81c1c', marginBottom: '40px' }} />
@@ -124,7 +140,7 @@ export default function Contact() {
                 }}>
                   <img src={social.icon} alt={social.name} style={{ width: '20px', height: '20px', filter: 'invert(1)' }} />
                 </div>
-                
+
                 {social.name}
               </a>
             ))}

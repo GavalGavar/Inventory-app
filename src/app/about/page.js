@@ -17,7 +17,7 @@ export default function About() {
         <div style={{ display: 'flex', gap: '32px' }}>
           {[
             { label: 'Нүүр', href: '/' },
-            { label: 'Бараа', href: '/products' },
+            { label: 'Бүтээгдэхүүн', href: '/products' },
             { label: 'Бидний тухай', href: '/about' },
             { label: 'Админ', href: '/admin' },
           ].map((item) => (
