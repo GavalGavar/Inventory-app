@@ -105,39 +105,50 @@ export default function BulkEdit() {
   async function saveAll() {
     setSaving(true)
     setMessage('')
-    for (const item of items) {
-      let imageUrl = item.image_url
-      const photo = photos[item.id]
-      if (photo) {
-        const fileName = `${Date.now()}-${photo.name}`
-        const { error: uploadError } = await supabase.storage
-          .from('item-photos')
-          .upload(fileName, photo)
-        if (!uploadError) {
-          const { data: publicUrlData } = supabase.storage
+
+    const uploads = await Promise.all(
+      items.map(async (item) => {
+        let imageUrl = item.image_url
+        const photo = photos[item.id]
+        if (photo) {
+          const fileName = `${Date.now()}-${photo.name}`
+          const { error: uploadError } = await supabase.storage
             .from('item-photos')
-            .getPublicUrl(fileName)
-          imageUrl = publicUrlData.publicUrl
+            .upload(fileName, photo)
+          if (!uploadError) {
+            const { data: publicUrlData } = supabase.storage
+              .from('item-photos')
+              .getPublicUrl(fileName)
+            imageUrl = publicUrlData.publicUrl
+          }
         }
-      }
-      await supabase
-        .from('items')
-        .update({
+        return {
+          id: item.id,
           name: item.name,
           sku: item.sku,
           price: parseFloat(item.price),
-          quantity: parseInt(item.quantity),
+          quantity: parseFloat(item.quantity),
           image_url: imageUrl,
           category_number: item.category_number,
           category_name: item.category_name,
-        })
-        .eq('id', item.id)
-    }
+          unit_type: item.unit_type || 'ширхэг',
+        }
+      })
+    )
+
+    const { error } = await supabase.from('items').upsert(uploads)
+
     setSaving(false)
-    setMessage('Бүх өөрчлөлт хадгалагдлаа!')
-    setPhotos({})
-    loadItems()
+    if (error) {
+      setMessage('error: ' + error.message)
+    } else {
+      setMessage('success')
+      setPhotos({})
+      loadItems()
+      setTimeout(() => setMessage(''), 3000)
+    }
   }
+  
 
   const inputStyle = {
     background: 'var(--card)',
@@ -195,8 +206,23 @@ export default function BulkEdit() {
   style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
 />
         {message && (
-          <p className="text-sm mb-4" style={{ color: 'var(--stock-text)' }}>{message}</p>
+          <div style={{
+            position: 'fixed',
+            top: '24px',
+            right: '24px',
+            backgroundColor: message === 'success' ? '#16a34a' : '#e81c1c',
+            color: '#fff',
+            padding: '16px 24px',
+            borderRadius: '10px',
+            fontWeight: '700',
+            fontSize: '1rem',
+            zIndex: 9999,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+          }}>
+            {message === 'success' ? '✅ Хадгалагдлаа!' : message}
+          </div>
         )}
+
         
         <div className="overflow-x-auto">
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
@@ -211,6 +237,8 @@ export default function BulkEdit() {
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Ангилал</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Үнэ</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Тоо ширхэг</th>
+<th className="text-left p-2" style={{ color: 'var(--muted)' }}>Нэгж</th>
+
               </tr>
             </thead>
             <tbody>
@@ -288,16 +316,48 @@ export default function BulkEdit() {
                       style={inputStyle}
                     />
                   </td>
-                  <td className="p-2">
+                 <td className="p-2">
                     <input
                       type="number"
+                      step="0.01"
                       value={item.quantity}
                       onChange={(e) => updateField(item.id, 'quantity', e.target.value)}
                       className="p-1 rounded w-20"
                       style={inputStyle}
                     />
+
                   </td>
+                 <td className="p-2">
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => updateField(item.id, 'unit_type', 'ширхэг')}
+                        className="px-2 py-1 rounded text-xs font-medium"
+                        style={{
+                          background: (item.unit_type || 'ширхэг') === 'ширхэг' ? 'var(--accent)' : 'var(--card)',
+                          color: (item.unit_type || 'ширхэг') === 'ширхэг' ? '#fff' : 'var(--foreground)',
+                          border: '0.5px solid var(--border)',
+                        }}
+                      >
+                        Ширхэг
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateField(item.id, 'unit_type', 'м.кв')}
+                        className="px-2 py-1 rounded text-xs font-medium"
+                        style={{
+                          background: item.unit_type === 'м.кв' ? 'var(--accent)' : 'var(--card)',
+                          color: item.unit_type === 'м.кв' ? '#fff' : 'var(--foreground)',
+                          border: '0.5px solid var(--border)',
+                        }}
+                      >
+                        м.кв
+                      </button>
+                    </div>
+                  </td>
+
                 </tr>
+
               ))}
             </tbody>
           </table>
