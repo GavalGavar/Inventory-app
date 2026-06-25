@@ -23,7 +23,7 @@ export default function Home() {
         <div style={{ display: 'flex', gap: '32px' }}>
           {[
             { label: 'Нүүр', href: '/' },
-            { label: 'Бараа', href: '/products' },
+            { label: 'Бүтээгдэхүүн', href: '/products' },
             { label: 'Бидний тухай', href: '/about' },
             { label: 'Холбоо барих', href: '/contact' },
             { label: 'Админ', href: '/admin' },
@@ -100,10 +100,10 @@ export default function Home() {
           gap: '24px', maxWidth: '1100px', margin: '0 auto'
         }}>
           {[
-            { name: 'Салбар 1', address: '100айл Прогресс төв Б1 давхарт', phone: '95589855' },
-            { name: 'Салбар 2', address: '100айл ОДКОН ТӨВ-н хойд талаас тусдаа хаалгатай Б1 давхар', phone: '95026615' },
-            { name: 'Салбар 3 — TOR PINTURAS', address: '100 айл 100 ресидэнс 1 давхарт', phone: '94569156' },
-            { name: 'Агуулах', address: '100 айл 9-р дэлгүүрийн ард', phone: '99976884' },
+            { name: 'Салбар 1', address: '100айл Прогресс төв Б1 давхарт', phone: '95589855', map: 'https://maps.app.goo.gl/wk1srjqk5Wj4L2jq6' },
+            { name: 'Салбар 2', address: '100айл ОДКОН ТӨВ-н хойд талаас тусдаа хаалгатай Б1 давхар', phone: '95026615', map: 'https://maps.app.goo.gl/nF6GPgsp46FPwtXSA' },
+            { name: 'Салбар 3 — TOR PINTURAS', address: '100 айл 100 ресидэнс 1 давхарт', phone: '94569156', map: 'https://maps.app.goo.gl/u2k5ukE6YaPKXNZt6' },
+            { name: 'Агуулах', address: '100 айл 9-р дэлгүүрийн ард', phone: '99976884', map: 'https://maps.app.goo.gl/NScMVUwGMEXXwbfR6' },
           ].map((branch) => (
             <div key={branch.name} style={{
               padding: '28px 24px', borderRadius: '10px', backgroundColor: '#f9f9f9',
@@ -115,8 +115,11 @@ export default function Home() {
               <div style={{ fontSize: '1.5rem', marginBottom: '12px' }}>📍</div>
               <h3 style={{ fontWeight: '800', fontSize: '1.1rem', color: '#111', marginBottom: '8px' }}>{branch.name}</h3>
               <p style={{ color: '#555', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '12px' }}>{branch.address}</p>
-              <a href={`tel:${branch.phone}`} style={{ color: '#e81c1c', fontWeight: '700', fontSize: '1rem', textDecoration: 'none' }}>
+              <a href={`tel:${branch.phone}`} style={{ color: '#e81c1c', fontWeight: '700', fontSize: '1rem', textDecoration: 'none', display: 'block', marginBottom: '8px' }}>
                 📞 {branch.phone}
+              </a>
+              <a href={branch.map} target="_blank" rel="noopener noreferrer" style={{ color: '#111', fontWeight: '600', fontSize: '0.9rem', textDecoration: 'none' }}>
+                🗺️ Google Maps
               </a>
             </div>
           ))}
@@ -141,7 +144,7 @@ export default function Home() {
             { name: 'Хөнгөн цагаан тааз', icon: '⬜', cat: 1 },
             { name: 'Гипсэн тааз', icon: '🏛️', cat: 9 },
             { name: 'Таазны рейк', icon: '📐', cat: 6 },
-            { name: 'Бусад бараа', icon: '⬛', cat: 13 },
+            { name: 'Бусад бүтээгдэхүүн', icon: '⬛', cat: 13 },
             { name: 'Гадна фасад', icon: '🏗️', cat: 14 },
           ].map((item) => (
             <Link key={item.name} href={`/products?category=${item.cat}`} style={{ textDecoration: 'none' }}>
@@ -165,14 +168,11 @@ export default function Home() {
             backgroundColor: '#111', color: '#fff', padding: '14px 40px',
             borderRadius: '6px', textDecoration: 'none', fontWeight: '700', fontSize: '1rem', display: 'inline-block'
           }}>
-            Бүх бараа үзэх →
+            Бүх бүтээгдэхүүн үзэх →
           </Link>
         </div>
       </section>
 
-     
-
-      {/* Footer */}
       {/* Contact Strip */}
       <section style={{ padding: '40px 48px', backgroundColor: '#111', borderTop: '3px solid #e81c1c' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -203,7 +203,8 @@ export default function Home() {
           </a>
         </div>
       </section>
-      
+
+      {/* Footer */}
       <footer style={{
         padding: '32px 48px', textAlign: 'center', backgroundColor: '#111',
         borderTop: '3px solid #e81c1c', color: '#888', fontSize: '0.9rem'

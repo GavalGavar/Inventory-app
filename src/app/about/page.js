@@ -72,10 +72,11 @@ export default function About() {
           <div style={{ width: '60px', height: '4px', backgroundColor: '#e81c1c', marginBottom: '32px' }} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
             {[
-              { name: 'Салбар 1', address: '100айл Прогресс төв Б1 давхарт', phone: '95589855' },
-              { name: 'Салбар 2', address: '100айл ОДКОН ТӨВ-н хойд талаас тусдаа хаалгатай Б1 давхар', phone: '95026615' },
-              { name: 'Салбар 3 — TOR PINTURAS', address: '100 айл 100 ресидэнс 1 давхарт', phone: '94569156' },
-              { name: 'Агуулах', address: '100 айл 9-р дэлгүүрийн ард', phone: '99976884' },
+             { name: 'Салбар 1', address: '100айл Прогресс төв Б1 давхарт', phone: '95589855', map: 'https://maps.app.goo.gl/wk1srjqk5Wj4L2jq6' },
+{ name: 'Салбар 2', address: '100айл ОДКОН ТӨВ-н хойд талаас тусдаа хаалгатай Б1 давхар', phone: '95026615', map: 'https://maps.app.goo.gl/nF6GPgsp46FPwtXSA' },
+{ name: 'Салбар 3 — TOR PINTURAS', address: '100 айл 100 ресидэнс 1 давхарт', phone: '94569156', map: 'https://maps.app.goo.gl/u2k5ukE6YaPKXNZt6' },
+{ name: 'Агуулах', address: '100 айл 9-р дэлгүүрийн ард', phone: '99976884', map: 'https://maps.app.goo.gl/NScMVUwGMEXXwbfR6' },
+
             ].map((branch) => (
               <div key={branch.name} style={{
                 padding: '24px', borderRadius: '10px', backgroundColor: '#f9f9f9',
@@ -87,9 +88,13 @@ export default function About() {
                 <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>📍</div>
                 <h3 style={{ fontWeight: '800', fontSize: '1rem', color: '#111', marginBottom: '6px' }}>{branch.name}</h3>
                 <p style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '10px' }}>{branch.address}</p>
-                <a href={`tel:${branch.phone}`} style={{ color: '#e81c1c', fontWeight: '700', textDecoration: 'none' }}>
+               <a href={`tel:${branch.phone}`} style={{ color: '#e81c1c', fontWeight: '700', textDecoration: 'none', display: 'block', marginBottom: '8px' }}>
                   📞 {branch.phone}
                 </a>
+                <a href={branch.map} target="_blank" rel="noopener noreferrer" style={{ color: '#111', fontWeight: '600', fontSize: '0.9rem', textDecoration: 'none' }}>
+                  🗺️ Google Maps
+                </a>
+                
               </div>
             ))}
           </div>
