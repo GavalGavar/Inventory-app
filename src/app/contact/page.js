@@ -22,8 +22,8 @@ export default function Contact() {
             { label: 'Бүтээгдэхүүн', href: '/products' },
             { label: 'Бидний тухай', href: '/about' },
 
+
             
-            { label: 'Холбоо барих', href: '/contact' },
             { label: 'Админ', href: '/admin' },
           ].map((item) => (
             <Link key={item.href} href={item.href} style={{
