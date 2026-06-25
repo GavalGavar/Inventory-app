@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
@@ -42,19 +42,19 @@ export default function Archive() {
           style={{ borderBottom: '2px solid var(--accent)' }}
         >
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            АРХИВЛАСАН ЗАХИАЛГА
+            Taaz.mn | ?????????? ????????
           </h1>
           <Link
             href="/admin/orders"
             className="text-xs"
             style={{ color: 'var(--muted)' }}
           >
-← Захиалга руу буцах
+? ???????? ??? ?????
           </Link>
         </div>
 
         {orders.length === 0 && (
-          <p style={{ color: 'var(--muted)' }}>Архивлагдсан захиалга алга байна.</p>
+          <p style={{ color: 'var(--muted)' }}>???????????? ???????? ???? ?????.</p>
         )}
 
         {orders.length > 0 && (
@@ -80,14 +80,14 @@ export default function Archive() {
                       className="text-xs font-medium"
                       style={{ color: 'var(--stock-text)' }}
                     >
-                      Сэргээх
+                      ???????
                     </button>
                     <button
                       onClick={() => permanentlyDelete(order.id)}
                       className="text-xs font-medium"
                       style={{ color: 'var(--soldout-text)' }}
                     >
-                      Устах
+                      ?????
                     </button>
                   </div>
                 </div>
@@ -95,14 +95,14 @@ export default function Archive() {
                 <ul className="text-sm mb-2" style={{ color: 'var(--foreground)' }}>
                   {order.items.map((item, i) => (
                     <li key={i}>
-                      {item.name} x{item.qty} — {(item.price * item.qty).toFixed(2)} MNT
+                      {item.name} x{item.qty} � {(item.price * item.qty).toFixed(2)} MNT
                     </li>
                   ))}
                 </ul>
 
                 <div className="flex justify-between items-center text-xs" style={{ color: 'var(--muted)' }}>
                   <span>{new Date(order.created_at).toLocaleString()}</span>
-                  <span className="font-medium">Нийт: {order.total.toFixed(2)} MNT</span>
+                  <span className="font-medium">????: {order.total.toFixed(2)} MNT</span>
                 </div>
               </div>
             ))}

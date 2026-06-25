@@ -5,20 +5,20 @@ import RequireAuth from '../../components/RequireAuth'
 import Link from 'next/link'
 
 const CATEGORIES = [
-  { number: 1, name: 'Хөнгөн цагаан тааз' },
-  { number: 2, name: 'Гэрэл сэнс' },
-  { number: 3, name: 'Ханын панел хавтан' },
-  { number: 4, name: 'Хулсан хавтан' },
-  { number: 5, name: 'Ханын гоёлын рейк' },
-  { number: 6, name: 'Таазны рейк' },
-  { number: 7, name: 'Плинтүс' },
-  { number: 8, name: 'Хавтан таазны хүрээ' },
-  { number: 9, name: 'Гипсэн тааз' },
-  { number: 10, name: 'Сараалжин тааз' },
-  { number: 11, name: 'Чулуун емульс' },
-  { number: 12, name: 'TOR pinturas' },
-  { number: 13, name: 'Бусад бараа' },
-  { number: 14, name: 'Нэмэлт материал' },
+  { number: 1, name: 'Хөнгөн цагаан тааз', icon: '⬜' },
+  { number: 2, name: 'Гэрэл сэнс', icon: '💡' },
+  { number: 3, name: 'Ханын панел хавтан', icon: '🏠' },
+  { number: 4, name: 'Хулсан хавтан', icon: '🎋' },
+  { number: 5, name: 'Ханын гоёлын рейк', icon: '✨' },
+  { number: 6, name: 'Таазны рейк', icon: '📐' },
+  { number: 7, name: 'Плинтүс', icon: '📏' },
+  { number: 8, name: 'Хавтан таазны хүрээ', icon: '🔲' },
+  { number: 9, name: 'Гипсэн тааз', icon: '🏛️' },
+  { number: 10, name: 'Сараалжин тааз', icon: '🔳' },
+  { number: 11, name: 'Чулуун емульс', icon: '🪨' },
+  { number: 12, name: 'TOR pinturas', icon: '🎨' },
+  { number: 13, name: 'Бусад бараа', icon: '📦' },
+  { number: 14, name: 'Нэмэлт материал', icon: '➕' },
 ]
 
 const SIZE_KEYWORDS = {
@@ -99,6 +99,9 @@ export default function Admin() {
   function handleCategoryClick(catNumber) {
     setCategoryFilter(catNumber)
     setSizeFilter(null)
+    setTimeout(() => {
+      document.getElementById('items-section')?.scrollIntoView({ behavior: 'smooth' })
+    }, 100)
   }
 
   const currentSizes = categoryFilter === 1 ? CEILING_SIZES : categoryFilter === 2 ? LIGHT_SIZES : null
@@ -109,21 +112,14 @@ export default function Admin() {
         <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
 
           {/* Top nav */}
-          <div
-            className="flex justify-between items-baseline px-6 py-4"
-            style={{ borderBottom: '2px solid var(--accent)' }}
-          >
+          <div className="flex justify-between items-baseline px-6 py-4" style={{ borderBottom: '2px solid var(--accent)' }}>
             <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-              БАРАА УДИРДЛАГА
+              Taaz.mn | БАРАА УДИРДЛАГА
             </h1>
             <div className="flex gap-3 items-center">
               <button
-                onClick={async () => {
-                  await supabase.auth.signOut()
-                  window.location.href = '/login'
-                }}
-                className="text-xs"
-                style={{ color: 'var(--muted)' }}
+                onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login' }}
+                className="text-xs" style={{ color: 'var(--muted)' }}
               >
                 Log Out
               </button>
@@ -140,130 +136,133 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* Sticky category nav + search */}
-          <div
-            className="px-6 py-3 sticky top-0 z-10"
-            style={{ borderBottom: '0.5px solid var(--border)', background: 'var(--card)' }}
-          >
-            <div className="flex items-center gap-2 flex-wrap">
-              <input
-                type="text"
-                placeholder="Хайх..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="p-2 rounded text-sm"
-                style={{
-                  background: 'var(--background)',
-                  border: '0.5px solid var(--border)',
-                  color: 'var(--foreground)',
-                  width: '180px',
-                }}
-              />
-              <button
-                onClick={() => { setCategoryFilter(null); setSizeFilter(null) }}
-                className="px-4 py-2 rounded text-sm font-bold"
-                style={{
-                  background: !categoryFilter ? 'var(--accent)' : 'var(--foreground)',
-                  color: 'var(--background)',
-                  border: '0.5px solid var(--border)',
-                }}
-              >
-                Бүгд
-              </button>
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.number}
-                  onClick={() => handleCategoryClick(cat.number)}
-                  className="px-4 py-2 rounded text-sm font-bold"
-                  style={{
-                    background: categoryFilter === cat.number ? 'var(--accent)' : 'var(--foreground)',
-                    color: 'var(--background)',
-                    border: '0.5px solid var(--border)',
-                  }}
-                >
-                  {cat.name}
-                </button>
+          {/* Hero */}
+          <section style={{ backgroundColor: '#111', color: '#fff', padding: '60px 48px', textAlign: 'center', borderBottom: '4px solid #e81c1c' }}>
+            <p style={{ color: '#e81c1c', fontWeight: '700', fontSize: '0.95rem', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '16px' }}>
+              Since 2012
+            </p>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: '800', lineHeight: '1.2', marginBottom: '16px' }}>
+              Таны хүссэн хэв маягын<br />
+              <span style={{ color: '#e81c1c' }}>Ханын хавтан & Тааз</span>
+            </h1>
+            <p style={{ fontSize: '1.1rem', color: '#aaa', marginBottom: '32px' }}>
+              Чанартай дотор засалын материал — тааз, ханын хавтан болон бусад бүтээгдэхүүн
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '60px', flexWrap: 'wrap', marginBottom: '40px' }}>
+              {[
+                { number: '12+', label: 'Жилийн туршлага' },
+                { number: '3', label: 'Салбар дэлгүүр' },
+                { number: '1000+', label: 'Хэрэглэгч' },
+              ].map((stat) => (
+                <div key={stat.label} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#e81c1c' }}>{stat.number}</div>
+                  <div style={{ fontSize: '0.9rem', color: '#aaa', marginTop: '4px' }}>{stat.label}</div>
+                </div>
               ))}
             </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', maxWidth: '900px', margin: '0 auto' }}>
+              {[
+                { name: 'Салбар 1', address: '100айл Прогресс төв Б1 давхарт', phone: '95589855' },
+                { name: 'Салбар 2', address: '100айл ОДКОН ТӨВ-н хойд талаас тусдаа хаалгатай Б1 давхар', phone: '95026615' },
+                { name: 'Салбар 3 — TOR PINTURAS', address: '100 айл 100 ресидэнс 1 давхарт', phone: '94569156' },
+                { name: 'Агуулах', address: '100 айл 9-р дэлгүүрийн ард', phone: '99976884' },
+              ].map((branch) => (
+                <div key={branch.name} style={{ padding: '20px', borderRadius: '10px', backgroundColor: '#1a1a1a', border: '2px solid #333', textAlign: 'left' }}>
+                  <div style={{ fontSize: '1.2rem', marginBottom: '8px' }}>📍</div>
+                  <h3 style={{ fontWeight: '800', fontSize: '1rem', color: '#fff', marginBottom: '6px' }}>{branch.name}</h3>
+                  <p style={{ color: '#aaa', fontSize: '0.85rem', lineHeight: '1.5', marginBottom: '8px' }}>{branch.address}</p>
+                  <a href={`tel:${branch.phone}`} style={{ color: '#e81c1c', fontWeight: '700', fontSize: '0.95rem', textDecoration: 'none' }}>
+                    📞 {branch.phone}
+                  </a>
+                </div>
+              ))}
+            </div>
+          </section>
 
-            {/* Size subcategory row */}
-            {currentSizes && (
-              <div className="flex items-center gap-2 flex-wrap mt-2">
-                {currentSizes.map((size) => (
+         
+
+          {/* Items Section */}
+          <div id="items-section">
+            {/* Search + size filters */}
+            <div className="px-6 py-3 sticky top-0 z-10" style={{ borderBottom: '0.5px solid var(--border)', background: 'var(--card)' }}>
+              <div className="flex items-center gap-2 flex-wrap">
+                <input
+                  type="text"
+                  placeholder="Хайх..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="p-2 rounded text-sm"
+                  style={{ background: 'var(--background)', border: '0.5px solid var(--border)', color: 'var(--foreground)', width: '300px' }}
+                />
+                <button
+                  onClick={() => { setCategoryFilter(null); setSizeFilter(null) }}
+                  className="px-4 py-2 rounded text-sm font-bold"
+                  style={{ background: !categoryFilter ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)' }}
+                >
+                  Бүгд
+                </button>
+                {CATEGORIES.map((cat) => (
                   <button
-                    key={size}
-                    onClick={() => setSizeFilter(size === sizeFilter ? null : size)}
+                    key={cat.number}
+                    onClick={() => handleCategoryClick(cat.number)}
                     className="px-4 py-2 rounded text-sm font-bold"
-                    style={{
-                      background: sizeFilter === size ? 'var(--accent)' : 'var(--foreground)',
-                      color: 'var(--background)',
-                      border: '0.5px solid var(--border)',
-                    }}
+                    style={{ background: categoryFilter === cat.number ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)' }}
                   >
-                    {size}
+                    {cat.name}
                   </button>
                 ))}
               </div>
-            )}
-          </div>
+              {currentSizes && (
+                <div className="flex items-center gap-2 flex-wrap mt-2">
+                  {currentSizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSizeFilter(size === sizeFilter ? null : size)}
+                      className="px-4 py-2 rounded text-sm font-bold"
+                      style={{ background: sizeFilter === size ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)' }}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* Items grid */}
-          <div className="p-6">
-            {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
-            {items.length === 0 && <p style={{ color: 'var(--muted)' }}>No items yet. Time to add some!</p>}
-
-            {filteredItems.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-6">
-                {filteredItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded p-2 relative"
-                    style={{
-                      background: 'var(--card)',
-                      border: '0.5px solid var(--border)',
-                      opacity: item.quantity > 0 ? 1 : 0.6,
-                    }}
-                  >
-                    <span
-                      className="absolute top-2 right-2 text-sm font-medium px-2 py-1 rounded"
-                      style={{
+            {/* Items grid */}
+            <div className="p-6">
+              {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
+              {items.length === 0 && <p style={{ color: 'var(--muted)' }}>No items yet. Time to add some!</p>}
+              {filteredItems.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-6">
+                  {filteredItems.map((item) => (
+                    <div key={item.id} className="rounded p-2 relative" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', opacity: item.quantity > 0 ? 1 : 0.6 }}>
+                      <span className="absolute top-2 right-2 text-sm font-medium px-2 py-1 rounded" style={{
                         background: item.quantity > 0 ? 'var(--stock-bg)' : 'var(--soldout-bg)',
                         color: item.quantity > 0 ? 'var(--stock-text)' : 'var(--soldout-text)',
                         transform: item.quantity > 0 ? 'none' : 'rotate(-4deg)',
-                      }}
-                    >
-                      {item.quantity > 0 ? 'Бэлэн бараа' : 'Дууссан'}
-                    </span>
-                    {item.image_url && (
-                      <img
-                        src={item.image_url}
-                        alt={item.name}
-                        className="w-full aspect-square object-cover rounded mb-2"
-                      />
-                    )}
-                    {item.category_name && (
-                      <p className="text-xs mb-1" style={{ color: 'var(--muted)' }}>{item.category_number}. {item.category_name}</p>
-                    )}
-                    <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>
-                      {item.name}
-                    </h2>
-                    <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>
-                      {item.price.toLocaleString()} MNT · {item.quantity} Үлдэгдэл
-                    </p>
-                    <div className="flex justify-between items-center">
-                      <Link
-                        href={`/admin/edit/${item.id}`}
-                        className="text-sm font-medium"
-                        style={{ color: 'var(--accent)' }}
-                      >
-                        Edit
-                      </Link>
+                      }}>
+                        {item.quantity > 0 ? 'Бэлэн бараа' : 'Дууссан'}
+                      </span>
+                      {item.image_url && (
+                        <img src={item.image_url} alt={item.name} className="w-full aspect-square object-cover rounded mb-2" />
+                      )}
+                      {item.category_name && (
+                        <p className="text-xs mb-1" style={{ color: 'var(--muted)' }}>{item.category_number}. {item.category_name}</p>
+                      )}
+                      <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>{item.name}</h2>
+                      <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>{item.price.toLocaleString()} MNT · {item.quantity} Үлдэгдэл</p>
+                      <div className="flex justify-between items-center">
+                        <Link href={`/admin/edit/${item.id}`} className="text-sm font-medium" style={{ color: 'var(--accent)' }}>
+                          Edit
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
+
         </div>
       )}
     </RequireAuth>

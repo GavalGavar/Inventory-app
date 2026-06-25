@@ -201,7 +201,8 @@ export default function Dashboard() {
           style={{ borderBottom: '2px solid var(--accent)' }}
         >
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            DASHBOARD
+            Taaz.mn | DASHBOARD
+            
           </h1>
           <Link href="/admin" className="text-xs" style={{ color: 'var(--muted)' }}>
             Back to Admin

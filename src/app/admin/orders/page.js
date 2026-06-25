@@ -37,7 +37,8 @@ export default function Orders() {
   style={{ borderBottom: '2px solid var(--accent)' }}
 >
   <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-    ЗАХИАЛГА
+    Taaz.mn | ЗАХИАЛГА
+    
   </h1>
   <Link
     href="/admin/archive"
