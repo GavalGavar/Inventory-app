@@ -25,6 +25,7 @@ export default function Home() {
             { label: 'Нүүр', href: '/' },
             { label: 'Бараа', href: '/products' },
             { label: 'Бидний тухай', href: '/about' },
+            { label: 'Холбоо барих', href: '/contact' },
             { label: 'Админ', href: '/admin' },
           ].map((item) => (
             <Link key={item.href} href={item.href} style={{
