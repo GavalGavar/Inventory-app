@@ -158,32 +158,61 @@ function ProductsInner() {
               width: '500px',
             }}
           />
-          <button
-            onClick={handleAllClick}
-            className="px-4 py-2 rounded text-sm font-bold"
-            style={{
-              background: !categoryFilter ? 'var(--accent)' : 'var(--foreground)',
-              color: 'var(--background)',
-              border: '0.5px solid var(--border)',
-            }}
-          >
-            Бүгд
-          </button>
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.number}
-              onClick={() => handleCategoryClick(cat.number)}
-              className="px-4 py-2 rounded text-sm font-bold"
-              style={{
-                background: categoryFilter === cat.number ? 'var(--accent)' : 'var(--foreground)',
-                color: 'var(--background)',
-                border: '0.5px solid var(--border)',
-              }}
-            >
-              {cat.name}
-            </button>
-          ))}
+          {!categoryFilter ? (
+            <>
+              <button
+                onClick={handleAllClick}
+                className="px-4 py-2 rounded text-sm font-bold"
+                style={{
+                  background: 'var(--accent)',
+                  color: 'var(--background)',
+                  border: '0.5px solid var(--border)',
+                }}
+              >
+                Бүгд
+              </button>
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.number}
+                  onClick={() => handleCategoryClick(cat.number)}
+                  className="px-4 py-2 rounded text-sm font-bold"
+                  style={{
+                    background: 'var(--foreground)',
+                    color: 'var(--background)',
+                    border: '0.5px solid var(--border)',
+                  }}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleAllClick}
+                className="px-4 py-2 rounded text-sm font-bold"
+                style={{
+                  background: 'var(--foreground)',
+                  color: 'var(--background)',
+                  border: '0.5px solid var(--border)',
+                }}
+              >
+                ← Буцах
+              </button>
+              <button
+                className="px-4 py-2 rounded text-sm font-bold"
+                style={{
+                  background: 'var(--accent)',
+                  color: 'var(--background)',
+                  border: '0.5px solid var(--border)',
+                }}
+              >
+                {CATEGORIES.find(c => c.number === categoryFilter)?.name}
+              </button>
+            </>
+          )}
         </div>
+        
         {currentSizes && (
           <div className="flex items-center gap-2 flex-wrap mt-2">
             {currentSizes.map((size) => (
