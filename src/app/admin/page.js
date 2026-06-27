@@ -63,6 +63,18 @@ export default function Admin() {
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState(null)
   const [sizeFilter, setSizeFilter] = useState(null)
+  const [cart, setCart] = useState([])
+  const [showCart, setShowCart] = useState(false)
+  const [receipt, setReceipt] = useState(null)
+  const [buyerType, setBuyerType] = useState('individual')
+  const [branch, setBranch] = useState('')
+  const [customerName, setCustomerName] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [companyName, setCompanyName] = useState('')
+  const [companyReg, setCompanyReg] = useState('')
+  const [companyPhone, setCompanyPhone] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [companies, setCompanies] = useState([])
 
   const filteredItems = items.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase())
@@ -95,6 +107,113 @@ export default function Admin() {
     }
     loadItems()
   }, [])
+
+  useEffect(() => {
+    async function loadCompanies() {
+      const { data } = await supabase.from('companies').select().order('name')
+      if (data) setCompanies(data)
+    }
+    loadCompanies()
+  }, [])
+
+  function addToCart(item) {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.id === item.id)
+      if (existing) {
+        if (existing.qty >= item.quantity) {
+          alert('Нөөц хүрэлцэхгүй байна.')
+          return prev
+        }
+        return prev.map((i) => (i.id === item.id ? { ...i, qty: i.qty + 1 } : i))
+      }
+      return [...prev, { ...item, qty: 1 }]
+    })
+    setShowCart(true)
+  }
+
+  function removeFromCart(id) {
+    setCart((prev) => prev.filter((i) => i.id !== id))
+  }
+
+  function updateQty(id, qty) {
+    if (qty < 0.01) return
+    setCart((prev) => prev.map((i) => (i.id === id ? { ...i, qty: Number(qty) } : i)))
+  }
+
+  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0)
+
+  async function handleSell() {
+    if (!branch) {
+      alert('Салбар сонгоно уу.')
+      return
+    }
+    if (buyerType === 'individual' && !customerName.trim()) {
+      alert('Худалдан авагчийн нэр оруулна уу.')
+      return
+    }
+    if (buyerType === 'company' && !companyName.trim()) {
+      alert('Компанийн нэр оруулна уу.')
+      return
+    }
+    if (cart.length === 0) {
+      alert('Бараа нэмнэ үү.')
+      return
+    }
+    setSaving(true)
+
+    const orderItems = cart.map((item) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      qty: item.qty,
+      unit_type: item.unit_type || 'ширхэг',
+    }))
+
+    const customerNameFinal = buyerType === 'company' ? companyName : customerName
+    const customerContactFinal = buyerType === 'company'
+      ? `${companyPhone} | Рег: ${companyReg}`
+      : customerPhone
+
+    const { error } = await supabase.from('orders').insert({
+      customer_name: customerNameFinal,
+      customer_contact: customerContactFinal,
+      items: orderItems,
+      total: cartTotal,
+      sale_type: 'in_shop',
+      status: 'completed',
+      branch: branch,
+    })
+
+    if (error) {
+      setSaving(false)
+      alert('Алдаа гарлаа: ' + error.message)
+      return
+    }
+
+    for (const item of cart) {
+      await supabase.rpc('decrement_stock', { item_id: item.id, amount: item.qty })
+    }
+
+    setReceipt({
+      buyerName: customerNameFinal,
+      buyerReg: companyReg,
+      buyerPhone: buyerType === 'company' ? companyPhone : customerPhone,
+      branch,
+      items: orderItems,
+      total: cartTotal,
+      date: new Date(),
+    })
+
+    setCart([])
+    setShowCart(false)
+    setBranch('')
+    setCustomerName('')
+    setCustomerPhone('')
+    setCompanyName('')
+    setCompanyReg('')
+    setCompanyPhone('')
+    setSaving(false)
+  }
 
   function handleCategoryClick(catNumber) {
     setCategoryFilter(catNumber)
@@ -129,7 +248,6 @@ export default function Admin() {
               {role === 'admin' && (
                 <Link href="/admin/companies" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Компаниуд</Link>
               )}
-          
               <Link href="/admin/ledger" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Захиалгын түүх</Link>
               <Link href="/admin/import" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Импортлох</Link>
               <Link href="/admin/add" className="px-4 py-2 rounded text-sm font-medium" style={{ background: 'var(--foreground)', color: 'var(--background)' }}>+ Бүтээгдэхүүн нэмэх</Link>
@@ -179,11 +297,8 @@ export default function Admin() {
             </div>
           </section>
 
-         
-
           {/* Items Section */}
           <div id="items-section">
-            {/* Search + size filters */}
             <div className="px-6 py-3 sticky top-0 z-10" style={{ borderBottom: '0.5px solid var(--border)', background: 'var(--card)' }}>
               <div className="flex items-center gap-2 flex-wrap">
                 <input
@@ -228,7 +343,6 @@ export default function Admin() {
               )}
             </div>
 
-            {/* Items grid */}
             <div className="p-6">
               {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
               {items.length === 0 && <p style={{ color: 'var(--muted)' }}>No items yet. Time to add some!</p>}
@@ -250,13 +364,22 @@ export default function Admin() {
                         <p className="text-xs mb-1" style={{ color: 'var(--muted)' }}>{item.category_number}. {item.category_name}</p>
                       )}
                       <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>{item.name}</h2>
-                      <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>{item.unit_type === 'м.кв' ? `1м² = ${item.price.toLocaleString()} MNT` : `1ш = ${item.price.toLocaleString()} MNT`} · {item.quantity}{item.unit_type === 'м.кв' ? 'м²' : 'ш'} үлдэгдэл
-                        
+                      <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>
+                        {item.unit_type === 'м.кв' ? `1м² = ${item.price.toLocaleString()} MNT` : `1ш = ${item.price.toLocaleString()} MNT`} · {item.quantity}{item.unit_type === 'м.кв' ? 'м²' : 'ш'} үлдэгдэл
                       </p>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center mt-1">
                         <Link href={`/admin/edit/${item.id}`} className="text-sm font-medium" style={{ color: 'var(--accent)' }}>
                           Edit
                         </Link>
+                        {item.quantity > 0 && (
+                          <button
+                            onClick={() => addToCart(item)}
+                            className="text-xs px-2 py-1 rounded font-medium"
+                            style={{ background: 'var(--accent)', color: '#fff' }}
+                          >
+                            + Нэмэх
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -264,6 +387,262 @@ export default function Admin() {
               )}
             </div>
           </div>
+
+          {/* Floating Cart Button */}
+          {cart.length > 0 && !showCart && (
+            <button
+              onClick={() => setShowCart(true)}
+              style={{
+                position: 'fixed', bottom: '32px', right: '32px',
+                background: 'var(--accent)', color: '#fff',
+                padding: '16px 24px', borderRadius: '50px',
+                fontWeight: '700', fontSize: '1rem',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                zIndex: 999, border: 'none', cursor: 'pointer'
+              }}
+            >
+              🛒 Сагс ({cart.length}) — {cartTotal.toLocaleString()} MNT
+            </button>
+          )}
+
+          {/* Cart Sidebar */}
+          {showCart && (
+            <div style={{
+              position: 'fixed', top: 0, right: 0, bottom: 0, width: '400px',
+              background: 'var(--background)', borderLeft: '2px solid var(--accent)',
+              zIndex: 1000, overflowY: 'auto', padding: '24px',
+              boxShadow: '-4px 0 20px rgba(0,0,0,0.2)'
+            }}>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-bold" style={{ color: 'var(--foreground)' }}>🛒 Сагс</h2>
+                <button onClick={() => setShowCart(false)} style={{ color: 'var(--muted)', fontSize: '1.2rem' }}>✕</button>
+              </div>
+
+              <div className="flex flex-col gap-2 mb-4">
+                {cart.map((item) => (
+                  <div key={item.id} className="rounded p-3" style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}>
+                    <p className="text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>{item.name}</p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        value={item.qty}
+                        onChange={(e) => setCart((prev) => prev.map((i) => i.id === item.id ? { ...i, qty: e.target.value === '' ? '' : Number(e.target.value) } : i))}
+                        onBlur={(e) => { if (!e.target.value || Number(e.target.value) < 0.01) updateQty(item.id, 1) }}
+                        
+                        className="p-1 rounded text-sm w-16"
+                        style={{ background: 'var(--background)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+                      />
+                      <span className="text-xs" style={{ color: 'var(--muted)' }}>
+                        {item.unit_type === 'м.кв' ? 'м²' : 'ш'} x {item.price.toLocaleString()} = {(item.price * item.qty).toLocaleString()} MNT
+                      </span>
+                      <button onClick={() => removeFromCart(item.id)} className="text-xs ml-auto" style={{ color: 'var(--soldout-text)' }}>x</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-sm font-bold mb-4" style={{ color: 'var(--foreground)' }}>
+                Нийт: <span style={{ color: 'var(--accent)' }}>{cartTotal.toLocaleString()} MNT</span>
+              </p>
+
+              <div className="mb-4">
+                <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>Борлуулсан салбар</label>
+                <select
+                  value={branch}
+                  onChange={(e) => setBranch(e.target.value)}
+                  className="p-2 rounded text-sm w-full"
+                  style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+                >
+                  <option value="">Салбар сонгох...</option>
+                  <option value="Прогресс төв салбар">Прогресс төв салбар</option>
+                  <option value="ОДКОН ТӨВ салбар">ОДКОН ТӨВ салбар</option>
+                  <option value="TOR PINTURAS салбар">TOR PINTURAS салбар</option>
+                  <option value="Агуулах">Агуулах</option>
+
+                </select>
+              </div>
+
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={() => setBuyerType('individual')}
+                  className="flex-1 py-2 rounded text-sm font-medium"
+                  style={{
+                    background: buyerType === 'individual' ? 'var(--accent)' : 'var(--card)',
+                    color: buyerType === 'individual' ? '#fff' : 'var(--foreground)',
+                    border: '0.5px solid var(--border)',
+                  }}
+                >
+                  Хувь хүн
+                </button>
+                <button
+                  onClick={() => setBuyerType('company')}
+                  className="flex-1 py-2 rounded text-sm font-medium"
+                  style={{
+                    background: buyerType === 'company' ? 'var(--accent)' : 'var(--card)',
+                    color: buyerType === 'company' ? '#fff' : 'var(--foreground)',
+                    border: '0.5px solid var(--border)',
+                  }}
+                >
+                  Компани
+                </button>
+              </div>
+
+              {buyerType === 'individual' && (
+                <div className="flex flex-col gap-2 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Худалдан авагчийн нэр"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="p-2 rounded text-sm"
+                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Утасны дугаар"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    className="p-2 rounded text-sm"
+                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+                  />
+                </div>
+              )}
+
+              {buyerType === 'company' && (
+                <div className="flex flex-col gap-2 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Компанийн нэр"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="p-2 rounded text-sm"
+                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Регистрийн дугаар"
+                    value={companyReg}
+                    onChange={(e) => setCompanyReg(e.target.value)}
+                    className="p-2 rounded text-sm"
+                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Утасны дугаар"
+                    value={companyPhone}
+                    onChange={(e) => setCompanyPhone(e.target.value)}
+                    className="p-2 rounded text-sm"
+                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
+                  />
+                </div>
+              )}
+
+              <button
+                onClick={handleSell}
+                disabled={saving}
+                className="w-full py-3 rounded text-sm font-bold disabled:opacity-50"
+                style={{ background: 'var(--accent)', color: '#fff' }}
+              >
+                {saving ? 'Хадгалж байна...' : 'Худалдах & Баримт хэвлэх'}
+              </button>
+            </div>
+          )}
+
+          {/* Receipt Modal */}
+          {receipt && (
+            <div style={{
+              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.7)', zIndex: 2000,
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <div style={{ background: 'white', padding: '32px', maxWidth: '680px', width: '100%', maxHeight: '90vh', overflowY: 'auto', borderRadius: '8px' }}>
+                <style>{`@media print { .no-print { display: none !important; } }`}</style>
+                <div className="no-print flex gap-3 mb-6">
+                  <button onClick={() => window.print()} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#111', color: '#fff' }}>
+                    Хэвлэх
+                  </button>
+                  <button onClick={() => setReceipt(null)} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#eee', color: '#111' }}>
+                    Хаах
+                  </button>
+                </div>
+                <div style={{ fontFamily: 'serif', color: 'black' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '8px' }}>
+                    <span>НХМаягт БМ-3</span>
+                    <span>Сангийн сайдын 2017 оны 12 дугаар сарын 5-ны өдрийн 347 тоот тушаалын хавсралт</span>
+                  </div>
+                  <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 'bold', margin: '12px 0' }}>
+                    ЗАРЛАГЫН БАРИМТ №_____
+                  </h2>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '0.85rem' }}>
+                    <div>
+                      <p><u>Гурван Сайхан Билэг ХХК</u></p>
+                      <p>(байгууллагын нэр)</p>
+                      <p>Регистрийн № <u>___________</u></p>
+                      <p>Салбар: <u>{receipt.branch}</u></p>
+                    </div>
+                    <div>
+                      <p><u>{receipt.buyerName}</u></p>
+                      <p>(худалдан авагчийн нэр)</p>
+                      <p>Регистрийн № <u>{receipt.buyerReg || '___________'}</u></p>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '0.85rem', marginBottom: '16px' }}>
+                    20{String(receipt.date.getFullYear()).slice(2)} оны <u>{receipt.date.getMonth() + 1}</u> сарын <u>{receipt.date.getDate()}</u> өдөр
+                  </p>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', marginBottom: '16px' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>№</th>
+                        <th style={{ border: '1px solid black', padding: '4px' }}>Материалын нэр</th>
+                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Код</th>
+                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Нэгж</th>
+                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Тоо</th>
+                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Нэгжийн үнэ</th>
+                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Нийт дүн</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {receipt.items.map((item, i) => (
+                        <tr key={i}>
+                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{i + 1}</td>
+                          <td style={{ border: '1px solid black', padding: '4px' }}>{item.name}</td>
+                          <td style={{ border: '1px solid black', padding: '4px' }}></td>
+                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{item.unit_type || 'ш'}</td>
+                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{item.qty}</td>
+                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{item.price.toLocaleString()}</td>
+                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{(item.price * item.qty).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                      {[...Array(Math.max(0, 10 - receipt.items.length))].map((_, i) => (
+                        <tr key={`e-${i}`}>
+                          <td style={{ border: '1px solid black', padding: '8px', textAlign: 'center' }}>{receipt.items.length + i + 1}</td>
+                          <td style={{ border: '1px solid black', padding: '8px' }}></td>
+                          <td style={{ border: '1px solid black', padding: '8px' }}></td>
+                          <td style={{ border: '1px solid black', padding: '8px' }}></td>
+                          <td style={{ border: '1px solid black', padding: '8px' }}></td>
+                          <td style={{ border: '1px solid black', padding: '8px' }}></td>
+                          <td style={{ border: '1px solid black', padding: '8px' }}></td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td colSpan={6} style={{ border: '1px solid black', padding: '4px', textAlign: 'center', fontWeight: 'bold' }}>Дүн</td>
+                        <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center', fontWeight: 'bold' }}>{receipt.total.toLocaleString()}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div style={{ marginTop: '24px', fontSize: '0.85rem' }}>
+                    <p style={{ marginBottom: '16px' }}><strong>Тэмдэг</strong></p>
+                    <p style={{ marginBottom: '16px' }}>Хүлээлгэн өгсөн эд хариуцагч: ........................................../......................../</p>
+                    <p style={{ marginBottom: '16px' }}>Хүлээн авагч: ........................................../......................../</p>
+                    <p>Шалгасан нягтлан бодогч: ........................................../......................../</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
       )}
