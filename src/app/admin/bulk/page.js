@@ -233,6 +233,8 @@ export default function BulkEdit() {
                 </th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>SKU</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Зураг</th>
+                <th className="text-left p-2" style={{ color: 'var(--muted)' }}></th>
+                
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Нэр</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Ангилал</th>
                 <th className="text-left p-2" style={{ color: 'var(--muted)' }}>Үнэ</th>
@@ -298,8 +300,22 @@ export default function BulkEdit() {
                         <span style={{ fontSize: '1.2rem' }}>📷</span>
                       )}
                     </div>
+                  </td>
+                  <td className="p-2">
+                    {item.image_url && (
+                      <button
+                        onClick={() => updateField(item.id, 'image_url', null)}
+                        style={{ fontSize: '0.75rem', color: 'var(--soldout-text)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                      >
+                        🗑️ Устгах
+                      </button>
+                    )}
+                  </td>
+                  <td className="p-2">
                     <input
                       id={`file-${item.id}`}
+
+
                       type="file"
                       accept="image/*"
                       style={{ display: 'none' }}
