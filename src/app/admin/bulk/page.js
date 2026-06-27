@@ -268,20 +268,45 @@ export default function BulkEdit() {
                     />
                   </td>
                   <td className="p-2">
-                    {item.image_url && (
-                      <img
-                        src={item.image_url}
-                        alt={item.name}
-                        className="w-10 h-10 object-cover rounded mb-1"
-                      />
-                    )}
+                    <div
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault()
+                        const file = e.dataTransfer.files[0]
+                        if (file) handlePhotoChange(item.id, file)
+                      }}
+                      onClick={() => document.getElementById(`file-${item.id}`).click()}
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '6px',
+                        border: photos[item.id] ? '2px solid var(--accent)' : '2px dashed var(--border)',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'var(--card)',
+                        position: 'relative',
+                      }}
+                    >
+                      {photos[item.id] ? (
+                        <img src={URL.createObjectURL(photos[item.id])} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : item.image_url ? (
+                        <img src={item.image_url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <span style={{ fontSize: '1.2rem' }}>📷</span>
+                      )}
+                    </div>
                     <input
+                      id={`file-${item.id}`}
                       type="file"
                       accept="image/*"
+                      style={{ display: 'none' }}
                       onChange={(e) => handlePhotoChange(item.id, e.target.files[0])}
-                      className="text-xs w-24"
                     />
                   </td>
+                  
                   <td className="p-2">
                     <input
                       type="text"
