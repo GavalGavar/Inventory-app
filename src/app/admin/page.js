@@ -463,7 +463,7 @@ export default function Admin() {
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right' }}>{(item.price * item.qty).toLocaleString()}</td>
                         </tr>
                       ))}
-                      {[...Array(Math.max(0, 20 - receipt.items.length))].map((_, i) => (
+                     {[...Array(Math.max(0, 16 - receipt.items.length))].map((_, i) => (
                         <tr key={`e-${i}`}>
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{receipt.items.length + i + 1}</td>
                           <td style={{ border: '1px solid black', padding: '8px' }}></td>
@@ -474,7 +474,47 @@ export default function Admin() {
                           <td style={{ border: '1px solid black', padding: '8px' }}></td>
                         </tr>
                       ))}
-                      <tr>
+                     
+                        {(() => {
+                        const sqmItems = receipt.items.filter(item => item.unit_type === 'м.кв')
+                        let totalSquare = 0, totalT = 0, totalL = 0, totalX = 0
+                        sqmItems.forEach(item => {
+                          const qty = Number(item.qty)
+                          const name = item.name.toLowerCase()
+                          let square = 0, t = 0, l = 0, x = 0
+                          if (name.includes('30x30') || name.includes('30х30')) {
+                            square = Math.ceil(qty / 0.09); t = Math.ceil(qty); l = 0; x = t * 3
+                          } else if (name.includes('30x60') || name.includes('30х60')) {
+                            square = Math.ceil(qty / 0.18); t = Math.ceil(qty * 0.54); l = Math.ceil(qty * 0.2); x = t * 3
+                          } else if (name.includes('60x60') || name.includes('60х60')) {
+                            square = Math.ceil(qty / 0.36); t = Math.ceil(qty * 0.54); l = Math.ceil(qty * 0.2); x = t * 3
+                          }
+                          totalSquare += square; totalT += t; totalL += l; totalX += x
+                        })
+                      
+                        const startRow = Math.max(receipt.items.length, 16) + 1
+                        return (
+                          <>
+                            {[
+                              { symbol: '\u25A1', qty: totalSquare },
+                              { symbol: 'T', qty: totalT },
+                              { symbol: 'L', qty: totalL },
+                              { symbol: 'X', qty: totalX },
+                            ].map((row, i) => (
+                              <tr key={`sqm-${i}`}>
+                                <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{startRow + i}</td>
+                                <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>{row.symbol}-{row.qty}ш</td>
+                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                              </tr>
+                            ))}
+                          </>
+                        )
+                      })()}
+                     <tr>
                         <td colSpan={6} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', fontWeight: 'bold' }}>Дүн</td>
                         <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold' }}>{receipt.total.toLocaleString()}</td>
                       </tr>
