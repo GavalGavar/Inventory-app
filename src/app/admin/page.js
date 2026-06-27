@@ -75,6 +75,7 @@ export default function Admin() {
   const [companyReg, setCompanyReg] = useState('')
   const [companyPhone, setCompanyPhone] = useState('')
   const [saving, setSaving] = useState(false)
+  const [receiptNumber, setReceiptNumber] = useState('')
   const [companies, setCompanies] = useState([])
 
   const filteredItems = items.filter((item) => {
@@ -148,6 +149,9 @@ export default function Admin() {
     if (buyerType === 'individual' && !customerName.trim()) { alert('Худалдан авагчийн нэр оруулна уу.'); return }
     if (buyerType === 'company' && !companyName.trim()) { alert('Компанийн нэр оруулна уу.'); return }
     if (cart.length === 0) { alert('Бараа нэмнэ үү.'); return }
+    const { data: counterData } = await supabase.from('receipt_counter').select('last_number').eq('id', 1).single()
+    const newNumber = (counterData?.last_number || 0) + 1
+    await supabase.from('receipt_counter').update({ last_number: newNumber }).eq('id', 1)
     setSaving(true)
 
     const orderItems = cart.map((item) => ({
@@ -182,6 +186,7 @@ export default function Admin() {
       items: orderItems,
       total: cartTotal,
       date: new Date(),
+      receiptNumber: newNumber,
     })
 
     setCart([])
@@ -369,7 +374,18 @@ export default function Admin() {
           {receipt && (
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ background: 'white', padding: '32px', maxWidth: '680px', width: '100%', maxHeight: '90vh', overflowY: 'auto', borderRadius: '8px' }}>
-                <style>{`@media print { .no-print { display: none !important; } body > * { display: none !important; } #receipt-print { display: block !important; position: static !important; } }`}</style>
+               <style>{`
+                  @media print {
+                    .no-print { display: none !important; }
+                    .print-only { display: block !important; }
+                    body > * { display: none !important; }
+                    #receipt-print { display: block !important; position: static !important; }
+                  }
+                  @media screen {
+                    .print-only { display: none !important; }
+                  }
+                `}</style>
+
                 <div className="no-print flex gap-3 mb-4">
                   <button onClick={() => window.print()} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#111', color: '#fff' }}>Хэвлэх</button>
                   <button onClick={() => setReceipt(null)} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#eee', color: '#111' }}>Хаах</button>
@@ -379,35 +395,41 @@ export default function Admin() {
                     <span>НХМаягт БМ-3</span>
                     <span style={{ textAlign: 'right' }}>Сангийн сайдын 2017 оны 12 дугаар сарын<br />5-ны өдрийн 347 тоот тушаалын хавсралт</span>
                   </div>
-                  <h2 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 'bold', margin: '8px 0', letterSpacing: '1px' }}>ЗАРЛАГЫН БАРИМТ №_____</h2>
+                 <h2 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 'bold', margin: '8px 0', letterSpacing: '1px' }}>ЗАРЛАГЫН БАРИМТ №{receipt.receiptNumber}</h2>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8rem' }}>
                     <div style={{ width: '45%' }}>
-                      <div style={{ borderBottom: '1px solid black', marginBottom: '2px', minHeight: '20px' }}>{receipt.branch}</div>
+                      <input className="no-print" value={receipt.branch} onChange={(e) => setReceipt({...receipt, branch: e.target.value})} style={{ borderBottom: '1px solid black', marginBottom: '2px', width: '100%', border: 'none', borderBottom: '1px solid black', outline: 'none', fontSize: '0.8rem' }} />
                       <div style={{ fontSize: '0.7rem', marginBottom: '8px' }}>(байгууллагын нэр)</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <span>Регистрийн №</span>
-                        <div style={{ display: 'flex', gap: '2px' }}>
-                          {(receipt.branchReg || '       ').toString().padEnd(7).split('').slice(0, 7).map((d, i) => (
-                            <div key={i} style={{ width: '18px', height: '20px', border: '1px solid black', textAlign: 'center', lineHeight: '20px', fontSize: '0.75rem' }}>{d.trim()}</div>
-                          ))}
+                        <input className="no-print" value={receipt.branchReg || ''} onChange={(e) => setReceipt({...receipt, branchReg: e.target.value})} style={{ width: '80px', border: 'none', borderBottom: '1px solid black', outline: 'none', fontSize: '0.8rem' }} />
+                        <div className="print-only" style={{ display: 'none' }}>
+                          <div style={{ display: 'flex', gap: '2px' }}>
+                            {(receipt.branchReg || '       ').toString().padEnd(7).split('').slice(0, 7).map((d, i) => (
+                              <div key={i} style={{ width: '18px', height: '20px', border: '1px solid black', textAlign: 'center', lineHeight: '20px', fontSize: '0.75rem' }}>{d.trim()}</div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
                     <div style={{ width: '45%' }}>
-                      <div style={{ borderBottom: '1px solid black', marginBottom: '2px', minHeight: '20px' }}>{receipt.buyerName}</div>
+                      <input className="no-print" value={receipt.buyerName} onChange={(e) => setReceipt({...receipt, buyerName: e.target.value})} style={{ borderBottom: '1px solid black', marginBottom: '2px', width: '100%', border: 'none', borderBottom: '1px solid black', outline: 'none', fontSize: '0.8rem' }} />
                       <div style={{ fontSize: '0.7rem', marginBottom: '8px' }}>(худалдан авагчийн нэр)</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <span>Регистрийн №</span>
-                        <div style={{ display: 'flex', gap: '2px' }}>
-                          {(receipt.buyerReg || '       ').toString().padEnd(7).split('').slice(0, 7).map((d, i) => (
-                            <div key={i} style={{ width: '18px', height: '20px', border: '1px solid black', textAlign: 'center', lineHeight: '20px', fontSize: '0.75rem' }}>{d.trim()}</div>
-                          ))}
+                        <input className="no-print" value={receipt.buyerReg || ''} onChange={(e) => setReceipt({...receipt, buyerReg: e.target.value})} style={{ width: '80px', border: 'none', borderBottom: '1px solid black', outline: 'none', fontSize: '0.8rem' }} />
+                        <div className="print-only" style={{ display: 'none' }}>
+                          <div style={{ display: 'flex', gap: '2px' }}>
+                            {(receipt.buyerReg || '       ').toString().padEnd(7).split('').slice(0, 7).map((d, i) => (
+                              <div key={i} style={{ width: '18px', height: '20px', border: '1px solid black', textAlign: 'center', lineHeight: '20px', fontSize: '0.75rem' }}>{d.trim()}</div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', margin: '8px 0', fontSize: '0.8rem' }}>
-                    <span>20{String(receipt.date.getFullYear()).slice(2)}.... оны <u>{receipt.date.getMonth() + 1}</u> сарын <u>{receipt.date.getDate()}</u> өдөр</span>
+                    <span>20{String(receipt.date.getFullYear()).slice(2)} оны <u>{receipt.date.getMonth() + 1}</u> сарын <u>{receipt.date.getDate()}</u> өдөр</span>
                     <span>(тээвэрлэгчийн хаяг, албан тушаал, нэр)</span>
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', marginBottom: '8px' }}>
@@ -432,8 +454,12 @@ export default function Admin() {
                           <td style={{ border: '1px solid black', padding: '3px' }}>{item.name}</td>
                           <td style={{ border: '1px solid black', padding: '3px' }}></td>
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{item.unit_type || 'ш'}</td>
-                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{item.qty}</td>
-                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right' }}>{item.price.toLocaleString()}</td>
+                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>
+                            <input value={item.qty} onChange={(e) => setReceipt({...receipt, items: receipt.items.map((it, idx) => idx === i ? {...it, qty: e.target.value} : it)})} style={{ width: '40px', border: 'none', outline: 'none', textAlign: 'center', fontSize: '0.75rem' }} />
+                          </td>
+                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right' }}>
+                            <input value={item.price} onChange={(e) => setReceipt({...receipt, items: receipt.items.map((it, idx) => idx === i ? {...it, price: e.target.value} : it)})} style={{ width: '60px', border: 'none', outline: 'none', textAlign: 'right', fontSize: '0.75rem' }} />
+                          </td>
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right' }}>{(item.price * item.qty).toLocaleString()}</td>
                         </tr>
                       ))}
@@ -454,7 +480,7 @@ export default function Admin() {
                       </tr>
                     </tbody>
                   </table>
-                  <div style={{ marginTop: '16px', fontSize: '0.8rem' }}>
+                  <div style={{ marginTop: '32px', fontSize: '0.8rem' }}>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Тэмдэг</span>
                       <div style={{ flex: 1 }}>
