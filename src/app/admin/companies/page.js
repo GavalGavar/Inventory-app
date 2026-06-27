@@ -122,13 +122,7 @@ export default function Companies() {
                     </p>
                   )}
                 </div>
-                <button
-                  onClick={() => deleteCompany(company.id)}
-                  className="text-xs"
-                  style={{ color: 'var(--soldout-text)' }}
-                >
-                  Delete
-                </button>
+                
               </div>
             ))}
           </div>
