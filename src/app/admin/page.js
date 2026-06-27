@@ -68,6 +68,7 @@ export default function Admin() {
   const [receipt, setReceipt] = useState(null)
   const [buyerType, setBuyerType] = useState('individual')
   const [branch, setBranch] = useState('')
+  const [branchReg, setBranchReg] = useState('')
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [companyName, setCompanyName] = useState('')
@@ -143,36 +144,18 @@ export default function Admin() {
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0)
 
   async function handleSell() {
-    if (!branch) {
-      alert('Салбар сонгоно уу.')
-      return
-    }
-    if (buyerType === 'individual' && !customerName.trim()) {
-      alert('Худалдан авагчийн нэр оруулна уу.')
-      return
-    }
-    if (buyerType === 'company' && !companyName.trim()) {
-      alert('Компанийн нэр оруулна уу.')
-      return
-    }
-    if (cart.length === 0) {
-      alert('Бараа нэмнэ үү.')
-      return
-    }
+    if (!branch) { alert('Салбар сонгоно уу.'); return }
+    if (buyerType === 'individual' && !customerName.trim()) { alert('Худалдан авагчийн нэр оруулна уу.'); return }
+    if (buyerType === 'company' && !companyName.trim()) { alert('Компанийн нэр оруулна уу.'); return }
+    if (cart.length === 0) { alert('Бараа нэмнэ үү.'); return }
     setSaving(true)
 
     const orderItems = cart.map((item) => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      qty: item.qty,
-      unit_type: item.unit_type || 'ширхэг',
+      id: item.id, name: item.name, price: item.price, qty: item.qty, unit_type: item.unit_type || 'ширхэг',
     }))
 
     const customerNameFinal = buyerType === 'company' ? companyName : customerName
-    const customerContactFinal = buyerType === 'company'
-      ? `${companyPhone} | Рег: ${companyReg}`
-      : customerPhone
+    const customerContactFinal = buyerType === 'company' ? `${companyPhone} | Рег: ${companyReg}` : customerPhone
 
     const { error } = await supabase.from('orders').insert({
       customer_name: customerNameFinal,
@@ -184,11 +167,7 @@ export default function Admin() {
       branch: branch,
     })
 
-    if (error) {
-      setSaving(false)
-      alert('Алдаа гарлаа: ' + error.message)
-      return
-    }
+    if (error) { setSaving(false); alert('Алдаа гарлаа: ' + error.message); return }
 
     for (const item of cart) {
       await supabase.rpc('decrement_stock', { item_id: item.id, amount: item.qty })
@@ -199,6 +178,7 @@ export default function Admin() {
       buyerReg: companyReg,
       buyerPhone: buyerType === 'company' ? companyPhone : customerPhone,
       branch,
+      branchReg,
       items: orderItems,
       total: cartTotal,
       date: new Date(),
@@ -207,6 +187,7 @@ export default function Admin() {
     setCart([])
     setShowCart(false)
     setBranch('')
+    setBranchReg('')
     setCustomerName('')
     setCustomerPhone('')
     setCompanyName('')
@@ -218,9 +199,7 @@ export default function Admin() {
   function handleCategoryClick(catNumber) {
     setCategoryFilter(catNumber)
     setSizeFilter(null)
-    setTimeout(() => {
-      document.getElementById('items-section')?.scrollIntoView({ behavior: 'smooth' })
-    }, 100)
+    setTimeout(() => { document.getElementById('items-section')?.scrollIntoView({ behavior: 'smooth' }) }, 100)
   }
 
   const currentSizes = categoryFilter === 1 ? CEILING_SIZES : categoryFilter === 2 ? LIGHT_SIZES : null
@@ -236,12 +215,7 @@ export default function Admin() {
               Taaz.mn | БАРАА УДИРДЛАГА
             </h1>
             <div className="flex gap-3 items-center">
-              <button
-                onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login' }}
-                className="text-xs" style={{ color: 'var(--muted)' }}
-              >
-                Log Out
-              </button>
+              <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login' }} className="text-xs" style={{ color: 'var(--muted)' }}>Log Out</button>
               <Link href="/admin/orders" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Захиалга харах</Link>
               <Link href="/admin/bulk" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Бүтээгдэхүүн засах</Link>
               <Link href="/admin/dashboard" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Хянах самбар</Link>
@@ -256,22 +230,13 @@ export default function Admin() {
 
           {/* Hero */}
           <section style={{ backgroundColor: '#111', color: '#fff', padding: '60px 48px', textAlign: 'center', borderBottom: '4px solid #e81c1c' }}>
-            <p style={{ color: '#e81c1c', fontWeight: '700', fontSize: '0.95rem', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '16px' }}>
-              Since 2012
-            </p>
+            <p style={{ color: '#e81c1c', fontWeight: '700', fontSize: '0.95rem', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '16px' }}>Since 2012</p>
             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', lineHeight: '1.2', marginBottom: '16px' }}>
-              Таны хүссэн хэв маягын<br />
-              <span style={{ color: '#e81c1c' }}>Ханын хавтан & Тааз</span>
+              Таны хүссэн хэв маягын<br /><span style={{ color: '#e81c1c' }}>Ханын хавтан & Тааз</span>
             </h1>
-            <p style={{ fontSize: '1.1rem', color: '#aaa', marginBottom: '32px' }}>
-              Чанартай дотор засалын материал — тааз, ханын хавтан болон бусад бүтээгдэхүүн
-            </p>
+            <p style={{ fontSize: '1.1rem', color: '#aaa', marginBottom: '32px' }}>Чанартай дотор засалын материал — тааз, ханын хавтан болон бусад бүтээгдэхүүн</p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '60px', flexWrap: 'wrap', marginBottom: '40px' }}>
-              {[
-                { number: '12+', label: 'Жилийн туршлага' },
-                { number: '3', label: 'Салбар дэлгүүр' },
-                { number: '1000+', label: 'Хэрэглэгч' },
-              ].map((stat) => (
+              {[{ number: '12+', label: 'Жилийн туршлага' }, { number: '3', label: 'Салбар дэлгүүр' }, { number: '1000+', label: 'Хэрэглэгч' }].map((stat) => (
                 <div key={stat.label} style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#e81c1c' }}>{stat.number}</div>
                   <div style={{ fontSize: '0.9rem', color: '#aaa', marginTop: '4px' }}>{stat.label}</div>
@@ -284,14 +249,12 @@ export default function Admin() {
                 { name: 'Салбар 2', address: '100айл ОДКОН ТӨВ-н хойд талаас тусдаа хаалгатай Б1 давхар', phone: '95026615' },
                 { name: 'Салбар 3 — TOR PINTURAS', address: '100 айл 100 ресидэнс 1 давхарт', phone: '94569156' },
                 { name: 'Агуулах', address: '100 айл 9-р дэлгүүрийн ард', phone: '99976884' },
-              ].map((branch) => (
-                <div key={branch.name} style={{ padding: '20px', borderRadius: '10px', backgroundColor: '#1a1a1a', border: '2px solid #333', textAlign: 'left' }}>
+              ].map((b) => (
+                <div key={b.name} style={{ padding: '20px', borderRadius: '10px', backgroundColor: '#1a1a1a', border: '2px solid #333', textAlign: 'left' }}>
                   <div style={{ fontSize: '1.2rem', marginBottom: '8px' }}>📍</div>
-                  <h3 style={{ fontWeight: '800', fontSize: '1rem', color: '#fff', marginBottom: '6px' }}>{branch.name}</h3>
-                  <p style={{ color: '#aaa', fontSize: '0.85rem', lineHeight: '1.5', marginBottom: '8px' }}>{branch.address}</p>
-                  <a href={`tel:${branch.phone}`} style={{ color: '#e81c1c', fontWeight: '700', fontSize: '0.95rem', textDecoration: 'none' }}>
-                    📞 {branch.phone}
-                  </a>
+                  <h3 style={{ fontWeight: '800', fontSize: '1rem', color: '#fff', marginBottom: '6px' }}>{b.name}</h3>
+                  <p style={{ color: '#aaa', fontSize: '0.85rem', lineHeight: '1.5', marginBottom: '8px' }}>{b.address}</p>
+                  <a href={`tel:${b.phone}`} style={{ color: '#e81c1c', fontWeight: '700', fontSize: '0.95rem', textDecoration: 'none' }}>📞 {b.phone}</a>
                 </div>
               ))}
             </div>
@@ -301,43 +264,16 @@ export default function Admin() {
           <div id="items-section">
             <div className="px-6 py-3 sticky top-0 z-10" style={{ borderBottom: '0.5px solid var(--border)', background: 'var(--card)' }}>
               <div className="flex items-center gap-2 flex-wrap">
-                <input
-                  type="text"
-                  placeholder="Хайх..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="p-2 rounded text-sm"
-                  style={{ background: 'var(--background)', border: '0.5px solid var(--border)', color: 'var(--foreground)', width: '300px' }}
-                />
-                <button
-                  onClick={() => { setCategoryFilter(null); setSizeFilter(null) }}
-                  className="px-4 py-2 rounded text-sm font-bold"
-                  style={{ background: !categoryFilter ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)' }}
-                >
-                  Бүгд
-                </button>
+                <input type="text" placeholder="Хайх..." value={search} onChange={(e) => setSearch(e.target.value)} className="p-2 rounded text-sm" style={{ background: 'var(--background)', border: '0.5px solid var(--border)', color: 'var(--foreground)', width: '300px' }} />
+                <button onClick={() => { setCategoryFilter(null); setSizeFilter(null) }} className="px-4 py-2 rounded text-sm font-bold" style={{ background: !categoryFilter ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)' }}>Бүгд</button>
                 {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.number}
-                    onClick={() => handleCategoryClick(cat.number)}
-                    className="px-4 py-2 rounded text-sm font-bold"
-                    style={{ background: categoryFilter === cat.number ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)' }}
-                  >
-                    {cat.name}
-                  </button>
+                  <button key={cat.number} onClick={() => handleCategoryClick(cat.number)} className="px-4 py-2 rounded text-sm font-bold" style={{ background: categoryFilter === cat.number ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)' }}>{cat.name}</button>
                 ))}
               </div>
               {currentSizes && (
                 <div className="flex items-center gap-2 flex-wrap mt-2">
                   {currentSizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSizeFilter(size === sizeFilter ? null : size)}
-                      className="px-4 py-2 rounded text-sm font-bold"
-                      style={{ background: sizeFilter === size ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)' }}
-                    >
-                      {size}
-                    </button>
+                    <button key={size} onClick={() => setSizeFilter(size === sizeFilter ? null : size)} className="px-4 py-2 rounded text-sm font-bold" style={{ background: sizeFilter === size ? 'var(--accent)' : 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)' }}>{size}</button>
                   ))}
                 </div>
               )}
@@ -345,40 +281,24 @@ export default function Admin() {
 
             <div className="p-6">
               {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
-              {items.length === 0 && <p style={{ color: 'var(--muted)' }}>No items yet. Time to add some!</p>}
+              {items.length === 0 && <p style={{ color: 'var(--muted)' }}>No items yet.</p>}
               {filteredItems.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-6">
                   {filteredItems.map((item) => (
                     <div key={item.id} className="rounded p-2 relative" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', opacity: item.quantity > 0 ? 1 : 0.6 }}>
-                      <span className="absolute top-2 right-2 text-sm font-medium px-2 py-1 rounded" style={{
-                        background: item.quantity > 0 ? 'var(--stock-bg)' : 'var(--soldout-bg)',
-                        color: item.quantity > 0 ? 'var(--stock-text)' : 'var(--soldout-text)',
-                        transform: item.quantity > 0 ? 'none' : 'rotate(-4deg)',
-                      }}>
+                      <span className="absolute top-2 right-2 text-sm font-medium px-2 py-1 rounded" style={{ background: item.quantity > 0 ? 'var(--stock-bg)' : 'var(--soldout-bg)', color: item.quantity > 0 ? 'var(--stock-text)' : 'var(--soldout-text)', transform: item.quantity > 0 ? 'none' : 'rotate(-4deg)' }}>
                         {item.quantity > 0 ? 'Бэлэн бараа' : 'Дууссан'}
                       </span>
-                      {item.image_url && (
-                        <img src={item.image_url} alt={item.name} className="w-full aspect-square object-cover rounded mb-2" />
-                      )}
-                      {item.category_name && (
-                        <p className="text-xs mb-1" style={{ color: 'var(--muted)' }}>{item.category_number}. {item.category_name}</p>
-                      )}
+                      {item.image_url && <img src={item.image_url} alt={item.name} className="w-full aspect-square object-cover rounded mb-2" />}
+                      {item.category_name && <p className="text-xs mb-1" style={{ color: 'var(--muted)' }}>{item.category_number}. {item.category_name}</p>}
                       <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>{item.name}</h2>
                       <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>
                         {item.unit_type === 'м.кв' ? `1м² = ${item.price.toLocaleString()} MNT` : `1ш = ${item.price.toLocaleString()} MNT`} · {item.quantity}{item.unit_type === 'м.кв' ? 'м²' : 'ш'} үлдэгдэл
                       </p>
                       <div className="flex justify-between items-center mt-1">
-                        <Link href={`/admin/edit/${item.id}`} className="text-sm font-medium" style={{ color: 'var(--accent)' }}>
-                          Edit
-                        </Link>
+                        <Link href={`/admin/edit/${item.id}`} className="text-sm font-medium" style={{ color: 'var(--accent)' }}>Edit</Link>
                         {item.quantity > 0 && (
-                          <button
-                            onClick={() => addToCart(item)}
-                            className="text-xs px-2 py-1 rounded font-medium"
-                            style={{ background: 'var(--accent)', color: '#fff' }}
-                          >
-                            + Нэмэх
-                          </button>
+                          <button onClick={() => addToCart(item)} className="text-xs px-2 py-1 rounded font-medium" style={{ background: 'var(--accent)', color: '#fff' }}>+ Нэмэх</button>
                         )}
                       </div>
                     </div>
@@ -390,162 +310,56 @@ export default function Admin() {
 
           {/* Floating Cart Button */}
           {cart.length > 0 && !showCart && (
-            <button
-              onClick={() => setShowCart(true)}
-              style={{
-                position: 'fixed', bottom: '32px', right: '32px',
-                background: 'var(--accent)', color: '#fff',
-                padding: '16px 24px', borderRadius: '50px',
-                fontWeight: '700', fontSize: '1rem',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                zIndex: 999, border: 'none', cursor: 'pointer'
-              }}
-            >
+            <button onClick={() => setShowCart(true)} style={{ position: 'fixed', bottom: '32px', right: '32px', background: 'var(--accent)', color: '#fff', padding: '16px 24px', borderRadius: '50px', fontWeight: '700', fontSize: '1rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', zIndex: 999, border: 'none', cursor: 'pointer' }}>
               🛒 Сагс ({cart.length}) — {cartTotal.toLocaleString()} MNT
             </button>
           )}
 
           {/* Cart Sidebar */}
           {showCart && (
-            <div style={{
-              position: 'fixed', top: 0, right: 0, bottom: 0, width: '400px',
-              background: 'var(--background)', borderLeft: '2px solid var(--accent)',
-              zIndex: 1000, overflowY: 'auto', padding: '24px',
-              boxShadow: '-4px 0 20px rgba(0,0,0,0.2)'
-            }}>
+            <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: '400px', background: 'var(--background)', borderLeft: '2px solid var(--accent)', zIndex: 1000, overflowY: 'auto', padding: '24px', boxShadow: '-4px 0 20px rgba(0,0,0,0.2)' }}>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-bold" style={{ color: 'var(--foreground)' }}>🛒 Сагс</h2>
                 <button onClick={() => setShowCart(false)} style={{ color: 'var(--muted)', fontSize: '1.2rem' }}>✕</button>
               </div>
-
               <div className="flex flex-col gap-2 mb-4">
                 {cart.map((item) => (
                   <div key={item.id} className="rounded p-3" style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}>
                     <p className="text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>{item.name}</p>
                     <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min="0.01"
-                        step="0.01"
-                        value={item.qty}
-                        onChange={(e) => setCart((prev) => prev.map((i) => i.id === item.id ? { ...i, qty: e.target.value === '' ? '' : Number(e.target.value) } : i))}
-                        onBlur={(e) => { if (!e.target.value || Number(e.target.value) < 0.01) updateQty(item.id, 1) }}
-                        
-                        className="p-1 rounded text-sm w-16"
-                        style={{ background: 'var(--background)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-                      />
-                      <span className="text-xs" style={{ color: 'var(--muted)' }}>
-                        {item.unit_type === 'м.кв' ? 'м²' : 'ш'} x {item.price.toLocaleString()} = {(item.price * item.qty).toLocaleString()} MNT
-                      </span>
+                      <input type="number" min="0.01" step="0.01" value={item.qty} onChange={(e) => setCart((prev) => prev.map((i) => i.id === item.id ? { ...i, qty: e.target.value === '' ? '' : Number(e.target.value) } : i))} onBlur={(e) => { if (!e.target.value || Number(e.target.value) < 0.01) updateQty(item.id, 1) }} className="p-1 rounded text-sm w-16" style={{ background: 'var(--background)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }} />
+                      <span className="text-xs" style={{ color: 'var(--muted)' }}>{item.unit_type === 'м.кв' ? 'м²' : 'ш'} x {item.price.toLocaleString()} = {(item.price * item.qty).toLocaleString()} MNT</span>
                       <button onClick={() => removeFromCart(item.id)} className="text-xs ml-auto" style={{ color: 'var(--soldout-text)' }}>x</button>
                     </div>
                   </div>
                 ))}
               </div>
-
-              <p className="text-sm font-bold mb-4" style={{ color: 'var(--foreground)' }}>
-                Нийт: <span style={{ color: 'var(--accent)' }}>{cartTotal.toLocaleString()} MNT</span>
-              </p>
-
+              <p className="text-sm font-bold mb-4" style={{ color: 'var(--foreground)' }}>Нийт: <span style={{ color: 'var(--accent)' }}>{cartTotal.toLocaleString()} MNT</span></p>
               <div className="mb-4">
                 <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>Борлуулсан салбар</label>
-                <select
-                  value={branch}
-                  onChange={(e) => setBranch(e.target.value)}
-                  className="p-2 rounded text-sm w-full"
-                  style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-                >
+                <select value={branch} onChange={(e) => { setBranch(e.target.value); const sel = companies.find((c) => c.name === e.target.value); setBranchReg(sel?.registration_number || '') }} className="p-2 rounded text-sm w-full" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>
                   <option value="">Салбар сонгох...</option>
-                  <option value="Прогресс төв салбар">Прогресс төв салбар</option>
-                  <option value="ОДКОН ТӨВ салбар">ОДКОН ТӨВ салбар</option>
-                  <option value="TOR PINTURAS салбар">TOR PINTURAS салбар</option>
-                  <option value="Агуулах">Агуулах</option>
-
+                  {companies.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
                 </select>
               </div>
-
               <div className="flex gap-2 mb-4">
-                <button
-                  onClick={() => setBuyerType('individual')}
-                  className="flex-1 py-2 rounded text-sm font-medium"
-                  style={{
-                    background: buyerType === 'individual' ? 'var(--accent)' : 'var(--card)',
-                    color: buyerType === 'individual' ? '#fff' : 'var(--foreground)',
-                    border: '0.5px solid var(--border)',
-                  }}
-                >
-                  Хувь хүн
-                </button>
-                <button
-                  onClick={() => setBuyerType('company')}
-                  className="flex-1 py-2 rounded text-sm font-medium"
-                  style={{
-                    background: buyerType === 'company' ? 'var(--accent)' : 'var(--card)',
-                    color: buyerType === 'company' ? '#fff' : 'var(--foreground)',
-                    border: '0.5px solid var(--border)',
-                  }}
-                >
-                  Компани
-                </button>
+                <button onClick={() => setBuyerType('individual')} className="flex-1 py-2 rounded text-sm font-medium" style={{ background: buyerType === 'individual' ? 'var(--accent)' : 'var(--card)', color: buyerType === 'individual' ? '#fff' : 'var(--foreground)', border: '0.5px solid var(--border)' }}>Хувь хүн</button>
+                <button onClick={() => setBuyerType('company')} className="flex-1 py-2 rounded text-sm font-medium" style={{ background: buyerType === 'company' ? 'var(--accent)' : 'var(--card)', color: buyerType === 'company' ? '#fff' : 'var(--foreground)', border: '0.5px solid var(--border)' }}>Компани</button>
               </div>
-
               {buyerType === 'individual' && (
                 <div className="flex flex-col gap-2 mb-4">
-                  <input
-                    type="text"
-                    placeholder="Худалдан авагчийн нэр"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="p-2 rounded text-sm"
-                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Утасны дугаар"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="p-2 rounded text-sm"
-                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-                  />
+                  <input type="text" placeholder="Худалдан авагчийн нэр" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="p-2 rounded text-sm" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }} />
+                  <input type="text" placeholder="Утасны дугаар" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="p-2 rounded text-sm" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }} />
                 </div>
               )}
-
               {buyerType === 'company' && (
                 <div className="flex flex-col gap-2 mb-4">
-                  <input
-                    type="text"
-                    placeholder="Компанийн нэр"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    className="p-2 rounded text-sm"
-                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-                  />
-
-                  <input
-                    type="text"
-                    placeholder="Регистрийн дугаар"
-                    value={companyReg}
-                    onChange={(e) => setCompanyReg(e.target.value)}
-                    className="p-2 rounded text-sm"
-                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Утасны дугаар"
-                    value={companyPhone}
-                    onChange={(e) => setCompanyPhone(e.target.value)}
-                    className="p-2 rounded text-sm"
-                    style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
-                  />
+                  <input type="text" placeholder="Компанийн нэр" value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="p-2 rounded text-sm" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }} />
+                  <input type="text" placeholder="Регистрийн дугаар" value={companyReg} onChange={(e) => setCompanyReg(e.target.value)} className="p-2 rounded text-sm" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }} />
+                  <input type="text" placeholder="Утасны дугаар" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} className="p-2 rounded text-sm" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }} />
                 </div>
               )}
-
-              <button
-                onClick={handleSell}
-                disabled={saving}
-                className="w-full py-3 rounded text-sm font-bold disabled:opacity-50"
-                style={{ background: 'var(--accent)', color: '#fff' }}
-              >
+              <button onClick={handleSell} disabled={saving} className="w-full py-3 rounded text-sm font-bold disabled:opacity-50" style={{ background: 'var(--accent)', color: '#fff' }}>
                 {saving ? 'Хадгалж байна...' : 'Худалдах & Баримт хэвлэх'}
               </button>
             </div>
@@ -553,72 +367,79 @@ export default function Admin() {
 
           {/* Receipt Modal */}
           {receipt && (
-            <div style={{
-              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-              background: 'rgba(0,0,0,0.7)', zIndex: 2000,
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ background: 'white', padding: '32px', maxWidth: '680px', width: '100%', maxHeight: '90vh', overflowY: 'auto', borderRadius: '8px' }}>
-                <style>{`@media print { .no-print { display: none !important; } }`}</style>
-                <div className="no-print flex gap-3 mb-6">
-                  <button onClick={() => window.print()} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#111', color: '#fff' }}>
-                    Хэвлэх
-                  </button>
-                  <button onClick={() => setReceipt(null)} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#eee', color: '#111' }}>
-                    Хаах
-                  </button>
+                <style>{`@media print { .no-print { display: none !important; } body > * { display: none !important; } #receipt-print { display: block !important; position: static !important; } }`}</style>
+                <div className="no-print flex gap-3 mb-4">
+                  <button onClick={() => window.print()} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#111', color: '#fff' }}>Хэвлэх</button>
+                  <button onClick={() => setReceipt(null)} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#eee', color: '#111' }}>Хаах</button>
                 </div>
-                <div style={{ fontFamily: 'serif', color: 'black' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '8px' }}>
+                <div id="receipt-print" style={{ fontFamily: 'Arial, sans-serif', color: 'black', fontSize: '0.8rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '4px' }}>
                     <span>НХМаягт БМ-3</span>
-                    <span>Сангийн сайдын 2017 оны 12 дугаар сарын 5-ны өдрийн 347 тоот тушаалын хавсралт</span>
+                    <span style={{ textAlign: 'right' }}>Сангийн сайдын 2017 оны 12 дугаар сарын<br />5-ны өдрийн 347 тоот тушаалын хавсралт</span>
                   </div>
-                  <h2 style={{ textAlign: 'center', fontSize: '1.3rem', fontWeight: 'bold', margin: '12px 0' }}>
-                    ЗАРЛАГЫН БАРИМТ №_____
-                  </h2>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '0.85rem' }}>
-                    <div>
-                      <p><u>Гурван Сайхан Билэг ХХК</u></p>
-                      <p>(байгууллагын нэр)</p>
-                      <p>Регистрийн № <u>___________</u></p>
-                      <p>Салбар: <u>{receipt.branch}</u></p>
+                  <h2 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 'bold', margin: '8px 0', letterSpacing: '1px' }}>ЗАРЛАГЫН БАРИМТ №_____</h2>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8rem' }}>
+                    <div style={{ width: '45%' }}>
+                      <div style={{ borderBottom: '1px solid black', marginBottom: '2px', minHeight: '20px' }}>{receipt.branch}</div>
+                      <div style={{ fontSize: '0.7rem', marginBottom: '8px' }}>(байгууллагын нэр)</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span>Регистрийн №</span>
+                        <div style={{ display: 'flex', gap: '2px' }}>
+                          {(receipt.branchReg || '       ').toString().padEnd(7).split('').slice(0, 7).map((d, i) => (
+                            <div key={i} style={{ width: '18px', height: '20px', border: '1px solid black', textAlign: 'center', lineHeight: '20px', fontSize: '0.75rem' }}>{d.trim()}</div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p><u>{receipt.buyerName}</u></p>
-                      <p>(худалдан авагчийн нэр)</p>
-                      <p>Регистрийн № <u>{receipt.buyerReg || '___________'}</u></p>
+                    <div style={{ width: '45%' }}>
+                      <div style={{ borderBottom: '1px solid black', marginBottom: '2px', minHeight: '20px' }}>{receipt.buyerName}</div>
+                      <div style={{ fontSize: '0.7rem', marginBottom: '8px' }}>(худалдан авагчийн нэр)</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span>Регистрийн №</span>
+                        <div style={{ display: 'flex', gap: '2px' }}>
+                          {(receipt.buyerReg || '       ').toString().padEnd(7).split('').slice(0, 7).map((d, i) => (
+                            <div key={i} style={{ width: '18px', height: '20px', border: '1px solid black', textAlign: 'center', lineHeight: '20px', fontSize: '0.75rem' }}>{d.trim()}</div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <p style={{ fontSize: '0.85rem', marginBottom: '16px' }}>
-                    20{String(receipt.date.getFullYear()).slice(2)} оны <u>{receipt.date.getMonth() + 1}</u> сарын <u>{receipt.date.getDate()}</u> өдөр
-                  </p>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', margin: '8px 0', fontSize: '0.8rem' }}>
+                    <span>20{String(receipt.date.getFullYear()).slice(2)}.... оны <u>{receipt.date.getMonth() + 1}</u> сарын <u>{receipt.date.getDate()}</u> өдөр</span>
+                    <span>(тээвэрлэгчийн хаяг, албан тушаал, нэр)</span>
+                  </div>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', marginBottom: '8px' }}>
                     <thead>
                       <tr>
-                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>№</th>
-                        <th style={{ border: '1px solid black', padding: '4px' }}>Материалын нэр</th>
-                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Код</th>
-                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Нэгж</th>
-                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Тоо</th>
-                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Нэгжийн үнэ</th>
-                        <th style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>Нийт дүн</th>
+                        <th rowSpan={2} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '25px' }}>№</th>
+                        <th rowSpan={2} style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>Материалын үнэт зүйлийн нэр, зэрэг, дугаар</th>
+                        <th rowSpan={2} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '30px' }}>Код</th>
+                        <th rowSpan={2} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '40px' }}>Хэм-жих нэгж</th>
+                        <th colSpan={3} style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>Худалдах</th>
+                      </tr>
+                      <tr>
+                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '35px' }}>Тоо</th>
+                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '65px' }}>Нэгжийн үнэ</th>
+                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '65px' }}>Нийт дүн</th>
                       </tr>
                     </thead>
                     <tbody>
                       {receipt.items.map((item, i) => (
                         <tr key={i}>
-                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{i + 1}</td>
-                          <td style={{ border: '1px solid black', padding: '4px' }}>{item.name}</td>
-                          <td style={{ border: '1px solid black', padding: '4px' }}></td>
-                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{item.unit_type || 'ш'}</td>
-                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{item.qty}</td>
-                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{item.price.toLocaleString()}</td>
-                          <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{(item.price * item.qty).toLocaleString()}</td>
+                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{i + 1}</td>
+                          <td style={{ border: '1px solid black', padding: '3px' }}>{item.name}</td>
+                          <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{item.unit_type || 'ш'}</td>
+                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{item.qty}</td>
+                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right' }}>{item.price.toLocaleString()}</td>
+                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right' }}>{(item.price * item.qty).toLocaleString()}</td>
                         </tr>
                       ))}
-                      {[...Array(Math.max(0, 10 - receipt.items.length))].map((_, i) => (
+                      {[...Array(Math.max(0, 20 - receipt.items.length))].map((_, i) => (
                         <tr key={`e-${i}`}>
-                          <td style={{ border: '1px solid black', padding: '8px', textAlign: 'center' }}>{receipt.items.length + i + 1}</td>
+                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{receipt.items.length + i + 1}</td>
                           <td style={{ border: '1px solid black', padding: '8px' }}></td>
                           <td style={{ border: '1px solid black', padding: '8px' }}></td>
                           <td style={{ border: '1px solid black', padding: '8px' }}></td>
@@ -628,16 +449,38 @@ export default function Admin() {
                         </tr>
                       ))}
                       <tr>
-                        <td colSpan={6} style={{ border: '1px solid black', padding: '4px', textAlign: 'center', fontWeight: 'bold' }}>Дүн</td>
-                        <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center', fontWeight: 'bold' }}>{receipt.total.toLocaleString()}</td>
+                        <td colSpan={6} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', fontWeight: 'bold' }}>Дүн</td>
+                        <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold' }}>{receipt.total.toLocaleString()}</td>
                       </tr>
                     </tbody>
                   </table>
-                  <div style={{ marginTop: '24px', fontSize: '0.85rem' }}>
-                    <p style={{ marginBottom: '16px' }}><strong>Тэмдэг</strong></p>
-                    <p style={{ marginBottom: '16px' }}>Хүлээлгэн өгсөн эд хариуцагч: ........................................../......................../</p>
-                    <p style={{ marginBottom: '16px' }}>Хүлээн авагч: ........................................../......................../</p>
-                    <p>Шалгасан нягтлан бодогч: ........................................../......................../</p>
+                  <div style={{ marginTop: '16px', fontSize: '0.8rem' }}>
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                      <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Тэмдэг</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ whiteSpace: 'nowrap', minWidth: '220px' }}>Хүлээлгэн өгсөн эд хариуцагч:</span>
+                          <span style={{ flex: 1, borderBottom: '1px dotted black', marginLeft: '8px' }}>&nbsp;</span>
+                          <span style={{ margin: '0 4px' }}>/</span>
+                          <span style={{ width: '80px', borderBottom: '1px dotted black' }}>&nbsp;</span>
+                          <span>/</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ whiteSpace: 'nowrap', minWidth: '220px' }}>Хүлээн авагч:</span>
+                          <span style={{ flex: 1, borderBottom: '1px dotted black', marginLeft: '8px' }}>&nbsp;</span>
+                          <span style={{ margin: '0 4px' }}>/</span>
+                          <span style={{ width: '80px', borderBottom: '1px dotted black' }}>&nbsp;</span>
+                          <span>/</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <span style={{ whiteSpace: 'nowrap', minWidth: '220px' }}>Шалгасан нягтлан бодогч:</span>
+                          <span style={{ flex: 1, borderBottom: '1px dotted black', marginLeft: '8px' }}>&nbsp;</span>
+                          <span style={{ margin: '0 4px' }}>/</span>
+                          <span style={{ width: '80px', borderBottom: '1px dotted black' }}>&nbsp;</span>
+                          <span>/</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

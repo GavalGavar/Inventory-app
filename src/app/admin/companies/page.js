@@ -59,6 +59,7 @@ export default function Companies() {
   
     return (
   <RequireAuth allowedRoles={['admin']}>
+    {(role) => (
 
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
         <div
@@ -122,12 +123,18 @@ export default function Companies() {
                     </p>
                   )}
                 </div>
+                {role === 'admin' && (
+                  <Link href={`/admin/companies/edit/${company.id}`} className="text-xs" style={{ color: 'var(--accent)' }}>
+                    Edit
+                  </Link>
+                )}
                 
               </div>
             ))}
           </div>
         )}
       </div>
+    )}
     </RequireAuth>
   )
 }
