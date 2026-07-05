@@ -167,13 +167,38 @@ export default function Admin() {
     const { data: counterData } = await supabase.from('receipt_counter').select('last_number').eq('id', 1).single()
     const newNumber = (counterData?.last_number || 0) + 1
 
+    const { data: groupsData } = await supabase.from('product_groups').select()
+    const { data: allItemsData } = await supabase.from('items').select('id, price')
+    console.log('Groups count:', groupsData?.length)
+    console.log('First group:', JSON.stringify(groupsData?.[0]))
+    console.log('First order item:', JSON.stringify(orderItems?.[0]))
+    const relatedToAdd = []
+    if (groupsData) {
+      groupsData.forEach(group => {
+        const keywords = group.keywords || []
+        const matches = orderItems.some(item =>
+          keywords.some(kw => item.name.toLowerCase().includes(kw.toLowerCase()))
+        )
+        if (matches) {
+          group.related_items.forEach(related => {
+            if (!orderItems.find(i => i.id === related.id) && !relatedToAdd.find(r => r.id === related.id)) {
+              const itemPrice = allItemsData?.find(i => i.id === related.id)?.price || 0
+              relatedToAdd.push({ ...related, qty: 0, price: itemPrice, isRelated: true })
+            }
+          })
+        }
+      })
+    }
+
+    const allReceiptItems = [...orderItems, ...relatedToAdd]
+
     setPreview({ customerNameFinal, customerContactFinal, orderItems, newNumber })
     setReceipt({
       buyerName: customerNameFinal,
       buyerReg: companyReg,
       buyerPhone: buyerType === 'company' ? companyPhone : customerPhone,
       branch, branchReg,
-      items: orderItems,
+      items: allReceiptItems,
       total: cartTotal,
       date: new Date(),
       receiptNumber: newNumber,
@@ -238,6 +263,7 @@ export default function Admin() {
               <Link href="/admin/ledger" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Захиалгын түүх</Link>
               <Link href="/admin/import" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Импортлох</Link>
               <Link href="/admin/add" className="px-4 py-2 rounded text-sm font-medium" style={{ background: 'var(--foreground)', color: 'var(--background)' }}>+ Бүтээгдэхүүн нэмэх</Link>
+              <Link href="/admin/groups" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Бүлэг</Link>
             </div>
           </div>
 

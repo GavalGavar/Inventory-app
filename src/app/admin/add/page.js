@@ -1,23 +1,24 @@
 ﻿'use client'
+
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import RequireAuth from '../../../components/RequireAuth'
 
 const CATEGORIES = [
-  { number: 1, name: 'Ð¥Ó©Ð½Ð³Ó©Ð½ Ñ†Ð°Ð³Ð°Ð°Ð½ Ñ‚Ð°Ð°Ð·' },
-  { number: 2, name: 'Ð“ÑÑ€ÑÐ» ÑÑÐ½Ñ' },
-  { number: 3, name: 'Ð¥Ð°Ð½Ñ‹Ð½ Ð¿Ð°Ð½ÐµÐ» Ñ…Ð°Ð²Ñ‚Ð°Ð½' },
-  { number: 4, name: 'Ð¥ÑƒÐ»ÑÐ°Ð½ Ñ…Ð°Ð²Ñ‚Ð°Ð½' },
-  { number: 5, name: 'Ð¥Ð°Ð½Ñ‹Ð½ Ð³Ð¾Ñ‘Ð»Ñ‹Ð½ Ñ€ÐµÐ¹Ðº' },
-  { number: 6, name: 'Ð¢Ð°Ð°Ð·Ð½Ñ‹ Ñ€ÐµÐ¹Ðº' },
-  { number: 7, name: 'ÐŸÐ»Ð¸Ð½Ñ‚Ò¯Ñ' },
-  { number: 8, name: 'Ð¥Ð°Ð²Ñ‚Ð°Ð½ Ñ‚Ð°Ð°Ð·Ð½Ñ‹ Ñ…Ò¯Ñ€ÑÑ' },
-  { number: 9, name: 'Ð“Ð¸Ð¿ÑÑÐ½ Ñ‚Ð°Ð°Ð·' },
-  { number: 10, name: 'Ð¡Ð°Ñ€Ð°Ð°Ð»Ð¶Ð¸Ð½ Ñ‚Ð°Ð°Ð·' },
-  { number: 11, name: 'Ð§ÑƒÐ»ÑƒÑƒÐ½ ÐµÐ¼ÑƒÐ»ÑŒÑ' },
+  { number: 1, name: 'Хөнгөн цагаан тааз' },
+  { number: 2, name: 'Гэрэл сэнс' },
+  { number: 3, name: 'Ханын панел хавтан' },
+  { number: 4, name: 'Хулсан хавтан' },
+  { number: 5, name: 'Ханын гоёлын рейк' },
+  { number: 6, name: 'Таазны рейк' },
+  { number: 7, name: 'Плинтүс' },
+  { number: 8, name: 'Хавтан таазны хүрээ' },
+  { number: 9, name: 'Гипсэн тааз' },
+  { number: 10, name: 'Сараалжин тааз' },
+  { number: 11, name: 'Чулуун емульс' },
   { number: 12, name: 'TOR pinturas' },
-  { number: 13, name: 'Ð‘ÑƒÑÐ°Ð´ Ð±Ð°Ñ€Ð°Ð°' },
+  { number: 13, name: 'Бусад бараа' },
 ]
 
 export default function AddItem() {
@@ -25,138 +26,82 @@ export default function AddItem() {
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
   const [quantity, setQuantity] = useState('')
-  const [photo, setPhoto] = useState(null)
   const [sku, setSku] = useState('')
-  const [categoryNumber, setCategoryNumber] = useState('')
-  const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState('')
+  const [categoryNumber, setCategoryNumber] = useState(1)
+  const [photo, setPhoto] = useState(null)
+  const [unitType, setUnitType] = useState('ширхэг')
+  const [saving, setSaving] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setError('')
-    setUploading(true)
+    setSaving(true)
 
     let imageUrl = null
     if (photo) {
       const fileName = `${Date.now()}-${photo.name}`
-      const { error: uploadError } = await supabase.storage
-        .from('item-photos')
-        .upload(fileName, photo)
-      if (uploadError) {
-        setError('Ð—ÑƒÑ€Ð°Ð³ Ð¾Ñ€ÑƒÑƒÐ»Ð°Ñ…Ð°Ð´ Ð°Ð»Ð´Ð°Ð° Ð³Ð°Ñ€Ð»Ð°Ð°: ' + uploadError.message)
-        setUploading(false)
-        return
-      }
-      const { data: publicUrlData } = supabase.storage
-        .from('item-photos')
-        .getPublicUrl(fileName)
+      const { error: uploadError } = await supabase.storage.from('item-photos').upload(fileName, photo, {
+        cacheControl: '3600', upsert: true, contentType: photo.type,
+      })
+      if (uploadError) { alert('Error uploading photo: ' + uploadError.message); setSaving(false); return }
+      const { data: publicUrlData } = supabase.storage.from('item-photos').getPublicUrl(fileName)
       imageUrl = publicUrlData.publicUrl
     }
 
-    const selectedCategory = CATEGORIES.find((c) => c.number === parseInt(categoryNumber))
-
-    const { error: insertError } = await supabase.from('items').insert({
-      name,
+    const selectedCategory = CATEGORIES.find(c => c.number === Number(categoryNumber))
+    const { error } = await supabase.from('items').insert({
+      name: name.trim(),
       price: parseFloat(price),
-      quantity: parseInt(quantity),
+      quantity: parseFloat(quantity),
+      sku: sku.trim() || null,
+      category_number: Number(categoryNumber),
+      category_name: selectedCategory?.name || '',
       image_url: imageUrl,
-      sku: sku || null,
-      category_number: selectedCategory ? selectedCategory.number : null,
-      category_name: selectedCategory ? selectedCategory.name : null,
+      unit_type: unitType,
     })
 
-    setUploading(false)
-    if (insertError) {
-      setError('Ð‘Ð°Ñ€Ð°Ð° Ð½ÑÐ¼ÑÑ…ÑÐ´ Ð°Ð»Ð´Ð°Ð° Ð³Ð°Ñ€Ð»Ð°Ð°: ' + insertError.message)
-    } else {
-      router.push('/admin')
-    }
+    setSaving(false)
+    if (error) { alert('Error: ' + error.message) }
+    else { router.push('/admin') }
   }
 
-  const inputStyle = {
-    background: 'var(--card)',
-    border: '0.5px solid var(--border)',
-    color: 'var(--foreground)',
-  }
+  const inputStyle = { background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }
 
   return (
     <RequireAuth allowedRoles={['admin', 'sales_manager']}>
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
         <div className="pb-4 mb-6" style={{ borderBottom: '2px solid var(--accent)' }}>
           <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            Ð‘ÐÐ ÐÐ ÐÐ­ÐœÐ­Ð¥
+            Бүтээгдэхүүн нэмэх
           </h1>
         </div>
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm">
-          {error && <p className="text-xs" style={{ color: 'var(--soldout-text)' }}>{error}</p>}
-          <input
-            type="text"
-            placeholder="Ð‘Ð°Ñ€Ð°Ð°Ð½Ñ‹ Ð½ÑÑ€"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="p-2 rounded text-sm"
-            style={inputStyle}
-            required
-          />
-          <input
-            type="number"
-            step="0.01"
-            placeholder="Ò®Ð½Ñ"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="p-2 rounded text-sm"
-            style={inputStyle}
-            required
-          />
-          <input
-            type="number"
-            placeholder="Ð¢Ð¾Ð¾ ÑˆÐ¸Ñ€Ñ…ÑÐ³"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            className="p-2 rounded text-sm"
-            style={inputStyle}
-            required
-          />
-          <input
-            type="text"
-            placeholder="SKU (Ð·Ð°Ð°Ð²Ð°Ð» Ð±Ð¸Ñˆ)"
-            value={sku}
-            onChange={(e) => setSku(e.target.value)}
-            className="p-2 rounded text-sm"
-            style={inputStyle}
-          />
-          <select
-            value={categoryNumber}
-            onChange={(e) => setCategoryNumber(e.target.value)}
-            className="p-2 rounded text-sm"
-            style={inputStyle}
-          >
-            <option value="">ÐÐ½Ð³Ð¸Ð»Ð°Ð» ÑÐ¾Ð½Ð³Ð¾Ñ…...</option>
-            {CATEGORIES.map((c) => (
-              <option key={c.number} value={c.number}>
-                {c.number}. {c.name}
-              </option>
+          <input type="text" placeholder="Барааны нэр" value={name} onChange={(e) => setName(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} required />
+          <input type="number" step="0.01" placeholder="Үнэ" value={price} onChange={(e) => setPrice(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} required />
+          <input type="number" step="0.01" placeholder="Тоо ширхэг" value={quantity} onChange={(e) => setQuantity(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} required />
+          <input type="text" placeholder="SKU (дугаар, дараалал)" value={sku} onChange={(e) => setSku(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} />
+
+          <select value={categoryNumber} onChange={(e) => setCategoryNumber(e.target.value)} className="p-2 rounded text-sm" style={inputStyle}>
+            {CATEGORIES.map(cat => (
+              <option key={cat.number} value={cat.number}>{cat.name}</option>
             ))}
           </select>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setPhoto(e.target.files[0])}
-            className="p-2 rounded text-sm"
-            style={inputStyle}
-          />
-          <button
-            type="submit"
-            disabled={uploading}
-            className="py-2 rounded text-sm font-medium disabled:opacity-50"
-            style={{ background: 'var(--foreground)', color: 'var(--background)' }}
-          >
-            {uploading ? 'Ð¥Ð°Ð´Ð³Ð°Ð»Ð¶ Ð±Ð°Ð¹Ð½Ð°...' : 'Ð¥Ð°Ð´Ð³Ð°Ð»Ð°Ñ…'}
+
+          <div>
+            <label className="text-xs block mb-2" style={{ color: 'var(--muted)' }}>Борлуулалтын нэгж</label>
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setUnitType('ширхэг')} className="flex-1 py-2 rounded text-sm font-medium" style={{ background: unitType === 'ширхэг' ? 'var(--accent)' : 'var(--card)', color: unitType === 'ширхэг' ? '#fff' : 'var(--foreground)', border: '0.5px solid var(--border)' }}>Ширхэгээр</button>
+              <button type="button" onClick={() => setUnitType('м.кв')} className="flex-1 py-2 rounded text-sm font-medium" style={{ background: unitType === 'м.кв' ? 'var(--accent)' : 'var(--card)', color: unitType === 'м.кв' ? '#fff' : 'var(--foreground)', border: '0.5px solid var(--border)' }}>Метр квадратаар</button>
+            </div>
+          </div>
+
+          <input type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files[0])} className="p-2 rounded text-sm" style={inputStyle} />
+
+          <button type="submit" disabled={saving} className="py-2 rounded text-sm font-medium disabled:opacity-50" style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
+            {saving ? 'Хадгалж байна...' : 'Нэмэх'}
           </button>
         </form>
       </div>
     </RequireAuth>
   )
 }
-
-
