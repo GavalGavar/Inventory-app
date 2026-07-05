@@ -57,6 +57,29 @@ const LIGHT_SIZES = [
   'Рейкэн таазны гэрэл',
 ]
 
+function calcSqmRows(orderItems) {
+  let totalSquare = 0, totalT = 0, totalL = 0, totalX = 0
+  orderItems.filter(i => i.unit_type === 'м.кв').forEach(item => {
+    const qty = Number(item.qty)
+    const name = item.name.toLowerCase()
+    if (name.includes('30x30') || name.includes('30х30')) {
+      totalSquare += Math.ceil(qty / 0.09); totalT += Math.ceil(qty); totalX += Math.ceil(qty) * 3
+    } else if (name.includes('30x60') || name.includes('30х60')) {
+      totalSquare += Math.ceil(qty / 0.18)
+      const t = Math.ceil(qty * 0.54); totalT += t; totalL += Math.ceil(qty * 0.2); totalX += t * 3
+    } else if (name.includes('60x60') || name.includes('60х60')) {
+      totalSquare += Math.ceil(qty / 0.36)
+      const t = Math.ceil(qty * 0.54); totalT += t; totalL += Math.ceil(qty * 0.2); totalX += t * 3
+    }
+  })
+  return [
+    { symbol: '\u25A1', qty: totalSquare },
+    { symbol: 'T', qty: totalT },
+    { symbol: 'L', qty: totalL },
+    { symbol: 'X', qty: totalX },
+  ]
+}
+
 export default function Admin() {
   const [items, setItems] = useState([])
   const [error, setError] = useState(null)
@@ -66,6 +89,7 @@ export default function Admin() {
   const [cart, setCart] = useState([])
   const [showCart, setShowCart] = useState(false)
   const [receipt, setReceipt] = useState(null)
+  const [preview, setPreview] = useState(null)
   const [buyerType, setBuyerType] = useState('individual')
   const [branch, setBranch] = useState('')
   const [branchReg, setBranchReg] = useState('')
@@ -75,7 +99,6 @@ export default function Admin() {
   const [companyReg, setCompanyReg] = useState('')
   const [companyPhone, setCompanyPhone] = useState('')
   const [saving, setSaving] = useState(false)
-  const [receiptNumber, setReceiptNumber] = useState('')
   const [companies, setCompanies] = useState([])
 
   const filteredItems = items.filter((item) => {
@@ -84,14 +107,10 @@ export default function Admin() {
     let matchesSize = true
     if (sizeFilter) {
       if (sizeFilter === 'Нэмэлт материал') {
-        matchesSize = !ALL_CEILING_KEYWORDS.some((kw) =>
-          item.name.toLowerCase().includes(kw.toLowerCase())
-        )
+        matchesSize = !ALL_CEILING_KEYWORDS.some((kw) => item.name.toLowerCase().includes(kw.toLowerCase()))
       } else {
         const keywords = SIZE_KEYWORDS[sizeFilter] || []
-        matchesSize = keywords.some((kw) =>
-          item.name.toLowerCase().includes(kw.toLowerCase())
-        )
+        matchesSize = keywords.some((kw) => item.name.toLowerCase().includes(kw.toLowerCase()))
       }
     }
     return matchesSearch && matchesCategory && matchesSize
@@ -101,11 +120,7 @@ export default function Admin() {
     async function loadItems() {
       const { data, error } = await supabase.from('items').select()
       if (error) setError(error)
-      else setItems(data.sort((a, b) => {
-        const skuA = parseFloat(a.sku) || 9999
-        const skuB = parseFloat(b.sku) || 9999
-        return skuA - skuB
-      }))
+      else setItems(data.sort((a, b) => (parseFloat(a.sku) || 9999) - (parseFloat(b.sku) || 9999)))
     }
     loadItems()
   }, [])
@@ -122,10 +137,7 @@ export default function Admin() {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === item.id)
       if (existing) {
-        if (existing.qty >= item.quantity) {
-          alert('Нөөц хүрэлцэхгүй байна.')
-          return prev
-        }
+        if (existing.qty >= item.quantity) { alert('Нөөц хүрэлцэхгүй байна.'); return prev }
         return prev.map((i) => (i.id === item.id ? { ...i, qty: i.qty + 1 } : i))
       }
       return [...prev, { ...item, qty: 1 }]
@@ -133,10 +145,7 @@ export default function Admin() {
     setShowCart(true)
   }
 
-  function removeFromCart(id) {
-    setCart((prev) => prev.filter((i) => i.id !== id))
-  }
-
+  function removeFromCart(id) { setCart((prev) => prev.filter((i) => i.id !== id)) }
   function updateQty(id, qty) {
     if (qty < 0.01) return
     setCart((prev) => prev.map((i) => (i.id === id ? { ...i, qty: Number(qty) } : i)))
@@ -144,53 +153,54 @@ export default function Admin() {
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0)
 
-  async function handleSell() {
+  async function handlePreview() {
     if (!branch) { alert('Салбар сонгоно уу.'); return }
     if (buyerType === 'individual' && !customerName.trim()) { alert('Худалдан авагчийн нэр оруулна уу.'); return }
     if (buyerType === 'company' && !companyName.trim()) { alert('Компанийн нэр оруулна уу.'); return }
     if (cart.length === 0) { alert('Бараа нэмнэ үү.'); return }
-    const { data: counterData } = await supabase.from('receipt_counter').select('last_number').eq('id', 1).single()
-    const newNumber = (counterData?.last_number || 0) + 1
-    await supabase.from('receipt_counter').update({ last_number: newNumber }).eq('id', 1)
-    setSaving(true)
 
     const orderItems = cart.map((item) => ({
       id: item.id, name: item.name, price: item.price, qty: item.qty, unit_type: item.unit_type || 'ширхэг',
     }))
-
     const customerNameFinal = buyerType === 'company' ? companyName : customerName
     const customerContactFinal = buyerType === 'company' ? `${companyPhone} | Рег: ${companyReg}` : customerPhone
+    const { data: counterData } = await supabase.from('receipt_counter').select('last_number').eq('id', 1).single()
+    const newNumber = (counterData?.last_number || 0) + 1
 
-    const { error } = await supabase.from('orders').insert({
-      customer_name: customerNameFinal,
-      customer_contact: customerContactFinal,
-      items: orderItems,
-      total: cartTotal,
-      sale_type: 'in_shop',
-      status: 'completed',
-      branch: branch,
-    })
-
-    if (error) { setSaving(false); alert('Алдаа гарлаа: ' + error.message); return }
-
-    for (const item of cart) {
-      await supabase.rpc('decrement_stock', { item_id: item.id, amount: item.qty })
-    }
-
+    setPreview({ customerNameFinal, customerContactFinal, orderItems, newNumber })
     setReceipt({
       buyerName: customerNameFinal,
       buyerReg: companyReg,
       buyerPhone: buyerType === 'company' ? companyPhone : customerPhone,
-      branch,
-      branchReg,
+      branch, branchReg,
       items: orderItems,
       total: cartTotal,
       date: new Date(),
       receiptNumber: newNumber,
+      sqmRows: calcSqmRows(orderItems),
     })
-
-    setCart([])
     setShowCart(false)
+  }
+
+  async function handleSell() {
+    if (!preview) return
+    setSaving(true)
+    await supabase.from('receipt_counter').update({ last_number: preview.newNumber }).eq('id', 1)
+    const { error } = await supabase.from('orders').insert({
+      customer_name: preview.customerNameFinal,
+      customer_contact: preview.customerContactFinal,
+      items: receipt.items,
+      total: receipt.total,
+      sale_type: 'in_shop',
+      status: 'completed',
+      branch: branch,
+    })
+    if (error) { setSaving(false); alert('Алдаа гарлаа: ' + error.message); return }
+    for (const item of preview.orderItems) {
+      await supabase.rpc('decrement_stock', { item_id: item.id, amount: item.qty })
+    }
+    setCart([])
+    setPreview(null)
     setBranch('')
     setBranchReg('')
     setCustomerName('')
@@ -216,9 +226,7 @@ export default function Admin() {
 
           {/* Top nav */}
           <div className="flex justify-between items-baseline px-6 py-4" style={{ borderBottom: '2px solid var(--accent)' }}>
-            <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-              Taaz.mn | БАРАА УДИРДЛАГА
-            </h1>
+            <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>Taaz.mn | БАРАА УДИРДЛАГА</h1>
             <div className="flex gap-3 items-center">
               <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login' }} className="text-xs" style={{ color: 'var(--muted)' }}>Log Out</button>
               <Link href="/admin/orders" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Захиалга харах</Link>
@@ -283,7 +291,6 @@ export default function Admin() {
                 </div>
               )}
             </div>
-
             <div className="p-6">
               {error && <p style={{ color: 'var(--soldout-text)' }}>Error: {error.message}</p>}
               {items.length === 0 && <p style={{ color: 'var(--muted)' }}>No items yet.</p>}
@@ -364,8 +371,8 @@ export default function Admin() {
                   <input type="text" placeholder="Утасны дугаар" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} className="p-2 rounded text-sm" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }} />
                 </div>
               )}
-              <button onClick={handleSell} disabled={saving} className="w-full py-3 rounded text-sm font-bold disabled:opacity-50" style={{ background: 'var(--accent)', color: '#fff' }}>
-                {saving ? 'Хадгалж байна...' : 'Худалдах & Баримт хэвлэх'}
+              <button onClick={handlePreview} className="w-full py-3 rounded text-sm font-bold" style={{ background: 'var(--accent)', color: '#fff' }}>
+                Шалгах & Засах →
               </button>
             </div>
           )}
@@ -374,28 +381,28 @@ export default function Admin() {
           {receipt && (
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ background: 'white', padding: '32px', maxWidth: '680px', width: '100%', maxHeight: '90vh', overflowY: 'auto', borderRadius: '8px' }}>
-               <style>{`
+                <style>{`
                   @media print {
                     .no-print { display: none !important; }
                     .print-only { display: block !important; }
                     body > * { display: none !important; }
                     #receipt-print { display: block !important; position: static !important; }
                   }
-                  @media screen {
-                    .print-only { display: none !important; }
-                  }
+                  @media screen { .print-only { display: none !important; } }
                 `}</style>
-
                 <div className="no-print flex gap-3 mb-4">
-                  <button onClick={() => window.print()} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#111', color: '#fff' }}>Хэвлэх</button>
-                  <button onClick={() => setReceipt(null)} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#eee', color: '#111' }}>Хаах</button>
+                  <button onClick={handleSell} disabled={saving} className="px-6 py-2 rounded text-sm font-medium disabled:opacity-50" style={{ background: 'var(--accent)', color: '#fff' }}>
+                    {saving ? 'Хадгалж байна...' : '✓ Худалдах & Хэвлэх'}
+                  </button>
+                  <button onClick={() => window.print()} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#111', color: '#fff' }}>🖨️ Хэвлэх</button>
+                  <button onClick={() => { setReceipt(null); setPreview(null); setShowCart(true) }} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#eee', color: '#111' }}>← Буцах</button>
                 </div>
                 <div id="receipt-print" style={{ fontFamily: 'Arial, sans-serif', color: 'black', fontSize: '0.8rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '4px' }}>
                     <span>НХМаягт БМ-3</span>
                     <span style={{ textAlign: 'right' }}>Сангийн сайдын 2017 оны 12 дугаар сарын<br />5-ны өдрийн 347 тоот тушаалын хавсралт</span>
                   </div>
-                 <h2 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 'bold', margin: '8px 0', letterSpacing: '1px' }}>ЗАРЛАГЫН БАРИМТ №{receipt.receiptNumber}</h2>
+                  <h2 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 'bold', margin: '8px 0', letterSpacing: '1px' }}>ЗАРЛАГЫН БАРИМТ №{receipt.receiptNumber}</h2>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8rem' }}>
                     <div style={{ width: '45%' }}>
                       <input className="no-print" value={receipt.branch} onChange={(e) => setReceipt({...receipt, branch: e.target.value})} style={{ borderBottom: '1px solid black', marginBottom: '2px', width: '100%', border: 'none', borderBottom: '1px solid black', outline: 'none', fontSize: '0.8rem' }} />
@@ -463,7 +470,7 @@ export default function Admin() {
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right' }}>{(item.price * item.qty).toLocaleString()}</td>
                         </tr>
                       ))}
-                     {[...Array(Math.max(0, 16 - receipt.items.length))].map((_, i) => (
+                      {[...Array(Math.max(0, 16 - receipt.items.length))].map((_, i) => (
                         <tr key={`e-${i}`}>
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{receipt.items.length + i + 1}</td>
                           <td style={{ border: '1px solid black', padding: '8px' }}></td>
@@ -474,47 +481,31 @@ export default function Admin() {
                           <td style={{ border: '1px solid black', padding: '8px' }}></td>
                         </tr>
                       ))}
-                     
-                        {(() => {
-                        const sqmItems = receipt.items.filter(item => item.unit_type === 'м.кв')
-                        let totalSquare = 0, totalT = 0, totalL = 0, totalX = 0
-                        sqmItems.forEach(item => {
-                          const qty = Number(item.qty)
-                          const name = item.name.toLowerCase()
-                          let square = 0, t = 0, l = 0, x = 0
-                          if (name.includes('30x30') || name.includes('30х30')) {
-                            square = Math.ceil(qty / 0.09); t = Math.ceil(qty); l = 0; x = t * 3
-                          } else if (name.includes('30x60') || name.includes('30х60')) {
-                            square = Math.ceil(qty / 0.18); t = Math.ceil(qty * 0.54); l = Math.ceil(qty * 0.2); x = t * 3
-                          } else if (name.includes('60x60') || name.includes('60х60')) {
-                            square = Math.ceil(qty / 0.36); t = Math.ceil(qty * 0.54); l = Math.ceil(qty * 0.2); x = t * 3
-                          }
-                          totalSquare += square; totalT += t; totalL += l; totalX += x
-                        })
-                      
+                      {(receipt.sqmRows || calcSqmRows(receipt.items)).map((row, i) => {
                         const startRow = Math.max(receipt.items.length, 16) + 1
                         return (
-                          <>
-                            {[
-                              { symbol: '\u25A1', qty: totalSquare },
-                              { symbol: 'T', qty: totalT },
-                              { symbol: 'L', qty: totalL },
-                              { symbol: 'X', qty: totalX },
-                            ].map((row, i) => (
-                              <tr key={`sqm-${i}`}>
-                                <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{startRow + i}</td>
-                                <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>{row.symbol}-{row.qty}ш</td>
-                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
-                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
-                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
-                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
-                                <td style={{ border: '1px solid black', padding: '3px' }}></td>
-                              </tr>
-                            ))}
-                          </>
+                          <tr key={`sqm-${i}`}>
+                            <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{startRow + i}</td>
+                            <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>
+                              {row.symbol}-<input
+                                value={row.qty}
+                                onChange={(e) => {
+                                  const newRows = [...(receipt.sqmRows || calcSqmRows(receipt.items))]
+                                  newRows[i] = { ...newRows[i], qty: e.target.value }
+                                  setReceipt({ ...receipt, sqmRows: newRows })
+                                }}
+                                style={{ width: '50px', border: 'none', outline: 'none', fontWeight: 'bold', fontSize: '0.75rem' }}
+                              />ш
+                            </td>
+                            <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                            <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                            <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                            <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                            <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                          </tr>
                         )
-                      })()}
-                     <tr>
+                      })}
+                      <tr>
                         <td colSpan={6} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', fontWeight: 'bold' }}>Дүн</td>
                         <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold' }}>{receipt.total.toLocaleString()}</td>
                       </tr>
