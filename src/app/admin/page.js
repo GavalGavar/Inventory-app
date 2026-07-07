@@ -465,7 +465,7 @@ export default function Admin() {
                     <span>20{String(receipt.date.getFullYear()).slice(2)} оны <u>{receipt.date.getMonth() + 1}</u> сарын <u>{receipt.date.getDate()}</u> өдөр</span>
                     <span>(тээвэрлэгчийн хаяг, албан тушаал, нэр)</span>
                   </div>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', marginBottom: '8px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', marginBottom: '8px', tableLayout: 'fixed' }}>
                     <thead>
                       <tr>
                         <th rowSpan={2} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '25px' }}>№</th>
@@ -483,7 +483,9 @@ export default function Admin() {
                     <tbody>
                       {receipt.items.map((item, i) => (
                         <tr key={i}>
-                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{i + 1}</td>
+                          <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>
+                            <span className="no-print" onClick={() => setReceipt({...receipt, items: receipt.items.filter((_, idx) => idx !== i)})} style={{ cursor: 'pointer', color: 'red', fontSize: '0.7rem', marginRight: '2px' }}>x</span>{i + 1}
+                          </td>
                           <td style={{ border: '1px solid black', padding: '3px' }}>{item.name}</td>
                           <td style={{ border: '1px solid black', padding: '3px' }}></td>
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{item.unit_type || 'ш'}</td>
