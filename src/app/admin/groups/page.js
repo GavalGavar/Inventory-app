@@ -165,8 +165,12 @@ export default function ProductGroups() {
                 <label className="text-xs block mb-1" style={{ color: 'var(--muted)' }}>Түлхүүр үгс (таслалаар тусгаарлана)</label>
                 <input
                   type="text"
-                  value={editingGroup.keywords?.join(', ') || ''}
-                  onChange={(e) => setEditingGroup({ ...editingGroup, keywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean) })}
+                  value={editingGroup.keywordsText !== undefined ? editingGroup.keywordsText : (editingGroup.keywords?.join(', ') || '')}
+                  onChange={(e) => setEditingGroup({ 
+                    ...editingGroup, 
+                    keywordsText: e.target.value,
+                    keywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean) 
+                  })}
                   className="p-2 rounded text-sm w-full"
                   style={inputStyle}
                 />
