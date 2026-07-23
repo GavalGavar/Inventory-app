@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import RequireAuth from '../../components/RequireAuth'
 import Link from 'next/link'
+import NehemjlehReceipt from '../../components/NehemjlehReceipt'
 
 const CATEGORIES = [
   { number: 1, name: 'Хөнгөн цагаан тааз', icon: '⬜' },
@@ -90,6 +91,7 @@ export default function Admin() {
   const [showCart, setShowCart] = useState(false)
   const [receipt, setReceipt] = useState(null)
   const [preview, setPreview] = useState(null)
+  const [receiptType, setReceiptType] = useState("zarlagiin")
   const [buyerType, setBuyerType] = useState('individual')
   const [branch, setBranch] = useState('')
   const [branchReg, setBranchReg] = useState('')
@@ -282,7 +284,7 @@ export default function Admin() {
                 </div>
               ))}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', maxWidth: '900px', margin: '0 auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', maxWidth: '700px', margin: '0 auto' }}>
               {[
                 { name: 'Салбар 1', address: '100айл Прогресс төв Б1 давхарт', phone: '95589855' },
                 { name: 'Салбар 2', address: '100айл ОДКОН ТӨВ-н хойд талаас тусдаа хаалгатай Б1 давхар', phone: '95026615' },
@@ -406,7 +408,7 @@ export default function Admin() {
           {/* Receipt Modal */}
           {receipt && (
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ background: 'white', padding: '32px', maxWidth: '680px', width: '100%', maxHeight: '90vh', overflowY: 'auto', borderRadius: '8px' }}>
+              <div style={{ background: 'white', padding: '32px', maxWidth: '900px', width: '100%', maxHeight: '90vh', overflowY: 'auto', borderRadius: '8px' }}>
                 <style>{`
                   @media print {
                     .no-print { display: none !important; }
@@ -416,6 +418,7 @@ export default function Admin() {
                   }
                   @media screen { .print-only { display: none !important; } }
                 `}</style>
+                <div className="no-print flex gap-2 mb-3"><button onClick={() => setReceiptType("zarlagiin")} style={{ background: receiptType === "zarlagiin" ? "#e81c1c" : "#eee", color: receiptType === "zarlagiin" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer", marginRight: "8px" }}>Zarlagiin</button><button onClick={() => setReceiptType("nehemjleh")} style={{ background: receiptType === "nehemjleh" ? "#e81c1c" : "#eee", color: receiptType === "nehemjleh" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer" }}>Nehemjleh</button></div>
                 <div className="no-print flex gap-3 mb-4">
                   <button onClick={handleSell} disabled={saving} className="px-6 py-2 rounded text-sm font-medium disabled:opacity-50" style={{ background: 'var(--accent)', color: '#fff' }}>
                     {saving ? 'Хадгалж байна...' : '✓ Худалдах & Хэвлэх'}
@@ -423,7 +426,7 @@ export default function Admin() {
                   <button onClick={() => window.print()} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#111', color: '#fff' }}>🖨️ Хэвлэх</button>
                   <button onClick={() => { setReceipt(null); setPreview(null); setShowCart(true) }} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#eee', color: '#111' }}>← Буцах</button>
                 </div>
-                <div id="receipt-print" style={{ fontFamily: 'Arial, sans-serif', color: 'black', fontSize: '0.8rem' }}>
+                <div id="receipt-print" style={{ fontFamily: 'Arial, sans-serif', color: 'black', fontSize: '0.8rem' }}>{receiptType === 'nehemjleh' ? <NehemjlehReceipt receipt={receipt} setReceipt={setReceipt} /> : <span>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '4px' }}>
                     <span>НХМаягт БМ-3</span>
                     <span style={{ textAlign: 'right' }}>Сангийн сайдын 2017 оны 12 дугаар сарын<br />5-ны өдрийн 347 тоот тушаалын хавсралт</span>
@@ -490,8 +493,7 @@ export default function Admin() {
                           <td style={{ border: '1px solid black', padding: '3px' }}></td>
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{item.unit_type || 'ш'}</td>
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>
-                            <input value={item.qty} onChange={(e) => setReceipt({...receipt, items: receipt.items.map((it, idx) => idx === i ? {...it, qty: e.target.value} : it)})} style={{ width: '40px', border: 'none', outline: 'none', textAlign: 'center', fontSize: '0.75rem' }} />
-                          </td>
+                            <input value={item.qty} onChange={(e) => setReceipt({...receipt, items: receipt.items.map((it, idx) => idx === i ? {...it, qty: e.target.value} : it)})} style={{ width: '40px', border: 'none', outline: 'none', textAlign: 'center', fontSize: '0.75rem' }} />          </td>
                           <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right' }}>
                             <input value={item.price} onChange={(e) => setReceipt({...receipt, items: receipt.items.map((it, idx) => idx === i ? {...it, price: e.target.value} : it)})} style={{ width: '60px', border: 'none', outline: 'none', textAlign: 'right', fontSize: '0.75rem' }} />
                           </td>
@@ -567,6 +569,7 @@ export default function Admin() {
                       </div>
                     </div>
                   </div>
+                </span>}
                 </div>
               </div>
             </div>
