@@ -478,9 +478,9 @@ export default function Admin() {
                         <th colSpan={3} style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>Худалдах</th>
                       </tr>
                       <tr>
-                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '35px' }}>Тоо</th>
-                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '65px' }}>Нэгжийн үнэ</th>
-                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '65px' }}>Нийт дүн</th>
+                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '25px' }}>Тоо</th>
+                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '70px' }}>Нэгжийн үнэ</th>
+                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '90px' }}>Нийт дүн</th>
                       </tr>
                     </thead>
                     <tbody>
