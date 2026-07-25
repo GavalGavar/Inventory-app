@@ -195,11 +195,17 @@ export default function Admin() {
     const allReceiptItems = [...orderItems, ...relatedToAdd]
 
     setPreview({ customerNameFinal, customerContactFinal, orderItems, newNumber })
+    const selectedCompany = companies.find((co) => co.name === branch)
     setReceipt({
       buyerName: customerNameFinal,
       buyerReg: companyReg,
       buyerPhone: buyerType === 'company' ? companyPhone : customerPhone,
       branch, branchReg,
+      branchAddress: selectedCompany?.address || '',
+      branchPhone: selectedCompany?.phone || '',
+      branchEmail: selectedCompany?.email || '',
+      branchBankName: selectedCompany?.bank_name || '',
+      branchBankAccount: selectedCompany?.bank_account || '',
       items: allReceiptItems,
       total: cartTotal,
       date: new Date(),
@@ -418,7 +424,8 @@ export default function Admin() {
                   }
                   @media screen { .print-only { display: none !important; } }
                 `}</style>
-                <div className="no-print flex gap-2 mb-3"><button onClick={() => setReceiptType("zarlagiin")} style={{ background: receiptType === "zarlagiin" ? "#e81c1c" : "#eee", color: receiptType === "zarlagiin" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer", marginRight: "8px" }}>Zarlagiin</button><button onClick={() => setReceiptType("nehemjleh")} style={{ background: receiptType === "nehemjleh" ? "#e81c1c" : "#eee", color: receiptType === "nehemjleh" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer" }}>Nehemjleh</button></div>
+                <div className="no-print flex gap-2 mb-3"><button onClick={() => setReceiptType("zarlagiin")} style={{ background: receiptType === "zarlagiin" ? "#e81c1c" : "#eee", color: receiptType === "zarlagiin" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer", marginRight: "8px" }}>Зарлагын баримт
+                  </button><button onClick={() => setReceiptType("nehemjleh")} style={{ background: receiptType === "nehemjleh" ? "#e81c1c" : "#eee", color: receiptType === "nehemjleh" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer" }}>Нэхэмжлэх</button></div>
                 <div className="no-print flex gap-3 mb-4">
                   <button onClick={handleSell} disabled={saving} className="px-6 py-2 rounded text-sm font-medium disabled:opacity-50" style={{ background: 'var(--accent)', color: '#fff' }}>
                     {saving ? 'Хадгалж байна...' : '✓ Худалдах & Хэвлэх'}
@@ -478,8 +485,8 @@ export default function Admin() {
                         <th colSpan={3} style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>Худалдах</th>
                       </tr>
                       <tr>
-                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '25px' }}>Тоо</th>
-                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '70px' }}>Нэгжийн үнэ</th>
+                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '30px' }}>Тоо</th>
+                        <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '55px' }}>Нэгжийн үнэ</th>
                         <th style={{ border: '1px solid black', padding: '3px', textAlign: 'center', width: '90px' }}>Нийт дүн</th>
                       </tr>
                     </thead>

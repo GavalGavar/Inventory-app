@@ -14,6 +14,10 @@ export default function EditCompany() {
   const [name, setName] = useState('')
   const [regNumber, setRegNumber] = useState('')
   const [phone, setPhone] = useState('')
+  const [address, setAddress] = useState('')
+  const [email, setEmail] = useState('')
+  const [bankName, setBankName] = useState('')
+  const [bankAccount, setBankAccount] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -24,6 +28,10 @@ export default function EditCompany() {
         setName(data.name)
         setRegNumber(data.registration_number || '')
         setPhone(data.phone || '')
+        setAddress(data.address || '')
+        setEmail(data.email || '')
+        setBankName(data.bank_name || '')
+        setBankAccount(data.bank_account || '')
       }
       setLoading(false)
     }
@@ -33,16 +41,21 @@ export default function EditCompany() {
   async function handleSubmit(e) {
     e.preventDefault()
     setSaving(true)
-    console.log('Saving:', { id, name, regNumber, phone })
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('companies')
-      .update({ name: name.trim(), registration_number: regNumber.trim() || null, phone: phone.trim() || null })
+      .update({
+        name: name.trim(),
+        registration_number: regNumber.trim() || null,
+        phone: phone.trim() || null,
+        address: address.trim() || null,
+        email: email.trim() || null,
+        bank_name: bankName.trim() || null,
+        bank_account: bankAccount.trim() || null,
+      })
       .eq('id', id)
     setSaving(false)
-    console.log('Result:', { data, error })
-    if (error) { alert('Error: ' + JSON.stringify(error)) }
+    if (error) { alert('Error: ' + error.message) }
     else { router.push('/admin/companies') }
-    
   }
 
   const inputStyle = { background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }
@@ -67,6 +80,10 @@ export default function EditCompany() {
           <input type="text" placeholder="Компанийн нэр" value={name} onChange={(e) => setName(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} required />
           <input type="text" placeholder="Регистрийн дугаар" value={regNumber} onChange={(e) => setRegNumber(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} />
           <input type="text" placeholder="Утасны дугаар" value={phone} onChange={(e) => setPhone(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} />
+          <input type="text" placeholder="Хаяг" value={address} onChange={(e) => setAddress(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} />
+          <input type="text" placeholder="Э-шуудан" value={email} onChange={(e) => setEmail(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} />
+          <input type="text" placeholder="Банкны нэр" value={bankName} onChange={(e) => setBankName(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} />
+          <input type="text" placeholder="Банкны дансны дугаар" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} className="p-2 rounded text-sm" style={inputStyle} />
           <button type="submit" disabled={saving} className="py-2 rounded text-sm font-medium disabled:opacity-50" style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
             {saving ? 'Хадгалж байна...' : 'Хадгалах'}
           </button>
