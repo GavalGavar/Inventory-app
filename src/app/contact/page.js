@@ -99,7 +99,7 @@ export default function Contact() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
             {[
               { label: 'Маркетинг', phone: '99065520' },
-              { label: 'Санхүү', phone: '88090856' },
+              { label: 'Санхүү', phone: '95589855' },
               { label: 'Гэрээт борлуулалт', phone: '99110180' },
             ].map((contact) => (
               <div key={contact.label} style={{

@@ -121,7 +121,7 @@ function ProductsInner() {
   const currentSizes = categoryFilter === 1 ? CEILING_SIZES : categoryFilter === 2 ? LIGHT_SIZES : null
 
   return (
-    <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--background)', minHeight: '100vh' }} onContextMenu={(e) => e.preventDefault()}><style>{`img { pointer-events: none; user-select: none; -webkit-user-drag: none; }`}</style>
       {/* Header */}
       <div
         className="flex justify-between items-baseline px-6 py-4"
