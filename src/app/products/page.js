@@ -63,6 +63,7 @@ const LIGHT_SIZES = [
 
 function ProductsInner() {
   const [zoomImg, setZoomImg] = useState(null);
+  const [showCategories, setShowCategories] = useState(false);
 
   const [items, setItems] = useState([])
   const [error, setError] = useState(null)
@@ -159,6 +160,8 @@ function ProductsInner() {
               width: '500px',
             }}
           />
+          <button onClick={() => setShowCategories(!showCategories)} style={{ background: 'var(--foreground)', color: 'var(--background)', border: '0.5px solid var(--border)', padding: '8px 12px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer' }}>{showCategories ? '▲ Хаах' : '▼ Ангилал'}</button>
+          {showCategories && <>
           {!categoryFilter ? (
             <>
               <button
@@ -212,6 +215,7 @@ function ProductsInner() {
               </button>
             </>
           )}
+          </>}
         </div>
         
         {currentSizes && (
