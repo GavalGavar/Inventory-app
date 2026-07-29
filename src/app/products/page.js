@@ -62,6 +62,7 @@ const LIGHT_SIZES = [
 ]
 
 function ProductsInner() {
+  const [zoomImg, setZoomImg] = useState(null);
 
   const [items, setItems] = useState([])
   const [error, setError] = useState(null)
@@ -266,7 +267,7 @@ function ProductsInner() {
                   <img
                     src={item.image_url}
                     alt={item.name}
-                    className="w-full aspect-square object-cover rounded mb-2"
+                    className="w-full aspect-square object-cover rounded mb-2" onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }} onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }}
                   />
                 )}
                 {item.category_name && (
