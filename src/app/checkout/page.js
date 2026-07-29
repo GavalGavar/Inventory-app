@@ -50,6 +50,17 @@ export default function Checkout() {
       alert('Захиалга илгээхэд алдаа гарлаа: ' + error.message)
       return
     }
+    // Send email notification
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerName: buyerType === 'company' ? companyName : name,
+        customerContact: buyerType === 'company' ? companyPhone : contact,
+        items: orderItems,
+        total,
+      }),
+    })
 
     for (const item of cart) {
       await supabase.rpc('decrement_stock', { item_id: item.id, amount: item.qty })
