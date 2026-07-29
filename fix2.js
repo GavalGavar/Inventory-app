@@ -1,17 +1,12 @@
 ﻿const fs = require('fs');
-let c = fs.readFileSync('src/app/products/page.js', 'utf8');
+let c = fs.readFileSync('src/components/NehemjlehReceipt.jsx', 'utf8');
+const lines = c.split('\n');
 
-// Add zoom state
-c = c.replace(
-  'function ProductsInner() {',
-  'function ProductsInner() {\n  const [zoomImg, setZoomImg] = useState(null);'
-);
+// Line 73 - NOAT value
+lines[72] = "            <td style={{ border: '1px solid black', padding: '4px', textAlign: 'right' }}>{addNoat ? Math.round(receipt.total * 0.1).toLocaleString() : ''}</td>\r";
 
-// Make images clickable - find the image tag
-c = c.replace(
-  'className="w-full aspect-square object-cover rounded mb-2"',
-  'className="w-full aspect-square object-cover rounded mb-2" onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }}'
-);
+// Line 77 - Niit dun value
+lines[76] = "            <td style={{ border: '1px solid black', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>{addNoat ? Math.round(receipt.total * 1.1).toLocaleString() : receipt.total.toLocaleString()}</td>\r";
 
-fs.writeFileSync('src/app/products/page.js', c, 'utf8');
-console.log('step1:', c.includes('zoomImg'));
+fs.writeFileSync('src/components/NehemjlehReceipt.jsx', lines.join('\n'), 'utf8');
+console.log('done');

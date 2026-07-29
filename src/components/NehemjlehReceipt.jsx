@@ -1,5 +1,5 @@
 'use client'
-export default function NehemjlehReceipt({ receipt, setReceipt }) {
+export default function NehemjlehReceipt({ receipt, setReceipt, addNoat }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.7rem', marginBottom: '8px' }}>
@@ -70,11 +70,11 @@ export default function NehemjlehReceipt({ receipt, setReceipt }) {
           </tr>
           <tr>
             <td colSpan={4} style={{ border: '1px solid black', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>НӨАТ</td>
-            <td style={{ border: '1px solid black', padding: '4px', textAlign: 'right' }}></td>
+            <td style={{ border: '1px solid black', padding: '4px', textAlign: 'right' }}>{addNoat ? Math.round(receipt.total * 0.1).toLocaleString() : ''}</td>
           </tr>
           <tr>
             <td colSpan={4} style={{ border: '1px solid black', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>Нийт дүн</td>
-            <td style={{ border: '1px solid black', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>{receipt.total.toLocaleString()}</td>
+            <td style={{ border: '1px solid black', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>{addNoat ? Math.round(receipt.total * 1.1).toLocaleString() : receipt.total.toLocaleString()}</td>
           </tr>
         </tbody>
       </table>

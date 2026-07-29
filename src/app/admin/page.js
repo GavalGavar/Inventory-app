@@ -92,6 +92,7 @@ export default function Admin() {
   const [receipt, setReceipt] = useState(null)
   const [preview, setPreview] = useState(null)
   const [receiptType, setReceiptType] = useState("zarlagiin")
+  const [addNoat, setAddNoat] = useState(false)
   const [buyerType, setBuyerType] = useState('individual')
   const [branch, setBranch] = useState('')
   const [branchReg, setBranchReg] = useState('')
@@ -426,6 +427,7 @@ export default function Admin() {
                 `}</style>
                 <div className="no-print flex gap-2 mb-3"><button onClick={() => setReceiptType("zarlagiin")} style={{ background: receiptType === "zarlagiin" ? "#e81c1c" : "#eee", color: receiptType === "zarlagiin" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer", marginRight: "8px" }}>Зарлагын баримт
                   </button><button onClick={() => setReceiptType("nehemjleh")} style={{ background: receiptType === "nehemjleh" ? "#e81c1c" : "#eee", color: receiptType === "nehemjleh" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer" }}>Нэхэмжлэх</button></div>
+                <div className="no-print flex gap-2 mb-2"><button onClick={() => setAddNoat(!addNoat)} style={{ background: addNoat ? "#e81c1c" : "#eee", color: addNoat ? "#fff" : "#111", padding: "6px 16px", borderRadius: "4px", border: "none", cursor: "pointer" }}>NOAT {addNoat ? "ON" : "OFF"}</button></div>
                 <div className="no-print flex gap-3 mb-4">
                   <button onClick={handleSell} disabled={saving} className="px-6 py-2 rounded text-sm font-medium disabled:opacity-50" style={{ background: 'var(--accent)', color: '#fff' }}>
                     {saving ? 'Хадгалж байна...' : '✓ Худалдах & Хэвлэх'}
@@ -433,7 +435,7 @@ export default function Admin() {
                   <button onClick={() => window.print()} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#111', color: '#fff' }}>🖨️ Хэвлэх</button>
                   <button onClick={() => { setReceipt(null); setPreview(null); setShowCart(true) }} className="px-6 py-2 rounded text-sm font-medium" style={{ background: '#eee', color: '#111' }}>← Буцах</button>
                 </div>
-                <div id="receipt-print" style={{ fontFamily: 'Arial, sans-serif', color: 'black', fontSize: '0.8rem' }}>{receiptType === 'nehemjleh' ? <NehemjlehReceipt receipt={receipt} setReceipt={setReceipt} /> : <span>
+                <div id="receipt-print" style={{ fontFamily: 'Arial, sans-serif', color: 'black', fontSize: '0.8rem' }}>{receiptType === 'nehemjleh' ? <NehemjlehReceipt receipt={receipt} setReceipt={setReceipt} addNoat={addNoat} /> : <span>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '4px' }}>
                     <span>НХМаягт БМ-3</span>
                     <span style={{ textAlign: 'right' }}>Сангийн сайдын 2017 оны 12 дугаар сарын<br />5-ны өдрийн 347 тоот тушаалын хавсралт</span>
@@ -546,6 +548,10 @@ export default function Admin() {
                         <td colSpan={6} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', fontWeight: 'bold' }}>Дүн</td>
                         <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold' }}>{receipt.total.toLocaleString()}</td>
                       </tr>
+                      {addNoat && <>
+                      <tr><td colSpan={6} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', fontWeight: 'bold' }}>NOAT 10%</td><td style={{ border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round(receipt.total * 0.1).toLocaleString()}</td></tr>
+                      <tr><td colSpan={6} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', fontWeight: 'bold' }}>Niit dun</td><td style={{ border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round(receipt.total * 1.1).toLocaleString()}</td></tr>
+                      </>}
                     </tbody>
                   </table>
                   <div style={{ marginTop: '32px', fontSize: '0.8rem' }}>

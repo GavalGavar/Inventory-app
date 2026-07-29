@@ -267,7 +267,7 @@ function ProductsInner() {
                   <img
                     src={item.image_url}
                     alt={item.name}
-                    className="w-full aspect-square object-cover rounded mb-2" onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }} onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }}
+                    className="w-full aspect-square object-cover rounded mb-2" onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }} onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }} onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }} onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }}
                   />
                 )}
                 {item.category_name && (
