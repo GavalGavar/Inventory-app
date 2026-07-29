@@ -8,6 +8,8 @@ import Link from 'next/link'
 
 export default function Checkout() {
   const { cart, total, clearCart, removeFromCart, updateQty } = useCart()
+  const noatAmount = Math.round(total * 0.1)
+  const totalWithNoat = total + noatAmount
   const router = useRouter()
 
   const [buyerType, setBuyerType] = useState('individual')
@@ -146,8 +148,14 @@ export default function Checkout() {
         ))}
       </div>
 
+      <p className="text-sm mb-2" style={{ color: 'var(--foreground)' }}>
+        Дүн: <span>{total.toLocaleString()} MNT</span>
+      </p>
+      <p className="text-sm mb-2" style={{ color: 'var(--foreground)' }}>
+        НӨАТ 10%: <span>{noatAmount.toLocaleString()} MNT</span>
+      </p>
       <p className="text-sm font-medium mb-6" style={{ color: 'var(--foreground)' }}>
-        Нийт: <span style={{ color: 'var(--accent)' }}>{total.toLocaleString()} MNT</span>
+        Нийт дүн: <span style={{ color: 'var(--accent)' }}>{totalWithNoat.toLocaleString()} MNT</span>
       </p>
 
       {/* Buyer type */}

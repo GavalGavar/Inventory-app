@@ -427,7 +427,7 @@ export default function Admin() {
                 `}</style>
                 <div className="no-print flex gap-2 mb-3"><button onClick={() => setReceiptType("zarlagiin")} style={{ background: receiptType === "zarlagiin" ? "#e81c1c" : "#eee", color: receiptType === "zarlagiin" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer", marginRight: "8px" }}>Зарлагын баримт
                   </button><button onClick={() => setReceiptType("nehemjleh")} style={{ background: receiptType === "nehemjleh" ? "#e81c1c" : "#eee", color: receiptType === "nehemjleh" ? "#fff" : "#111", padding: "8px 16px", borderRadius: "4px", border: "none", cursor: "pointer" }}>Нэхэмжлэх</button></div>
-                <div className="no-print flex gap-2 mb-2"><button onClick={() => setAddNoat(!addNoat)} style={{ background: addNoat ? "#e81c1c" : "#eee", color: addNoat ? "#fff" : "#111", padding: "6px 16px", borderRadius: "4px", border: "none", cursor: "pointer" }}>NOAT {addNoat ? "ON" : "OFF"}</button></div>
+                <div className="no-print flex gap-2 mb-2"><button onClick={() => setAddNoat(!addNoat)} style={{ background: addNoat ? "#e81c1c" : "#eee", color: addNoat ? "#fff" : "#111", padding: "6px 16px", borderRadius: "4px", border: "none", cursor: "pointer" }}>НӨАТ {addNoat ? "ON" : "OFF"}</button></div>
                 <div className="no-print flex gap-3 mb-4">
                   <button onClick={handleSell} disabled={saving} className="px-6 py-2 rounded text-sm font-medium disabled:opacity-50" style={{ background: 'var(--accent)', color: '#fff' }}>
                     {saving ? 'Хадгалж байна...' : '✓ Худалдах & Хэвлэх'}
