@@ -37,7 +37,11 @@ export default function Checkout() {
     const customerContact = buyerType === 'company'
       ? `${companyPhone} | Рег: ${companyReg}`
       : contact
-
+    // Save customer
+    await supabase.from('customers').upsert({
+      name: buyerType === 'company' ? companyName : name,
+      phone: buyerType === 'company' ? companyPhone : contact,
+    }, { onConflict: 'phone' })
     const { error } = await supabase.from('orders').insert({
       customer_name: customerName,
       customer_contact: customerContact,

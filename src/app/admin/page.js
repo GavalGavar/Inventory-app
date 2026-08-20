@@ -267,6 +267,7 @@ export default function Admin() {
               <Link href="/admin/bulk" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Бүтээгдэхүүн засах</Link>
               <Link href="/admin/dashboard" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Хянах самбар</Link>
               {role === 'admin' && (
+                <Link href="/admin/customers" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Худалдан авагчид</Link>
                 <Link href="/admin/companies" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Компаниуд</Link>
               )}
               <Link href="/admin/ledger" className="px-4 py-2 rounded text-sm font-medium" style={{ border: '0.5px solid var(--border)', color: 'var(--foreground)' }}>Захиалгын түүх</Link>
