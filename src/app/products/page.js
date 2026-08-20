@@ -295,7 +295,7 @@ function ProductsInner() {
                 <div className="flex justify-between items-center">
                   {item.quantity > 0 ? (
                     <button
-                      onClick={() => addToCart(item)}
+                      onClick={() => { addToCart(item); window.location.href = '/checkout'; }}
                       className="text-sm font-medium px-3 py-1 rounded"
                       style={{ border: '0.5px solid var(--border)', color: 'var(--accent)' }}
                     >
