@@ -7,6 +7,7 @@ import Link from 'next/link'
 
 export default function Archive() {
   const [orders, setOrders] = useState([])
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     async function loadArchived() {
@@ -54,7 +55,8 @@ export default function Archive() {
 
           {orders.length > 0 && (
             <div className="flex flex-col gap-3 max-w-2xl">
-              {orders.map((order) => (
+            <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="p-2 rounded text-sm mb-2 w-full" style={{ background: "var(--card)", border: "0.5px solid var(--border)", color: "var(--foreground)" }} />
+              {orders.filter(o => o.customer_name?.toLowerCase().includes(search.toLowerCase()) || o.customer_contact?.includes(search)).map((order) => (
                 <div
                   key={order.id}
                   className="rounded p-4"
