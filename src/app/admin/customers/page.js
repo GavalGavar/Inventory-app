@@ -8,21 +8,34 @@ import Link from 'next/link'
 export default function Customers() {
   const [customers, setCustomers] = useState([])
   const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState('date')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadCustomers() {
-      const { data } = await supabase.from('customers').select().order('created_at', { ascending: false })
-      if (data) setCustomers(data)
+      const { data } = await supabase.from('customers').select()
+      const { data: orders } = await supabase.from('orders').select('customer_name, customer_contact, total')
+      if (data) {
+        const enriched = data.map(c => {
+          const customerOrders = orders?.filter(o => o.customer_contact === c.phone || o.customer_name === c.name) || []
+          return { ...c, orderCount: customerOrders.length, totalSpent: customerOrders.reduce((sum, o) => sum + (o.total || 0), 0) }
+        })
+        setCustomers(enriched)
+      }
       setLoading(false)
     }
     loadCustomers()
   }, [])
-
-  const filtered = customers.filter(c =>
+  const sorted = [...customers].sort((a, b) => {
+    if (sortBy === 'total') return (b.totalSpent || 0) - (a.totalSpent || 0)
+    if (sortBy === 'orders') return (b.orderCount || 0) - (a.orderCount || 0)
+    return new Date(b.created_at) - new Date(a.created_at)
+  })
+  const filtered = sorted.filter(c =>
     c.name?.toLowerCase().includes(search.toLowerCase()) ||
     c.phone?.includes(search)
   )
+
 
   return (
     <RequireAuth allowedRoles={['admin', 'sales_manager']}>
@@ -43,6 +56,11 @@ export default function Customers() {
           style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }}
         />
 
+        <div className="flex gap-2 mb-4">
+          <button onClick={() => setSortBy('date')} className="px-3 py-1 rounded text-xs font-medium" style={{ background: sortBy === 'date' ? 'var(--accent)' : 'var(--card)', color: sortBy === 'date' ? '#fff' : 'var(--foreground)', border: '0.5px solid var(--border)' }}>Огноогоор</button>
+          <button onClick={() => setSortBy('total')} className="px-3 py-1 rounded text-xs font-medium" style={{ background: sortBy === 'total' ? 'var(--accent)' : 'var(--card)', color: sortBy === 'total' ? '#fff' : 'var(--foreground)', border: '0.5px solid var(--border)' }}>Нийт дүнгээр</button>
+          <button onClick={() => setSortBy('orders')} className="px-3 py-1 rounded text-xs font-medium" style={{ background: sortBy === 'orders' ? 'var(--accent)' : 'var(--card)', color: sortBy === 'orders' ? '#fff' : 'var(--foreground)', border: '0.5px solid var(--border)' }}>Захиалгын тоогоор</button>
+        </div>
         {loading && <p style={{ color: 'var(--muted)' }}>Уншиж байна...</p>}
 
         {!loading && filtered.length === 0 && (
