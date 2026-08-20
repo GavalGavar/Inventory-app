@@ -19,6 +19,8 @@ export default function Checkout() {
   const [companyReg, setCompanyReg] = useState('')
   const [companyPhone, setCompanyPhone] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [photo, setPhoto] = useState(null)
+  const [photoUrl, setPhotoUrl] = useState(null)
   const [submitted, setSubmitted] = useState(false)
 
   async function handleSubmit(e) {
@@ -42,11 +44,23 @@ export default function Checkout() {
       name: buyerType === 'company' ? companyName : name,
       phone: buyerType === 'company' ? companyPhone : contact,
     }, { onConflict: 'phone' })
+    // Upload photo if exists
+    let uploadedPhotoUrl = null
+    if (photo) {
+      const fileName = Date.now() + '-' + photo.name
+      const { error: uploadError } = await supabase.storage.from('checkout-photos').upload(fileName, photo)
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage.from('checkout-photos').getPublicUrl(fileName)
+        uploadedPhotoUrl = urlData.publicUrl
+      }
+    }
+
     const { error } = await supabase.from('orders').insert({
       customer_name: customerName,
       customer_contact: customerContact,
       items: orderItems,
       total,
+      photo_url: uploadedPhotoUrl,
     })
 
     if (error) {
@@ -255,8 +269,12 @@ export default function Checkout() {
           </>
         )}
 
+        <div style={{ marginBottom: "16px" }}>
+          <label className="text-xs block mb-1" style={{ color: "var(--muted)" }}>Та өрөөний План зураг урт , Өргөнөө, таазнаас хэдэн см уналт хийх зураг оруулж өгнө үү.</label>
+          <input type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files[0])} className="p-2 rounded text-sm w-full" style={{ background: "var(--card)", border: "0.5px solid var(--border)", color: "var(--foreground)" }} />
+          {photo && <p className="text-xs mt-1" style={{ color: "var(--stock-text)" }}>photo selected</p>}
+        </div>
         <button
-          type="submit"
           disabled={submitting}
           className="py-2 rounded text-sm font-medium disabled:opacity-50"
           style={{ background: 'var(--accent)', color: '#fff' }}
