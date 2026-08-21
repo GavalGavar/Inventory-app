@@ -63,6 +63,7 @@ const LIGHT_SIZES = [
 
 function ProductsInner() {
   const [zoomImg, setZoomImg] = useState(null);
+  const [zoomItem, setZoomItem] = useState(null)
   const [showCategories, setShowCategories] = useState(false);
 
   const [items, setItems] = useState([])
@@ -123,7 +124,7 @@ function ProductsInner() {
   const currentSizes = categoryFilter === 1 ? CEILING_SIZES : categoryFilter === 2 ? LIGHT_SIZES : null
 
   return (
-    <div style={{ background: 'var(--background)', minHeight: '100vh' }} onContextMenu={(e) => e.preventDefault()}><style>{`img { pointer-events: none; user-select: none; -webkit-user-drag: none; }`}</style>
+    <div style={{ background: 'var(--background)', minHeight: '100vh' }} onContextMenu={(e) => e.preventDefault()}><style>{`img { user-select: none; -webkit-user-drag: none; }`}</style>
       {/* Header */}
       <div
         className="flex justify-between items-baseline px-6 py-4"
@@ -271,7 +272,7 @@ function ProductsInner() {
                   <img
                     src={item.image_url}
                     alt={item.name}
-                    className="w-full aspect-square object-cover rounded mb-2" onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }} onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }} onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }} onClick={() => setZoomImg(item.image_url)} style={{ cursor: "zoom-in" }}
+                    className="w-full aspect-square object-cover rounded mb-2" onClick={() => { console.log("clicked", item.name); setZoomItem(item); }} style={{ cursor: "zoom-in" }}
                   />
                 )}
                 {item.category_name && (
@@ -310,6 +311,22 @@ function ProductsInner() {
           </div>
         )}
       </div>
+      {zoomItem && (
+        <div onClick={() => setZoomItem(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--card)', borderRadius: '12px', maxWidth: '400px', width: '100%', overflow: 'hidden' }}>
+            {zoomItem.image_url && <img src={zoomItem.image_url} alt={zoomItem.name} style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', pointerEvents: 'none' }} />}
+            <div style={{ padding: '16px' }}>
+              <p style={{ fontWeight: 'bold', marginBottom: '8px', color: 'var(--foreground)' }}>{zoomItem.name}</p>
+              <p style={{ color: 'var(--accent)', marginBottom: '4px' }}>{zoomItem.unit_type === 'm.kv' ? '1м² = ' : '1ш = '}{zoomItem.price?.toLocaleString()} MNT</p>
+              <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '12px' }}>{zoomItem.quantity} үлдэгдэл</p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {zoomItem.quantity > 0 && <button onClick={() => { addToCart(zoomItem); setZoomItem(null); window.location.href='/checkout'; }} style={{ flex: 1, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '6px', padding: '10px', fontWeight: 'bold', cursor: 'pointer' }}>+ Сагсанд нэмэх</button>}
+                <button onClick={() => setZoomItem(null)} style={{ background: 'var(--card)', color: 'var(--muted)', border: '0.5px solid var(--border)', borderRadius: '6px', padding: '10px', cursor: 'pointer' }}>✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -58,24 +58,6 @@ export default function Orders() {
 
   }
 
-  async function moveToLoan(order) {
-    const confirmed = confirm('Move to loan?')
-    if (!confirmed) return
-    await supabase.from('loans').insert({
-      customer_name: order.customer_name,
-      customer_phone: order.customer_contact,
-      items: order.items,
-      total: order.total,
-      paid: 0,
-      status: 'unpaid',
-      note: 'From orders',
-    })
-    await supabase.from('orders').delete().eq('id', order.id)
-    setOrders(prev => prev.filter(o => o.id !== order.id))
-    setMessage('Moved to loan!')
-    setTimeout(() => setMessage(''), 3000)
-  }
-
   return (
     <RequireAuth allowedRoles={['admin', 'sales_manager']}>
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
@@ -108,8 +90,19 @@ export default function Orders() {
 
         {orders.length > 0 && (
           <div className="flex flex-col gap-3 max-w-2xl">
-            <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="p-2 rounded text-sm mb-2 w-full" style={{ background: "var(--card)", border: "0.5px solid var(--border)", color: "var(--foreground)" }} />
-            {orders.filter(o => o.customer_name?.toLowerCase().includes(search.toLowerCase()) || o.customer_contact?.includes(search)).map((order) => (
+                        <input type="text" placeholder="Хайх..." value={search} onChange={(e) => setSearch(e.target.value)} className="p-2 rounded text-sm mb-2 w-full" style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)' }} />
+            <input
+              type="text"
+              placeholder="Нэр эсвэл утасны дугаараар хайх..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="p-2 rounded text-sm mb-2"
+              style={{ background: 'var(--card)', border: '0.5px solid var(--border)', color: 'var(--foreground)', width: '100%' }}
+            />
+            {orders.filter(o => 
+              o.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
+              o.customer_contact?.includes(search)
+            ).map((order) => (
               <div
                 key={order.id}
                 className="rounded p-4"
@@ -138,7 +131,6 @@ export default function Orders() {
                       {returning === order.id ? 'Буцааж байна...' : '↩ Буцаах'}
                     </button>
                     <OrderStatusButton id={order.id} status={order.status} />
-                    <button onClick={() => moveToLoan(order)} className="text-xs font-medium px-3 py-1 rounded" style={{ border: '0.5px solid var(--border)', color: '#f59e0b', background: 'var(--card)' }}>Зээл болгох</button>
                     <OrderDeleteButton id={order.id} />
                   </div>
                 </div>
