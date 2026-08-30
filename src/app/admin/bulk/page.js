@@ -1,4 +1,5 @@
-﻿'use client'
+'use client'
+import * as XLSX from 'xlsx'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
@@ -26,6 +27,7 @@ export default function BulkEdit() {
   const [items, setItems] = useState([])
   const [photos, setPhotos] = useState({})
   const [saving, setSaving] = useState(false)
+  const [importing, setImporting] = useState(false)
   const [message, setMessage] = useState('')
   const [selected, setSelected] = useState([])
   const [search, setSearch] = useState('')
@@ -163,6 +165,34 @@ export default function BulkEdit() {
   const allSelected = filteredItems.length > 0 && selected.length === filteredItems.length
 
 
+
+  function exportToExcel() {
+    const data = items.map(item => ({ SKU: item.sku||'', Name: item.name||'', Price: item.price||0, Quantity: item.quantity||0, Category: item.category_name||'', Unit: item.unit_type||'' }))
+    const ws = XLSX.utils.json_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Items')
+    XLSX.writeFile(wb, 'taaz-items.xlsx')
+  }
+
+  async function importFromExcel(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    setImporting(true)
+    const reader = new FileReader()
+    reader.onload = async (evt) => {
+      const wb = XLSX.read(evt.target.result, { type: 'binary' })
+      const ws = wb.Sheets[wb.SheetNames[0]]
+      const data = XLSX.utils.sheet_to_json(ws)
+      for (const row of data) {
+        const match = items.find(i => i.sku === String(row.SKU) || i.name === row.Name)
+        if (match) await supabase.from('items').update({ name: row.Name||match.name, price: Number(row.Price)||match.price, quantity: Number(row.Quantity)||match.quantity }).eq('id', match.id)
+      }
+      setImporting(false)
+      window.location.reload()
+    }
+    reader.readAsBinaryString(file)
+  }
+
   return (
     <RequireAuth allowedRoles={['admin', 'sales_manager']}>
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
@@ -187,6 +217,8 @@ export default function BulkEdit() {
                 {deleting ? 'Устгаж байна...' : `${selected.length} бараа устгах`}
               </button>
             )}
+          <button onClick={exportToExcel} style={{ background: "#16a34a", color: "#fff", border: "none", borderRadius: "6px", padding: "8px 16px", cursor: "pointer", fontWeight: "500" }}>⬇ Excel татах</button>
+          <label style={{ background: "#2563eb", color: "#fff", borderRadius: "6px", padding: "8px 16px", cursor: "pointer", fontWeight: "500" }}>{importing?"Уншиж байна...":"⬆ Excel оруулах"}<input type="file" accept=".xlsx,.xls" onChange={importFromExcel} style={{ display: "none" }} /></label>
             <button
               onClick={saveAll}
               disabled={saving}
