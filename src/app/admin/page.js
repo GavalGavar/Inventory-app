@@ -59,26 +59,34 @@ const LIGHT_SIZES = [
 ]
 
 function calcSqmRows(orderItems) {
-  let totalSquare = 0, totalT = 0, totalL = 0, totalX = 0
-  orderItems.filter(i => i.unit_type === 'м.кв').forEach(item => {
+  const groups = {}
+  orderItems.filter(i => i.unit_type === 'm.kv' || i.unit_type === 'м.кв').forEach(item => {
     const qty = Number(item.qty)
     const name = item.name.toLowerCase()
+    let size = null, square = 0, t = 0, l = 0, x = 0
     if (name.includes('30x30') || name.includes('30х30')) {
-      totalSquare += Math.ceil(qty / 0.09); totalT += Math.ceil(qty); totalX += Math.ceil(qty) * 3
+      size = '30x30'; square = Math.ceil(qty / 0.09); t = Math.ceil(qty); x = t * 3
     } else if (name.includes('30x60') || name.includes('30х60')) {
-      totalSquare += Math.ceil(qty / 0.18)
-      const t = Math.ceil(qty * 0.54); totalT += t; totalL += Math.ceil(qty * 0.2); totalX += t * 3
+      size = '30x60'; square = Math.ceil(qty / 0.18); t = Math.ceil(qty * 0.54); l = Math.ceil(qty * 0.2); x = t * 3
     } else if (name.includes('60x60') || name.includes('60х60')) {
-      totalSquare += Math.ceil(qty / 0.36)
-      const t = Math.ceil(qty * 0.54); totalT += t; totalL += Math.ceil(qty * 0.2); totalX += t * 3
+      size = '60x60'; square = Math.ceil(qty / 0.36); t = Math.ceil(qty * 0.54); l = Math.ceil(qty * 0.2); x = t * 3
+    }
+    if (size) {
+      if (!groups[size]) groups[size] = { square: 0, t: 0, l: 0, x: 0 }
+      groups[size].square += square
+      groups[size].t += t
+      groups[size].l += l
+      groups[size].x += x
     }
   })
-  return [
-    { symbol: '\u25A1', qty: totalSquare },
-    { symbol: 'T', qty: totalT },
-    { symbol: 'L', qty: totalL },
-    { symbol: 'X', qty: totalX },
-  ]
+  const rows = []
+  Object.entries(groups).forEach(([size, vals]) => {
+    rows.push({ symbol: size + ' □', qty: vals.square })
+    rows.push({ symbol: size + ' T', qty: vals.t })
+    if (vals.l > 0) rows.push({ symbol: size + ' L', qty: vals.l })
+    rows.push({ symbol: size + ' X', qty: vals.x })
+  })
+  return rows
 }
 
 export default function Admin() {
