@@ -532,30 +532,30 @@ export default function Admin() {
                           <td style={{ border: '1px solid black', padding: '8px' }}></td>
                         </tr>
                       ))}
-                      {(receipt.sqmRows || calcSqmRows(receipt.items)).map((row, i) => {
+                      {(() => {
+                        const sqmRows = receipt.sqmRows || calcSqmRows(receipt.items)
+                        const sizes = []
+                        sqmRows.forEach(row => {
+                          if (row.symbol.includes('□')) {
+                            sizes.push({ name: row.symbol.replace(' □',''), rows: [row.symbol.split(' ').pop()+'-'+row.qty+'ш'] })
+                          } else if (sizes.length > 0) {
+                            sizes[sizes.length-1].rows.push(row.symbol.split(' ').pop()+'-'+row.qty+'ш')
+                          }
+                        })
+                        const maxRows = Math.max(...sizes.map(s => s.rows.length), 0)
                         const startRow = Math.max(receipt.items.length, 16) + 1
-                        return (
-                          <tr key={`sqm-${i}`}>
-                            <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{startRow + i}</td>
-                            <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>
-                              {row.symbol}-<input
-                                value={row.qty}
-                                onChange={(e) => {
-                                  const newRows = [...(receipt.sqmRows || calcSqmRows(receipt.items))]
-                                  newRows[i] = { ...newRows[i], qty: e.target.value }
-                                  setReceipt({ ...receipt, sqmRows: newRows })
-                                }}
-                                style={{ width: '50px', border: 'none', outline: 'none', fontWeight: 'bold', fontSize: '0.75rem' }}
-                              />ш
-                            </td>
+                        return Array.from({ length: maxRows }, (_, ri) => (
+                          <tr key={'s'+ri}>
+                            <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{startRow + ri}</td>
+                            <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>{ri===0&&sizes[0]?<><b>{sizes[0].name}</b> </>:''}{sizes[0]?.rows[ri]}</td>
                             <td style={{ border: '1px solid black', padding: '3px' }}></td>
                             <td style={{ border: '1px solid black', padding: '3px' }}></td>
-                            <td style={{ border: '1px solid black', padding: '3px' }}></td>
-                            <td style={{ border: '1px solid black', padding: '3px' }}></td>
+                            <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>{ri===0&&sizes[1]?<><b>{sizes[1].name}</b> </>:''}{sizes[1]?.rows[ri]}</td>
+                            <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>{ri===0&&sizes[2]?<><b>{sizes[2].name}</b> </>:''}{sizes[2]?.rows[ri]}</td>
                             <td style={{ border: '1px solid black', padding: '3px' }}></td>
                           </tr>
-                        )
-                      })}
+                        ))
+                      })()}
                       <tr>
                         <td colSpan={6} style={{ border: '1px solid black', padding: '3px', textAlign: 'center', fontWeight: 'bold' }}>Дүн</td>
                         <td style={{ border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold' }}>{receipt.total.toLocaleString()}</td>

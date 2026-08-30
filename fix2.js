@@ -2,45 +2,37 @@
 let c = fs.readFileSync('src/app/admin/page.js', 'utf8');
 const lines = c.split('\n');
 
-// Find start and end of calcSqmRows function
-const startIdx = lines.findIndex(l => l.includes('function calcSqmRows'));
-const endIdx = lines.findIndex((l, i) => i > startIdx && l === '}');
-console.log('function lines:', startIdx + 1, 'to', endIdx + 1);
+const startIdx = lines.findIndex(l => l.includes('{(() => {') && lines[lines.indexOf(l)+1]?.includes('sqmRows'));
+const endIdx = lines.findIndex((l, i) => i > startIdx && l.trim() === '})()}');
+console.log('section:', startIdx+1, 'to', endIdx+1);
 
-// Replace with new function that separates by size
-const newFn = [
-  "function calcSqmRows(orderItems) {\r",
-  "  const groups = {}\r",
-  "  orderItems.filter(i => i.unit_type === 'm.kv' || i.unit_type === '\u043c.\u043a\u0432').forEach(item => {\r",
-  "    const qty = Number(item.qty)\r",
-  "    const name = item.name.toLowerCase()\r",
-  "    let size = null, square = 0, t = 0, l = 0, x = 0\r",
-  "    if (name.includes('30x30') || name.includes('30\u044530')) {\r",
-  "      size = '30x30'; square = Math.ceil(qty / 0.09); t = Math.ceil(qty); x = t * 3\r",
-  "    } else if (name.includes('30x60') || name.includes('30\u044560')) {\r",
-  "      size = '30x60'; square = Math.ceil(qty / 0.18); t = Math.ceil(qty * 0.54); l = Math.ceil(qty * 0.2); x = t * 3\r",
-  "    } else if (name.includes('60x60') || name.includes('60\u044560')) {\r",
-  "      size = '60x60'; square = Math.ceil(qty / 0.36); t = Math.ceil(qty * 0.54); l = Math.ceil(qty * 0.2); x = t * 3\r",
-  "    }\r",
-  "    if (size) {\r",
-  "      if (!groups[size]) groups[size] = { square: 0, t: 0, l: 0, x: 0 }\r",
-  "      groups[size].square += square\r",
-  "      groups[size].t += t\r",
-  "      groups[size].l += l\r",
-  "      groups[size].x += x\r",
-  "    }\r",
-  "  })\r",
-  "  const rows = []\r",
-  "  Object.entries(groups).forEach(([size, vals]) => {\r",
-  "    rows.push({ symbol: size + ' \u25A1', qty: vals.square })\r",
-  "    rows.push({ symbol: size + ' T', qty: vals.t })\r",
-  "    if (vals.l > 0) rows.push({ symbol: size + ' L', qty: vals.l })\r",
-  "    rows.push({ symbol: size + ' X', qty: vals.x })\r",
-  "  })\r",
-  "  return rows\r",
-  "}\r"
+const newSection = [
+  "                      {(() => {\r",
+  "                        const sqmRows = receipt.sqmRows || calcSqmRows(receipt.items)\r",
+  "                        const sizes = []\r",
+  "                        sqmRows.forEach(row => {\r",
+  "                          if (row.symbol.includes('\u25A1')) {\r",
+  "                            sizes.push({ name: row.symbol.replace(' \u25A1',''), rows: [row.symbol.split(' ').pop()+'-'+row.qty+'\u0448'] })\r",
+  "                          } else if (sizes.length > 0) {\r",
+  "                            sizes[sizes.length-1].rows.push(row.symbol.split(' ').pop()+'-'+row.qty+'\u0448')\r",
+  "                          }\r",
+  "                        })\r",
+  "                        const maxRows = Math.max(...sizes.map(s => s.rows.length), 0)\r",
+  "                        const startRow = Math.max(receipt.items.length, 16) + 1\r",
+  "                        return Array.from({ length: maxRows }, (_, ri) => (\r",
+  "                          <tr key={'s'+ri}>\r",
+  "                            <td style={{ border: '1px solid black', padding: '3px', textAlign: 'center' }}>{startRow + ri}</td>\r",
+  "                            <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>{ri===0&&sizes[0]?<><b>{sizes[0].name}</b> </>:''}{sizes[0]?.rows[ri]}</td>\r",
+  "                            <td style={{ border: '1px solid black', padding: '3px' }}></td>\r",
+  "                            <td style={{ border: '1px solid black', padding: '3px' }}></td>\r",
+  "                            <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>{ri===0&&sizes[1]?<><b>{sizes[1].name}</b> </>:''}{sizes[1]?.rows[ri]}</td>\r",
+  "                            <td style={{ border: '1px solid black', padding: '3px', fontWeight: 'bold' }}>{ri===0&&sizes[2]?<><b>{sizes[2].name}</b> </>:''}{sizes[2]?.rows[ri]}</td>\r",
+  "                            <td style={{ border: '1px solid black', padding: '3px' }}></td>\r",
+  "                          </tr>\r",
+  "                        ))\r",
+  "                      })()}\r"
 ];
 
-lines.splice(startIdx, endIdx - startIdx + 1, ...newFn);
+lines.splice(startIdx, endIdx - startIdx + 1, ...newSection);
 fs.writeFileSync('src/app/admin/page.js', lines.join('\n'), 'utf8');
-console.log('done:', lines.join('\n').includes('groups[size]'));
+console.log('done:', lines.join('\n').includes("sizes[1]?.rows[ri]"));
