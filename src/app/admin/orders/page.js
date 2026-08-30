@@ -64,6 +64,7 @@ export default function Orders() {
     await supabase.from('loans').insert({
       customer_name: order.customer_name,
       customer_phone: order.customer_contact,
+                    {order.photo_url && <img src={order.photo_url} alt="customer photo" style={{ width: '100%', maxWidth: '200px', borderRadius: '6px', marginTop: '8px', cursor: 'pointer' }} onClick={() => window.open(order.photo_url, '_blank')} />}
       items: order.items,
       total: order.total,
       paid: 0,

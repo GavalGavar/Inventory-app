@@ -64,6 +64,7 @@ const LIGHT_SIZES = [
 function ProductsInner() {
   const [zoomImg, setZoomImg] = useState(null);
   const [zoomItem, setZoomItem] = useState(null)
+  const [showCart, setShowCart] = useState(false)
   const [showCategories, setShowCategories] = useState(false);
 
   const [items, setItems] = useState([])
@@ -71,7 +72,7 @@ function ProductsInner() {
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState(null)
   const [sizeFilter, setSizeFilter] = useState(null)
-  const { cart, addToCart, total } = useCart()
+  const { cart, addToCart, removeFromCart, updateQty, total } = useCart()
   const searchParams = useSearchParams()
   useEffect(() => {
     const cat = searchParams.get('category')
@@ -296,7 +297,7 @@ function ProductsInner() {
                 <div className="flex justify-between items-center">
                   {item.quantity > 0 ? (
                     <button
-                      onClick={() => { addToCart(item); window.location.href = '/checkout'; }}
+                      onClick={() => { addToCart(item); setShowCart(true); }}
                       className="text-sm font-medium px-3 py-1 rounded"
                       style={{ border: '0.5px solid var(--border)', color: 'var(--accent)' }}
                     >
@@ -320,11 +321,34 @@ function ProductsInner() {
               <p style={{ color: 'var(--accent)', marginBottom: '4px' }}>{zoomItem.unit_type === 'm.kv' ? '1м² = ' : '1ш = '}{zoomItem.price?.toLocaleString()} MNT</p>
               <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '12px' }}>{zoomItem.quantity} үлдэгдэл</p>
               <div style={{ display: 'flex', gap: '8px' }}>
-                {zoomItem.quantity > 0 && <button onClick={() => { addToCart(zoomItem); setZoomItem(null); window.location.href='/checkout'; }} style={{ flex: 1, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '6px', padding: '10px', fontWeight: 'bold', cursor: 'pointer' }}>+ Сагсанд нэмэх</button>}
+                {zoomItem.quantity > 0 && <button onClick={() => { addToCart(zoomItem); setZoomItem(null); setShowCart(true); window.location.href='/checkout'; }} style={{ flex: 1, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '6px', padding: '10px', fontWeight: 'bold', cursor: 'pointer' }}>+ Сагсанд нэмэх</button>}
                 <button onClick={() => setZoomItem(null)} style={{ background: 'var(--card)', color: 'var(--muted)', border: '0.5px solid var(--border)', borderRadius: '6px', padding: '10px', cursor: 'pointer' }}>✕</button>
               </div>
             </div>
           </div>
+        </div>
+      )}
+      {showCart && (
+        <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: '400px', background: 'var(--background)', borderLeft: '2px solid var(--accent)', zIndex: 9999, overflowY: 'auto', padding: '24px', boxShadow: '-4px 0 20px rgba(0,0,0,0.2)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--foreground)' }}>Миний сагс</h2>
+            <button onClick={() => setShowCart(false)} style={{ color: 'var(--muted)', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+            {cart.map(item => (
+              <div key={item.id} style={{ background: 'var(--card)', border: '0.5px solid var(--border)', borderRadius: '8px', padding: '12px' }}>
+                <p style={{ fontWeight: '600', color: 'var(--foreground)', marginBottom: '6px', fontSize: '0.9rem' }}>{item.name}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type='number' min='0.01' step='0.01' value={item.qty} onChange={e => updateQty(item.id, parseFloat(e.target.value)||1)} style={{ width: '64px', padding: '4px 8px', border: '0.5px solid var(--border)', borderRadius: '4px', background: 'var(--background)', color: 'var(--foreground)', fontSize: '0.85rem' }} />
+                  <span style={{ color: 'var(--muted)', fontSize: '0.8rem', flex: 1 }}>{item.unit_type === 'm.kv' ? 'м²' : 'ш'} x {item.price.toLocaleString()} = {(item.price * item.qty).toLocaleString()} MNT</span>
+                  <button onClick={() => removeFromCart(item.id)} style={{ color: 'var(--soldout-text)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>x</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontWeight: '700', color: 'var(--foreground)', marginBottom: '16px', fontSize: '1.1rem' }}>Нийт: <span style={{ color: 'var(--accent)' }}>{total.toLocaleString()} MNT</span></p>
+          <a href='/checkout' style={{ display: 'block', background: 'var(--accent)', color: '#fff', textAlign: 'center', padding: '14px', borderRadius: '8px', fontWeight: '700', textDecoration: 'none', fontSize: '1rem', marginBottom: '12px' }}>Захиалах →</a>
+          <button onClick={() => setShowCart(false)} style={{ display: 'block', width: '100%', background: 'none', border: '0.5px solid var(--border)', borderRadius: '8px', padding: '10px', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.9rem' }}>Үргэлжлүүлэн үзэх</button>
         </div>
       )}
     </div>

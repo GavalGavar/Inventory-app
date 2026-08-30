@@ -99,22 +99,10 @@ export default function Checkout() {
     return (
       <div className="p-10" style={{ background: 'var(--background)', minHeight: '100vh' }}>
         <div className="pb-4 mb-6" style={{ borderBottom: '2px solid var(--accent)' }}>
-          <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
-            ЗАХИАЛГА ХҮЛЭЭН АВЛАА
-          </h1>
+          <h1 className="text-xl font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>ЗАХИАЛГА ХҮЛЭЭН АВЛАА</h1>
         </div>
-        <p className="text-sm mb-6" style={{ color: 'var(--muted)' }}>
-          Захиалгын төлбөрийг доорх дансанд шилжүүлнэ үү. Төлбөр хүлээн авсны дараа баталгаажуулах болно.
-        </p>
-        <div className="p-4 rounded max-w-sm" style={{ background: 'var(--card)', border: '0.5px solid var(--border)' }}>
-          <p className="text-sm font-medium mb-2" style={{ color: 'var(--accent)' }}>ТӨЛБӨРИЙН МЭДЭЭЛЭЛ</p>
-          <p className="text-sm" style={{ color: 'var(--foreground)' }}>Банк: Хаан банк</p>
-          <p className="text-sm" style={{ color: 'var(--foreground)' }}>Данс: 57000500 5301660856</p>
-          <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>Гүйлгээний утга: Нэрээ бичнэ үү</p>
-        </div>
-        <Link href="/products" style={{ display: 'inline-block', marginTop: '24px', color: 'var(--accent)', textDecoration: 'none', fontSize: '0.9rem' }}>
-          ← Бүтээгдэхүүн үзэх
-        </Link>
+        <p style={{ color: 'var(--foreground)', fontSize: '1rem', marginBottom: '24px' }}>Та худалдааны зөвлөхтэй холбогдож захиалгаа баталгаажуулна уу.</p>
+        <a href="/products" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.9rem' }}>← Бүтээгдэхүүн үзэх</a>
       </div>
     )
   }
